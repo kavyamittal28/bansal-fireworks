@@ -184,7 +184,7 @@ export default function AdminLoginPage() {
           </div>
 
           <p className="text-center text-gray-400 text-xs mt-6">
-            © 2024 Bansal Fireworks. All rights reserved. Professional Grade Pyrotechnics.
+            © 2026 Bansal Fireworks. All rights reserved. Professional Grade Pyrotechnics.
           </p>
         </div>
       </div>

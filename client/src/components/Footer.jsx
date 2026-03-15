@@ -114,7 +114,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8">
-          <p className="text-gray-400 text-xs">© 2024 Bansal Fireworks. All rights reserved.</p>
+          <p className="text-gray-400 text-xs">© 2026 Bansal Fireworks. All rights reserved.</p>
           <nav aria-label="Footer legal links">
             <ul className="flex gap-3 sm:gap-6 list-none">
               {['Terms of Service', 'Privacy Policy', 'Refund Policy'].map(l => (
