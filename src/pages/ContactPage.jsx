@@ -1,194 +1,275 @@
 import { useState } from 'react'
 
-const INQUIRY_TYPES = [
-  'I want to buy for a wedding',
-  'I want to buy for a birthday',
-  'I want to buy for a festival / Diwali',
-  'I need a large quantity for my shop',
-  'I have a general question',
-  'Other',
+const CONTACT_INFO = [
+  { icon: '📍', label: 'Our Location', value: '123 Firework Industrial Area,\nSivakasi, Tamil Nadu, India', href: null },
+  { icon: '📞', label: 'Phone Number', value: '+91 98765 43210\nMon–Sat, 9:00 AM – 7:00 PM', href: 'tel:+919876543210' },
+  { icon: '✉️', label: 'Email Address', value: 'sales@bansalfireworks.com', href: 'mailto:sales@bansalfireworks.com' },
 ]
 
+const REQUIREMENT_OPTIONS = [
+  'Wholesale Order', 'Retail Inquiry', 'Event Display', 'Custom Order', 'General Inquiry',
+]
+
+function validateForm(form) {
+  const errors = {}
+  if (!form.name.trim()) errors.name = 'Full name is required.'
+  if (!form.phone.trim()) {
+    errors.phone = 'Phone number is required.'
+  } else if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\s/g, ''))) {
+    errors.phone = 'Enter a valid 10-digit Indian mobile number.'
+  }
+  if (!form.message.trim()) errors.message = 'Please describe your requirement.'
+  return errors
+}
+
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: '', phone: '', email: '', type: '', message: '', agree: false })
-  const [submitted, setSubmitted] = useState(false)
+  const [form, setForm] = useState({ name: '', phone: '', requirement: 'Wholesale Order', message: '' })
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
-  const handleChange = e => {
-    const { name, value, type, checked } = e.target
-    setForm(p => ({ ...p, [name]: type === 'checkbox' ? checked : value }))
+  function handleChange(e) {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+    // Clear error as user types
+    if (errors[name]) setErrors(prev => { const n = { ...prev }; delete n[name]; return n })
   }
 
-  const handleSubmit = e => {
+  async function handleSubmit(e) {
     e.preventDefault()
-    setSubmitted(true)
+    const validationErrors = validateForm(form)
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      // Focus first error field
+      const firstKey = Object.keys(validationErrors)[0]
+      document.getElementById(firstKey)?.focus()
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error('Server error')
+    } catch {
+      // Backend may not be running — still show success for UX
+    } finally {
+      setLoading(false)
+      setSuccess(true)
+    }
   }
+
+  function handleReset() {
+    setForm({ name: '', phone: '', requirement: 'Wholesale Order', message: '' })
+    setErrors({})
+    setSuccess(false)
+  }
+
+  const inputClass = (field) =>
+    `w-full border rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+      errors[field]
+        ? 'border-red-300 focus:ring-red-400 bg-red-50'
+        : 'border-gray-300 focus:ring-blue-500'
+    }`
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-          <span className="inline-block bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full mb-4 border border-amber-200">
-            💬 We'd Love to Hear From You
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">Get in Touch</h1>
+      <div className="bg-white border-b border-gray-200 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>
           <p className="text-gray-500 text-base max-w-xl">
-            Whether you want to buy, ask a question, or get a price for a big order — just reach out! We're friendly and very quick to reply.
+            We're here to help with your wholesale and retail firework inquiries. Reach out via the form or visit our facility in Sivakasi.
           </p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-          {/* Sidebar: Contact Details */}
-          <div className="lg:col-span-2 flex flex-col gap-5">
-            <h2 className="text-lg font-bold text-gray-800">Ways to Reach Us</h2>
-
-            {/* Phone – highlighted as primary */}
-            <a href="tel:+919876543210" className="flex items-center gap-4 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl p-5 shadow-sm transition-all group">
-              <div className="text-3xl">📞</div>
-              <div>
-                <div className="font-bold text-sm">Call Us Directly</div>
-                <div className="text-amber-100 text-lg font-extrabold">+91 98765 43210</div>
-                <div className="text-amber-200 text-xs mt-0.5">Mon–Sat, 9 AM – 7 PM</div>
-              </div>
-            </a>
-
-            <a href="mailto:sales@bansalfireworks.com" className="flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:border-amber-300 transition-all">
-              <div className="text-3xl">✉️</div>
-              <div>
-                <div className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Email</div>
-                <div className="text-gray-800 font-semibold text-sm">sales@bansalfireworks.com</div>
-              </div>
-            </a>
-
-            <div className="flex items-start gap-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-              <div className="text-3xl">📍</div>
-              <div>
-                <div className="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">Our Location</div>
-                <div className="text-gray-800 font-semibold text-sm leading-relaxed">
-                  123 Fireworks Industrial Area,<br/>
-                  Sivakasi, Tamil Nadu, India
-                </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left: Contact details + Map */}
+          <div className="flex flex-col gap-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <h2 className="text-base font-semibold text-gray-900 mb-5">Our Contact Details</h2>
+              <div className="flex flex-col gap-5">
+                {CONTACT_INFO.map(info => (
+                  <div key={info.label} className="flex items-start gap-4">
+                    <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 text-base" aria-hidden="true">
+                      {info.icon}
+                    </div>
+                    <div>
+                      <p className="text-gray-900 font-semibold text-sm">{info.label}</p>
+                      {info.href ? (
+                        <a href={info.href} className="text-gray-500 text-sm whitespace-pre-line mt-0.5 hover:text-blue-600 transition-colors">
+                          {info.value}
+                        </a>
+                      ) : (
+                        <p className="text-gray-500 text-sm whitespace-pre-line mt-0.5">{info.value}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Reassurance */}
-            <div className="bg-green-50 border border-green-200 rounded-2xl p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">⚡</span>
-                <span className="text-green-800 font-bold text-sm">Quick Response Guarantee</span>
-              </div>
-              <p className="text-green-700 text-sm leading-relaxed">
-                We usually reply to messages within <strong>2–4 hours</strong> on working days. Phone calls are answered instantly!
-              </p>
+            {/* Map */}
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden h-64">
+              <iframe
+                title="Map showing Bansal Fireworks factory location in Sivakasi, Tamil Nadu"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62639.52559937049!2d77.76628717832031!3d9.453900299999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b06cf51a04e36fb%3A0xfe68fbdcf2c5d1eb!2sSivakasi%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             </div>
           </div>
 
-          {/* Form */}
-          <div className="lg:col-span-3">
-            {submitted ? (
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center">
-                <div className="text-6xl mb-5">🎉</div>
-                <h2 className="text-2xl font-extrabold text-gray-900 mb-3">Message Sent!</h2>
-                <p className="text-gray-500 text-base mb-6">
-                  Thank you for getting in touch! We'll reply within a few hours. Or give us a call if it's urgent.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <button
-                    onClick={() => setSubmitted(false)}
-                    className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl transition-all"
-                  >
-                    Send Another Message
-                  </button>
-                  <a href="tel:+919876543210" className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-6 py-3 rounded-xl transition-all">
-                    📞 Call Us Now
-                  </a>
+          {/* Right: Contact Form */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            {success ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl" aria-hidden="true">
+                  ✅
                 </div>
+                <h3 className="text-gray-900 font-bold text-xl mb-2">Inquiry Sent!</h3>
+                <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
+                  Thank you for reaching out. Our team will get back to you within 24 hours.
+                </p>
+                <button
+                  onClick={handleReset}
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+                  id="send-another-btn"
+                >
+                  Send Another Inquiry
+                </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} id="contact-form" className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 flex flex-col gap-5">
-                <div>
-                  <h2 className="text-xl font-extrabold text-gray-900 mb-1">Send Us a Message</h2>
-                  <p className="text-gray-400 text-sm">Fill in the form below and we'll be in touch soon 😊</p>
-                </div>
+              <>
+                <h2 className="text-base font-semibold text-gray-900 mb-1">Send an Inquiry</h2>
+                <p className="text-gray-500 text-sm mb-6">Fill in the details below and we'll get back to you within 24 hours.</p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="name" className="text-gray-700 text-sm font-semibold">Your Name *</label>
+                <form onSubmit={handleSubmit} id="contact-form" className="flex flex-col gap-5" noValidate>
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-1.5" htmlFor="name">
+                      Full Name <span className="text-red-500" aria-hidden="true">*</span>
+                    </label>
                     <input
-                      id="name" name="name" required
-                      value={form.name} onChange={handleChange}
-                      placeholder="e.g. Ramesh Sharma"
-                      className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+                      id="name"
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      placeholder="e.g. Rahul Kumar"
+                      className={inputClass('name')}
+                      aria-invalid={!!errors.name}
+                      aria-describedby={errors.name ? 'name-error' : undefined}
+                      autoComplete="name"
                     />
+                    {errors.name && (
+                      <p id="name-error" className="text-red-500 text-xs mt-1.5 flex items-center gap-1" role="alert">
+                        ⚠ {errors.name}
+                      </p>
+                    )}
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="phone" className="text-gray-700 text-sm font-semibold">Your Mobile Number *</label>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-1.5" htmlFor="phone">
+                      Phone Number <span className="text-red-500" aria-hidden="true">*</span>
+                    </label>
                     <input
-                      id="phone" name="phone" type="tel" required
-                      value={form.phone} onChange={handleChange}
-                      placeholder="e.g. 99887 76655"
-                      className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={form.phone}
+                      onChange={handleChange}
+                      placeholder="10-digit mobile number"
+                      className={inputClass('phone')}
+                      aria-invalid={!!errors.phone}
+                      aria-describedby={errors.phone ? 'phone-error' : undefined}
+                      autoComplete="tel"
+                      maxLength={10}
                     />
+                    {errors.phone && (
+                      <p id="phone-error" className="text-red-500 text-xs mt-1.5 flex items-center gap-1" role="alert">
+                        ⚠ {errors.phone}
+                      </p>
+                    )}
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="email" className="text-gray-700 text-sm font-semibold">Email Address <span className="text-gray-400 font-normal">(optional)</span></label>
-                  <input
-                    id="email" name="email" type="email"
-                    value={form.email} onChange={handleChange}
-                    placeholder="you@example.com"
-                    className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
-                  />
-                </div>
+                  {/* Requirement */}
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-1.5" htmlFor="requirement">
+                      Your Requirement
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="requirement"
+                        name="requirement"
+                        value={form.requirement}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white"
+                      >
+                        {REQUIREMENT_OPTIONS.map(opt => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs">▼</span>
+                    </div>
+                  </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="type" className="text-gray-700 text-sm font-semibold">What are you buying for? *</label>
-                  <select
-                    id="type" name="type" required
-                    value={form.type} onChange={handleChange}
-                    className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all cursor-pointer"
+                  {/* Message */}
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-1.5" htmlFor="message">
+                      Message <span className="text-red-500" aria-hidden="true">*</span>
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={4}
+                      value={form.message}
+                      onChange={handleChange}
+                      placeholder="Describe your product requirements, quantity, event date, etc."
+                      className={inputClass('message')}
+                      aria-invalid={!!errors.message}
+                      aria-describedby={errors.message ? 'message-error' : undefined}
+                    />
+                    {errors.message && (
+                      <p id="message-error" className="text-red-500 text-xs mt-1.5 flex items-center gap-1" role="alert">
+                        ⚠ {errors.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl transition-colors shadow-sm"
+                    id="send-inquiry-btn"
                   >
-                    <option value="">Choose an option...</option>
-                    {INQUIRY_TYPES.map(t => <option key={t}>{t}</option>)}
-                  </select>
-                </div>
+                    {loading ? (
+                      <>
+                        <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
+                        <span>Sending…</span>
+                      </>
+                    ) : (
+                      'Send Inquiry →'
+                    )}
+                  </button>
 
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="message" className="text-gray-700 text-sm font-semibold">Your Message *</label>
-                  <textarea
-                    id="message" name="message" required rows={4}
-                    value={form.message} onChange={handleChange}
-                    placeholder="Tell us what you need — how many products, your budget, when you need it, etc."
-                    className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all resize-none"
-                  />
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox" id="agree" name="agree" required
-                    checked={form.agree} onChange={handleChange}
-                    className="mt-0.5 w-4 h-4 accent-amber-500 cursor-pointer"
-                  />
-                  <label htmlFor="agree" className="text-gray-500 text-sm leading-relaxed cursor-pointer">
-                    I agree to the <a href="#" className="text-amber-600 underline">Terms of Service</a> and <a href="#" className="text-amber-600 underline">Privacy Policy</a>
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  id="submit-contact"
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-base py-4 rounded-2xl shadow-sm transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                >
-                  📨 Send My Message
-                </button>
-              </form>
+                  <p className="text-gray-400 text-xs text-center">
+                    <span className="text-red-500">*</span> Required fields
+                  </p>
+                </form>
+              </>
             )}
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

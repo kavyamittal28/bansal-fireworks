@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #d97706;
-  --color-brand-light: #fef3c7;
-  --color-brand-dark: #b45309;
+  --color-brand: #2563eb;
+  --color-brand-light: #eff6ff;
+  --color-brand-dark: #1d4ed8;
   --font-family-sans: 'Space Grotesk', system-ui, sans-serif;
 }
 
@@ -19,5 +19,49 @@
   body {
     font-family: 'Space Grotesk', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    color: #111827;
+  }
+
+  /* Consistent focus ring for all interactive elements */
+  :focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Smooth transitions for interactive elements */
+  button, a {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+
+  /* Image loading */
+  img {
+    display: block;
   }
 }
+
+/* Fade-in animation for page sections */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+/* Toast notification */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
+.toast-enter { animation: slideInRight 0.3s ease forwards; }
+.toast-exit { animation: slideOutRight 0.3s ease forwards; }

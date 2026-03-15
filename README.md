@@ -1,17 +1,83 @@
-# React + Vite
+# Bansal Fireworks
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern e-commerce application for browsing and purchasing fireworks online. Built with React and Vite for a fast, responsive user experience.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Product Catalog**: Browse a wide selection of fireworks products
+- **Product Details**: View comprehensive information about each firework
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Fast Performance**: Built with Vite for lightning-fast development and production builds
+- **Modern UI**: Clean and intuitive user interface
 
-## React Compiler
+## Pages
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Home Page**: Landing page with featured products and welcome message
+- **Products Page**: Browse all available fireworks with filtering options
+- **Product Detail Page**: View detailed information about a specific product
+- **About Page**: Learn more about Bansal Fireworks
+- **Contact Page**: Get in touch with our team
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# bansal-fireworks
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository
+```bash
+git clone <repository-url>
+cd bansal-fireworks/client
+```
+
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Start the development server
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173`
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+This creates an optimized production build in the `dist` directory.
+
+### Project Structure
+
+```
+src/
+├── components/          # Reusable React components
+│   ├── Navbar.jsx      # Navigation bar component
+│   └── Footer.jsx      # Footer component
+├── pages/              # Page components for routing
+│   ├── HomePage.jsx
+│   ├── ProductsPage.jsx
+│   ├── ProductDetailPage.jsx
+│   ├── AboutPage.jsx
+│   └── ContactPage.jsx
+├── assets/             # Static assets (images, etc.)
+├── App.jsx             # Main App component
+├── main.jsx            # Application entry point
+└── index.css           # Global styles
+```
+
+## Technologies
+
+- **React**: UI library for building interactive interfaces
+- **Vite**: Fast build tool and development server
+- **ESLint**: Code quality and style enforcement
+
+## License
+
+All rights reserved © Bansal Fireworks

@@ -1,148 +1,276 @@
-import { useParams, Link } from 'react-router-dom'
+import { useState, useCallback } from 'react'
+import { Link, useParams } from 'react-router-dom'
 
-const PRODUCTS = {
-  1: { name: 'Classic Sparklers', emoji: '✨', category: 'Sparklers', price: '₹180', unit: 'per box (50 pcs)', minOrder: '10 boxes', brand: 'Bansal Classic', tag: '⭐ Favourite', desc: 'Traditional wire sparklers with a 45-second burn time. Perfect for birthday cakes, indoor celebrations, and family moments. Very easy and safe to use — just light and enjoy!', specs: [['Burn Time', '45 seconds'], ['Pack Size', '50 pieces'], ['Spark Colour', 'Warm Gold'], ['Best For', 'Birthdays & Cakes'], ['Safety Class', 'Class 1 (Safest)'], ['Net Weight', '250g']], safetyTip: 'Hold at arm\'s length. Don\'t hold near your face. Keep away from clothing and hair.' },
-  2: { name: 'Aerial Sky Shots', emoji: '🚀', category: 'Aerial Shows', price: '₹850', unit: 'per pack (6 pcs)', minOrder: '5 packs', brand: 'Bansal Pro', tag: '🔥 Wow Factor', desc: 'Spectacular multi-coloured explosions that burst high in the sky. 18 shots per unit reaching up to 40 metres. Truly unforgettable — the highlight of any wedding or festival.', specs: [['Number of Shots', '18 shots'], ['Maximum Height', '40 metres'], ['Burst Colours', 'Multi-colour'], ['Duration', 'About 30 seconds'], ['Best For', 'Weddings & Events'], ['Safety Class', 'Class 3']], safetyTip: 'Only use in open outdoor areas. Keep everyone at least 30 metres away. Never lean over the tube.' },
-  3: { name: 'Ground Spinners', emoji: '🌀', category: 'Ground Shows', price: '₹320', unit: 'per set (12 pcs)', minOrder: '8 sets', brand: 'Bansal Classic', tag: '✨ New', desc: 'Fast-spinning showers of colourful sparks at ground level. Perfect for garden parties and outdoor events. Kids and adults alike love watching them spin!', specs: [['Duration', '60 seconds'], ['Colours', 'Multi-colour'], ['Height', 'Ground level'], ['Pack Size', '12 pieces'], ['Best For', 'Garden Parties'], ['Safety Class', 'Class 1']], safetyTip: 'Place on a hard, flat surface. Keep away from dry grass or plants.' },
-  4: { name: 'Chakra Wheel', emoji: '🎡', category: 'Ground Shows', price: '₹220', unit: 'per wheel', minOrder: '20 units', brand: 'Bansal Classic', tag: null, desc: 'A beautiful spinning wheel of red and green stars. Simply nail it to a fence or wooden post and light it. Burns for a full 90 seconds of gorgeous colour.', specs: [['Duration', '90 seconds'], ['Colours', 'Red & Green'], ['Wheel Size', '30 cm'], ['How to Mount', 'Nail or post'], ['Best For', 'Garden Decor'], ['Safety Class', 'Class 1']], safetyTip: 'Mount firmly before lighting. Stand at least 5 metres away once lit.' },
-  5: { name: 'Giant Flower Pot', emoji: '🌸', category: 'Novelty', price: '₹390', unit: 'per unit', minOrder: '12 units', brand: 'Bansal Pro', tag: '💛 Great Value', desc: 'A giant golden sparks fountain that shoots up to 3 metres high. Gorgeous for photos and video. It stands on its own — just place it and light it!', specs: [['Duration', '75 seconds'], ['Spark Height', 'Up to 3 metres'], ['Colour', 'Warm Gold'], ['Standing', 'Self-standing'], ['Best For', 'Photos & Events'], ['Safety Class', 'Class 2']], safetyTip: 'Place on a stable, flat surface. Keep a 5-metre clear area around it.' },
-  6: { name: 'Green Hydro Bomb', emoji: '💚', category: 'Aerial Shows', price: '₹480', unit: 'per pack (4 pcs)', minOrder: '6 packs', brand: 'Bansal Pro', tag: '👍 Popular', desc: 'Green whistling bombs with a dramatic burst and waterfall effect. Great for creating an exciting sequence at any celebration.', specs: [['Duration', '5 seconds'], ['Colour', 'Bright Green'], ['Altitude', 'About 25 metres'], ['Effect', 'Whistle + Burst'], ['Pack Size', '4 pieces'], ['Safety Class', 'Class 3']], safetyTip: 'Must use in open outdoor areas. Minimum 20m clearance from people.' },
-  7: { name: 'Bullet Bomb Pack', emoji: '💥', category: 'Aerial Shows', price: '₹560', unit: 'per pack (10 pcs)', minOrder: '5 packs', brand: 'Bansal Pro', tag: null, desc: 'Powerful aerial shells that go up with a loud burst and shower down with silver stars. Makes a big impact at any outdoor celebration.', specs: [['Shells per Pack', '10 shells'], ['Altitude', 'About 30 metres'], ['Colour', 'Silver'], ['Best For', 'Outdoor Events'], ['Calibre', '50mm'], ['Safety Class', 'Class 3']], safetyTip: 'Outdoor use only. Need 30m safe distance from spectators.' },
-  8: { name: 'Sky Shot 12 Chimes', emoji: '🎇', category: 'Aerial Shows', price: '₹640', unit: 'per unit', minOrder: '4 units', brand: 'Bansal Pro', tag: '👍 Popular', desc: '12 beautiful aerial blasts with musical chime sounds and a glitter finale. One of our most-loved products — a guaranteed crowd-pleaser at any event.', specs: [['Number of Shots', '12 shots'], ['Duration', 'About 45 seconds'], ['Colours', 'Multi-colour'], ['Special Effect', 'Musical Chimes'], ['Best For', 'Weddings & Parties'], ['Safety Class', 'Class 3']], safetyTip: 'Open outdoor areas only. Keep 30m distance. Never stand above it.' },
+const PRODUCTS = [
+  {
+    id: 1, name: 'Classic Sparklers', category: 'Sparklers', price: 45, originalPrice: 60,
+    img: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=800&q=80',
+    brand: 'Standard Fireworks', sku: 'BF-SPARK-001', weight: '250g', duration: '45 seconds',
+    colors: 'Gold, Silver', safetyClass: 'F2', minAge: '12+',
+    description: 'Classic sparklers are the perfect companion for any celebration. Safe, vibrant, and suitable for all ages, these gold-and-silver wonders burn bright for 45 seconds. Available in trade packs for both retail and wholesale purposes.',
+    features: ['Internationally certified F2 safety rating', 'Gold and silver colour combination', 'Easy twist-wire handle for safe grip', 'Suitable for retail and wholesale trade']
+  },
+  {
+    id: 2, name: 'Aerial Sky Shots', category: 'Aerial Shows', price: 850, originalPrice: 1000,
+    img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
+    brand: 'Cock Brand', sku: 'BF-SKY-002', weight: '500g', duration: '90 seconds',
+    colors: 'Red, Blue, Gold', safetyClass: 'F3', minAge: '18+',
+    description: 'Spectacular aerial display with 12 chimes effect. A professional-grade firework designed for large open-air events and displays. Each shell reaches heights up to 50 metres, producing vivid color bursts.',
+    features: ['12 chimes aerial burst pattern', 'Professional F3 grade', 'High altitude burst up to 50m', 'Licensed use only — requires permit']
+  },
+  {
+    id: 3, name: 'Ground Spinners', category: 'Ground Shows', price: 320, originalPrice: 400,
+    img: 'https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=800&q=80',
+    brand: 'Bansal Fireworks', sku: 'BF-SPIN-003', weight: '150g', duration: '30 seconds',
+    colors: 'Red, Green', safetyClass: 'F1', minAge: '8+',
+    description: 'Colorful ground-level spinning showers. Safe and fun for family celebrations. Easy to set up with a built-in ground spike and provides a stunning visual effect for driveway and garden displays.',
+    features: ['Ground level spinning effect', 'Family-friendly F1 rating', 'Built-in ground spike for stability', 'Red and green colour wheel effect']
+  },
+]
+
+const RELATED = [
+  { id: 4, name: 'Blue Midnight Shot', price: 35, img: 'https://images.unsplash.com/photo-1576502200916-3808e07386a5?w=400&q=80', tag: 'NEW' },
+  { id: 5, name: 'Crimson Sky 250g',   price: 37, img: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&q=80', tag: 'NEW' },
+  { id: 6, name: 'Crimson Silver Pro', price: 620, img: 'https://images.unsplash.com/photo-1482160549825-59d1b23cb208?w=400&q=80', tag: null },
+  { id: 7, name: 'Olive Dragon 500g',  price: 890, img: 'https://images.unsplash.com/photo-1484321220551-69c4bb37a1dd?w=400&q=80', tag: null },
+]
+
+const TABS = ['Overview', 'Performance Guide', 'Shipping & Legal', 'Reviews (14)']
+
+// Mini toast notification
+function WishlistToast({ visible, saved }) {
+  if (!visible) return null
+  return (
+    <div className={`fixed bottom-6 right-6 z-50 bg-gray-900 text-white text-sm font-medium px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 ${visible ? 'toast-enter' : 'toast-exit'}`}>
+      {saved ? '❤️ Added to Wishlist' : '🤍 Removed from Wishlist'}
+    </div>
+  )
 }
-
-const RELATED_IDS = [1, 3, 5]
 
 export default function ProductDetailPage() {
   const { id } = useParams()
-  const p = PRODUCTS[parseInt(id)] || PRODUCTS[8]
+  const product = PRODUCTS.find(p => p.id === Number(id)) || PRODUCTS[0]
+  const allImages = [product.img, ...RELATED.slice(0, 3).map(r => r.img)]
+
+  const [activeTab, setActiveTab] = useState('Overview')
+  const [selectedImg, setSelectedImg] = useState(0)
+  const [wishlisted, setWishlisted] = useState(false)
+  const [toastVisible, setToastVisible] = useState(false)
+
+  const toggleWishlist = useCallback(() => {
+    const next = !wishlisted
+    setWishlisted(next)
+    setToastVisible(true)
+    setTimeout(() => setToastVisible(false), 2500)
+  }, [wishlisted])
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50">
+      <WishlistToast visible={toastVisible} saved={wishlisted} />
+
       {/* Breadcrumb */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
-          <nav className="flex items-center gap-1.5 text-sm text-gray-400">
-            <Link to="/" className="hover:text-amber-600 transition-colors">Home</Link>
-            <span>›</span>
-            <Link to="/products" className="hover:text-amber-600 transition-colors">Products</Link>
-            <span>›</span>
-            <span className="text-gray-700 font-medium">{p.name}</span>
+      <div className="bg-white border-b border-gray-200 py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-blue-600 transition-colors">Bansal Fireworks</Link>
+            <span aria-hidden="true">›</span>
+            <Link to="/products" className="hover:text-blue-600 transition-colors">Products</Link>
+            <span aria-hidden="true">›</span>
+            <span className="text-gray-900 font-medium" aria-current="page">{product.name}</span>
           </nav>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          {/* Visual */}
-          <div className="flex flex-col gap-5">
-            <div className="bg-amber-50 rounded-3xl h-72 flex items-center justify-center text-9xl border border-amber-100 shadow-sm">
-              {p.emoji}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Product top section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
+          {/* Image Gallery */}
+          <div>
+            <div className="rounded-2xl overflow-hidden bg-gray-900 h-72 sm:h-96 mb-4">
+              <img
+                src={allImages[selectedImg]}
+                alt={`${product.name} — view ${selectedImg + 1}`}
+                className="w-full h-full object-cover transition-opacity duration-200"
+                key={selectedImg}
+              />
             </div>
-            {/* Safety Tip */}
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 flex gap-4">
-              <span className="text-2xl flex-shrink-0">⚠️</span>
-              <div>
-                <p className="text-orange-800 font-bold text-sm mb-1">Safety Reminder</p>
-                <p className="text-orange-700 text-sm leading-relaxed">{p.safetyTip}</p>
-              </div>
+            {/* Thumbnails */}
+            <div className="flex gap-3" role="group" aria-label="Product image thumbnails">
+              {allImages.map((src, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImg(i)}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-150 ${
+                    i === selectedImg
+                      ? 'border-blue-600 ring-2 ring-blue-200'
+                      : 'border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-400'
+                  }`}
+                  aria-label={`View image ${i + 1}`}
+                  aria-pressed={i === selectedImg}
+                >
+                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Info */}
-          <div className="flex flex-col gap-5">
-            {p.tag && (
-              <span className="self-start bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full">
-                {p.tag}
-              </span>
-            )}
+          {/* Product Info */}
+          <div>
+            <span className="inline-flex items-center bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+              {product.category}
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+            <p className="text-gray-500 text-sm leading-relaxed mb-5">{product.description}</p>
 
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-1">{p.name}</h1>
-              <p className="text-amber-600 font-semibold text-sm uppercase tracking-wide mb-4">{p.category}</p>
-              <p className="text-gray-600 text-base leading-relaxed">{p.desc}</p>
+            {/* Price */}
+            <div className="flex items-baseline gap-3 mb-6">
+              <span className="text-3xl font-bold text-gray-900">₹{product.price}</span>
+              {product.originalPrice && (
+                <>
+                  <span className="text-gray-400 line-through text-sm">₹{product.originalPrice}</span>
+                  <span className="text-green-600 text-xs font-semibold bg-green-50 px-2 py-0.5 rounded">
+                    SAVE {Math.round((1 - product.price / product.originalPrice) * 100)}%
+                  </span>
+                </>
+              )}
             </div>
 
-            {/* Price Box */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center justify-between gap-4 shadow-sm">
-              <div>
-                <div className="text-3xl font-extrabold text-gray-900">{p.price}</div>
-                <div className="text-gray-400 text-sm">{p.unit}</div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-gray-500 mb-0.5">Minimum Order</div>
-                <div className="font-semibold text-gray-700 text-sm">{p.minOrder}</div>
-              </div>
-            </div>
-
-            {/* Badges */}
-            <div className="flex gap-2 flex-wrap">
-              <span className="flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-green-200">
-                ✅ Safety Certified
-              </span>
-              <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-blue-200">
-                📦 In Stock
-              </span>
-              <span className="flex items-center gap-1.5 bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-200">
-                ⚡ Brand: {p.brand}
-              </span>
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* CTA Buttons */}
+            <div className="flex flex-col gap-3 mb-6">
               <Link
                 to="/contact"
-                className="flex-1 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-2xl shadow-sm transition-all text-base"
-                id="request-quote-btn"
+                className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors shadow-sm"
+                id="send-bulk-inquiry-btn"
               >
-                📋 Ask for a Price Quote
+                📦 Send Bulk Order Inquiry
               </Link>
-              <a
-                href="tel:+919876543210"
-                className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-800 font-bold py-4 rounded-2xl border-2 border-gray-200 shadow-sm transition-all text-base"
-                id="call-about-product-btn"
+              <button
+                onClick={toggleWishlist}
+                className={`flex items-center justify-center gap-2 border font-medium py-3 rounded-xl transition-all ${
+                  wishlisted
+                    ? 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100'
+                    : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+                aria-pressed={wishlisted}
+                id="wishlist-btn"
               >
-                📞 Call to Order
-              </a>
+                {wishlisted ? '❤️ Saved to Wishlist' : '🤍 Save to Wishlist'}
+              </button>
+            </div>
+
+            {/* Key specs */}
+            <div className="grid grid-cols-2 gap-x-4 text-sm border border-gray-100 rounded-xl overflow-hidden">
+              {[
+                ['Brand', product.brand],
+                ['SKU', product.sku],
+                ['Weight', product.weight],
+                ['Duration', product.duration],
+                ['Safety Class', product.safetyClass],
+                ['Min. Age', product.minAge],
+              ].map(([label, val], i) => (
+                <div key={label} className={`flex justify-between items-center px-4 py-3 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                  <span className="text-gray-500">{label}</span>
+                  <span className="text-gray-900 font-semibold">{val}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Safety notice */}
+            <div className="mt-4 bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
+              <span className="text-blue-600 text-xl flex-shrink-0" aria-hidden="true">ℹ️</span>
+              <div>
+                <p className="text-blue-800 font-semibold text-sm">Safety & Legal Notice</p>
+                <p className="text-blue-600 text-xs mt-1 leading-relaxed">
+                  Some products require a valid explosives license. Please ensure you comply with local laws and regulations before purchase. Bansal Fireworks only ships to licensed dealers for Class F3 items.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Specs */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-12 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-            <h2 className="text-gray-700 font-bold text-sm uppercase tracking-wide">Quick Details</h2>
+        {/* Tabs */}
+        <div className="bg-white rounded-2xl border border-gray-200 mb-10 overflow-hidden">
+          <div className="flex border-b border-gray-200 overflow-x-auto" role="tablist">
+            {TABS.map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                role="tab"
+                aria-selected={activeTab === tab}
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                  activeTab === tab
+                    ? 'text-blue-600 border-blue-600 bg-blue-50'
+                    : 'text-gray-500 border-transparent hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3">
-            {p.specs.map(([k, v], i) => (
-              <div key={k} className={`p-5 ${i < p.specs.length - (p.specs.length % 3 === 0 ? 3 : p.specs.length % 3) ? 'border-b border-gray-100' : ''} ${(i + 1) % 3 !== 0 ? 'border-r border-gray-100' : ''}`}>
-                <div className="text-gray-400 text-xs font-semibold uppercase tracking-wide mb-1">{k}</div>
-                <div className="text-gray-800 font-semibold text-sm">{v}</div>
+          <div className="p-6" role="tabpanel">
+            {activeTab === 'Overview' && (
+              <div>
+                <p className="text-gray-600 text-sm leading-relaxed mb-5">{product.description}</p>
+                <ul className="space-y-3">
+                  {product.features.map(f => (
+                    <li key={f} className="flex items-start gap-3 text-gray-700 text-sm">
+                      <span className="text-blue-600 mt-0.5 flex-shrink-0 font-bold">✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
               </div>
+            )}
+            {activeTab === 'Performance Guide' && (
+              <div className="text-center py-10 text-gray-400">
+                <div className="text-4xl mb-3">📊</div>
+                <p className="text-sm">Performance data and charts coming soon.</p>
+              </div>
+            )}
+            {activeTab === 'Shipping & Legal' && (
+              <div className="text-sm text-gray-600 space-y-3">
+                <p>📦 <strong>Shipping:</strong> All orders ship from Sivakasi, Tamil Nadu within 3–5 business days.</p>
+                <p>⚖️ <strong>Legal:</strong> Check your state's regulations before ordering Class F2/F3 products.</p>
+                <p>🔒 <strong>Packaging:</strong> All items are packed in PESO-approved safety packaging.</p>
+              </div>
+            )}
+            {activeTab === 'Reviews (14)' && (
+              <div className="text-center py-10 text-gray-400">
+                <div className="text-4xl mb-3">⭐</div>
+                <p className="text-sm">Customer reviews will appear here shortly.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Related Products */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Related Products</h2>
+            <Link to="/products" className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">View Catalog →</Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {RELATED.map(r => (
+              <Link
+                key={r.id}
+                to={`/products/${r.id}`}
+                className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <div className="h-36 overflow-hidden bg-gray-100 relative">
+                  <img src={r.img} alt={r.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  {r.tag && (
+                    <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded">{r.tag}</span>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="text-gray-900 text-xs font-semibold">{r.name}</p>
+                  <p className="text-blue-600 text-xs mt-1 font-medium">₹{r.price}</p>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
-
-        {/* Related */}
-        <div>
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-6">You Might Also Like</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            {RELATED_IDS.map(rid => {
-              const rp = PRODUCTS[rid]
-              if (!rp || rid === parseInt(id)) return null
-              return (
-                <Link to={`/products/${rid}`} key={rid} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-4 p-4">
-                  <div className="bg-amber-50 w-14 h-14 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">{rp.emoji}</div>
-                  <div>
-                    <div className="text-gray-900 font-bold text-sm">{rp.name}</div>
-                    <div className="text-amber-600 font-extrabold text-base">{rp.price}</div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
       </div>
-    </main>
+    </div>
   )
 }
