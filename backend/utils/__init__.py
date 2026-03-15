@@ -1,8 +1,11 @@
 import asyncio
+import logging
 from typing import List
 import cloudinary.uploader
 from fastapi import UploadFile
 from models.product import MediaAsset
+
+logger = logging.getLogger(__name__)
 
 
 async def upload_file(
@@ -16,9 +19,13 @@ async def upload_file(
     """
     content = await file.read()
     if not content:
+        logger.warning("[cloudinary] Empty file skipped: %s", file.filename)
         return None
+
     content_type = file.content_type or ""
     resource_type = "video" if content_type.startswith("video/") else "image"
+
+    logger.info("[cloudinary] Uploading %s (%s, %d bytes)", file.filename, resource_type, len(content))
 
     loop = asyncio.get_running_loop()
 
@@ -31,7 +38,13 @@ async def upload_file(
             fetch_format="auto",
         )
 
-    result = await loop.run_in_executor(None, _upload)
+    try:
+        result = await loop.run_in_executor(None, _upload)
+    except Exception as e:
+        logger.error("[cloudinary] Upload FAILED for %s: %s", file.filename, e)
+        raise
+
+    logger.info("[cloudinary] Upload OK: %s -> %s", file.filename, result.get("secure_url", "?"))
 
     return MediaAsset(
         url=result["secure_url"],

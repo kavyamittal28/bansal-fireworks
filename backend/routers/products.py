@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional, Annotated
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from bson import ObjectId
@@ -6,6 +7,8 @@ from middleware.auth import get_current_user
 from database import get_db
 from models.product import MediaAsset
 from utils.cloudinary import upload_files, delete_assets
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["products"])
 CurrentUser = Annotated[dict, Depends(get_current_user)]
@@ -66,7 +69,8 @@ async def _handle_create(
     if valid_images:
         try:
             media = await upload_files(valid_images)
-        except Exception:
+        except Exception as e:
+            logger.error("[products] Image upload failed: %s", e)
             media = []
 
     media_list = [m.model_dump() for m in media] if media else [PLACEHOLDER_IMAGE]
