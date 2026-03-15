@@ -146,7 +146,7 @@ async def toggle_product_status(product_id: str, current_user: CurrentUser):
 
 
 @router.post(
-    "/api/admin/products",
+    "/api/admin/addproducts",
     status_code=status.HTTP_201_CREATED,
     summary="Create a product (frontend alias)",
     description="Identical to `POST /api/products`. Used by the React admin frontend. **Requires Bearer token.**",

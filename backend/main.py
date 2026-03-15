@@ -6,7 +6,7 @@ from fastapi.openapi.utils import get_openapi
 from config import settings
 from database import connect_db, close_db, get_db
 from cloudinary_config import init_cloudinary
-from routers import auth, products, brands, categories
+from routers import auth, products, brands, categories, contact
 import os
 import uvicorn
 
@@ -53,6 +53,7 @@ app.include_router(auth.router)
 app.include_router(products.router)
 app.include_router(brands.router)
 app.include_router(categories.router)
+app.include_router(contact.router)
 
 
 # ── Health ────────────────────────────────────────────────────────────────────

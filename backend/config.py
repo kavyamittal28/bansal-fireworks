@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     cloudinary_api_key: str
     cloudinary_api_secret: str
 
-    allowed_origins: str = "https://www.bansalfireworks.com/","https://bansalfireworks.com/"
+    allowed_origins: str = "https://www.bansalfireworks.com,https://bansalfireworks.com"
     app_env: str = "development"
 
     @property

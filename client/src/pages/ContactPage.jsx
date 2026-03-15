@@ -53,11 +53,11 @@ export default function ContactPage() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error('Server error')
+      setSuccess(true)
     } catch {
-      // Backend may not be running — still show success for UX
+      setErrors({ form: 'Something went wrong. Please try again or call us directly.' })
     } finally {
       setLoading(false)
-      setSuccess(true)
     }
   }
 
@@ -151,6 +151,12 @@ export default function ContactPage() {
               <>
                 <h2 className="text-base font-semibold text-gray-900 mb-1">Send an Inquiry</h2>
                 <p className="text-gray-500 text-sm mb-6">Fill in the details below and we'll get back to you within 24 hours.</p>
+
+                {errors.form && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-2" role="alert">
+                    {errors.form}
+                  </div>
+                )}
 
                 <form onSubmit={handleSubmit} id="contact-form" className="flex flex-col gap-5" noValidate>
                   {/* Full Name */}
