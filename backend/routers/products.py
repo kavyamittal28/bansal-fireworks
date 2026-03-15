@@ -59,7 +59,7 @@ async def _handle_create(
     db = get_db()
 
     PLACEHOLDER_IMAGE = {
-        "url": "https://res.cloudinary.com/demo/image/upload/v1/samples/ecommerce/placeholder.png",
+        "url": "https://www.bansalfireworks.com/placeholder.png",
         "public_id": "placeholder",
         "resource_type": "image",
     }
