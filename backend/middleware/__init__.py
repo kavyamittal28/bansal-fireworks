@@ -2,8 +2,8 @@ from typing import Optional
 from fastapi import Header, HTTPException, status
 import jwt
 from bson import ObjectId
-from ..config import settings
-from ..database import get_db
+from config import settings
+from database import get_db
 
 
 async def get_current_user(authorization: str = Header(...)) -> dict:

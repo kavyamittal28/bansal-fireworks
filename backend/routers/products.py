@@ -2,10 +2,10 @@ from typing import List, Optional, Annotated
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from bson import ObjectId
 from datetime import datetime, timezone
-from ..middleware.auth import get_current_user
-from ..database import get_db
-from ..models.product import MediaAsset
-from ..utils.cloudinary import upload_files, delete_assets
+from middleware.auth import get_current_user
+from database import get_db
+from models.product import MediaAsset
+from utils.cloudinary import upload_files, delete_assets
 
 router = APIRouter(tags=["products"])
 CurrentUser = Annotated[dict, Depends(get_current_user)]

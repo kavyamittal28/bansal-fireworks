@@ -2,10 +2,10 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from bson import ObjectId
 from datetime import datetime, timezone
-from ..middleware.auth import get_current_user
-from ..database import get_db
-from ..schemas.category import CategoryCreate, CategoryUpdate
-from ..utils.cloudinary import upload_file
+from middleware.auth import get_current_user
+from database import get_db
+from schemas.category import CategoryCreate, CategoryUpdate
+from utils.cloudinary import upload_file
 
 router = APIRouter(prefix="/api/categories", tags=["categories"])
 CurrentUser = Annotated[dict, Depends(get_current_user)]

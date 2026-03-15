@@ -1,5 +1,5 @@
 import cloudinary
-from .config import settings
+from config import settings
 
 
 def init_cloudinary() -> None:

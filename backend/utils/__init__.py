@@ -2,7 +2,7 @@ import asyncio
 from typing import List
 import cloudinary.uploader
 from fastapi import UploadFile
-from ..models.product import MediaAsset
+from models.product import MediaAsset
 
 
 async def upload_file(

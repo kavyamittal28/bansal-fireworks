@@ -3,9 +3,9 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, HTTPException, status
 import jwt
 import bcrypt
-from ..config import settings
-from ..database import get_db
-from ..schemas.auth import LoginRequest, TokenResponse
+from config import settings
+from database import get_db
+from schemas.auth import LoginRequest, TokenResponse
 
 router = APIRouter(tags=["auth"])
 

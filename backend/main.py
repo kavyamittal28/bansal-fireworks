@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from .config import settings
-from .database import connect_db, close_db, get_db
-from .cloudinary_config import init_cloudinary
-from .routers import auth, products, brands, categories
+from config import settings
+from database import connect_db, close_db, get_db
+from cloudinary_config import init_cloudinary
+from routers import auth, products, brands, categories
 import os
 import uvicorn
 
@@ -121,7 +121,8 @@ def custom_openapi():
     return app.openapi_schema
 
 
-app.openapi= custom_openapi
+app.openapi = custom_openapi
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Render sets $PORT dynamically
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)

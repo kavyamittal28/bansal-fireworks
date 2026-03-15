@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, List
-from ..models.product import MediaAsset
+from models.product import MediaAsset
 
 
 class ProductUpdate(BaseModel):
