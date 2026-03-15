@@ -65,3 +65,12 @@
 
 .toast-enter { animation: slideInRight 0.3s ease forwards; }
 .toast-exit { animation: slideOutRight 0.3s ease forwards; }
+
+/* Hide scrollbar for horizontal scroll rows */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

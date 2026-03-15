@@ -90,7 +90,13 @@ export default function AdminAddProductPage() {
     try {
       const token = localStorage.getItem('adminToken')
       const body = new FormData()
-      Object.entries(form).forEach(([k, v]) => body.append(k, v))
+      Object.entries(form).forEach(([k, v]) => {
+        if (k === 'stock' || k === 'market_price') {
+          if (v !== '' && v !== null && v !== undefined) body.append(k, v)
+        } else {
+          body.append(k, v)
+        }
+      })
       mediaFiles.filter(Boolean).forEach(f => body.append('images', f))
       const res = await fetch('/api/admin/products', {
         method: 'POST',

@@ -1,22 +1,5 @@
 import { Link } from 'react-router-dom'
-
-const PRODUCTS = [
-  {
-    id: 1, name: 'Classic Sparklers', category: 'Sparklers',
-    img: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80',
-    desc: 'The perfect companion for any celebration.'
-  },
-  {
-    id: 2, name: 'Aerial Sky Shots', category: 'Aerial Shows',
-    img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80',
-    desc: 'Spectacular pyrotechnic elements.'
-  },
-  {
-    id: 3, name: 'Ground Spinners', category: 'Ground Shows',
-    img: 'https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=400&q=80',
-    desc: 'Amazing ground-level spinning effects.'
-  },
-]
+import { useEffect, useState } from 'react'
 
 const WHY_CHOOSE = [
   {
@@ -37,6 +20,14 @@ const WHY_CHOOSE = [
 ]
 
 export default function HomePage() {
+  const [brands, setBrands] = useState([])
+  const [categories, setCategories] = useState([])
+
+  useEffect(() => {
+    fetch('/api/brands').then(r => r.json()).then(d => setBrands(Array.isArray(d) ? d : [])).catch(() => {})
+    fetch('/api/categories').then(r => r.json()).then(d => setCategories(Array.isArray(d) ? d : [])).catch(() => {})
+  }, [])
+
   return (
     <main className="min-h-screen bg-white">
       {/* ── Hero ── */}
@@ -78,43 +69,81 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Featured Collections ── */}
+      {/* ── Brands ── */}
       <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Featured Collections</h2>
-              <p className="text-gray-500 text-sm mt-1">Hand-picked premium selections from our catalog</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Our Brands</h2>
+              <p className="text-gray-500 text-sm mt-1">Trusted manufacturers we work with</p>
             </div>
-            <Link to="/products" className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors" id="view-all-link">
-              See All Items →
+            <Link to="/products" className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">
+              Browse All →
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {PRODUCTS.map(p => (
-              <Link
-                key={p.id}
-                to={`/products/${p.id}`}
-                className="group rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-200 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                id={`product-card-${p.id}`}
-              >
-                <div className="h-48 overflow-hidden bg-gray-100">
-                  <img
-                    src={p.img}
-                    alt={`${p.name} — ${p.category} fireworks`}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-4">
-                  <p className="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-1">{p.category}</p>
-                  <h3 className="text-gray-900 font-semibold text-base mb-1">{p.name}</h3>
-                  <p className="text-gray-500 text-sm">{p.desc}</p>
-                </div>
-              </Link>
-            ))}
+          {brands.length === 0 ? (
+            <div className="text-gray-400 text-sm text-center py-10">No brands added yet.</div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 scrollbar-hide">
+              {brands.map(brand => (
+                <Link
+                  key={brand.id}
+                  to={`/products?brand=${encodeURIComponent(brand.name)}`}
+                  className="group flex flex-col items-center gap-3 bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex-shrink-0 w-36"
+                >
+                  <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+                    {brand.image_url
+                      ? <img src={brand.image_url} alt={brand.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      : <span className="text-2xl">🏭</span>
+                    }
+                  </div>
+                  <p className="text-gray-900 font-semibold text-sm text-center leading-tight">{brand.name}</p>
+                  {brand.description && (
+                    <p className="text-gray-400 text-xs text-center line-clamp-2">{brand.description}</p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Categories ── */}
+      <section className="py-10 sm:py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Shop by Category</h2>
+              <p className="text-gray-500 text-sm mt-1">Find exactly what you're looking for</p>
+            </div>
+            <Link to="/products" className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">
+              View All →
+            </Link>
           </div>
+
+          {categories.length === 0 ? (
+            <div className="text-gray-400 text-sm text-center py-10">No categories added yet.</div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 scrollbar-hide">
+              {categories.map(cat => (
+                <Link
+                  key={cat.id}
+                  to={`/products?category=${encodeURIComponent(cat.name)}`}
+                  className="group relative rounded-2xl overflow-hidden bg-gray-200 flex-shrink-0 w-40 h-36 sm:w-48 sm:h-40 flex items-end hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  {cat.image_url
+                    ? <img src={cat.image_url} alt={cat.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    : <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-4xl">🎆</div>
+                  }
+                  <div className="relative w-full bg-gradient-to-t from-black/70 to-transparent px-3 py-3">
+                    <p className="text-white font-semibold text-sm">{cat.name}</p>
+                    {cat.description && <p className="text-white/70 text-xs truncate">{cat.description}</p>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

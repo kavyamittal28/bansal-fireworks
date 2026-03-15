@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 const SORT_OPTIONS = [
   { id: 'default', label: 'Default Order' },
@@ -9,6 +9,8 @@ const SORT_OPTIONS = [
 ]
 
 export default function ProductsPage() {
+  const [searchParams] = useSearchParams()
+
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState('')
@@ -17,8 +19,8 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState([])
 
   const [search, setSearch] = useState('')
-  const [selectedBrand, setSelectedBrand] = useState('all')
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [selectedBrand, setSelectedBrand] = useState(searchParams.get('brand') || 'all')
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || null)
   const [sortBy, setSortBy] = useState('default')
   const [sortOpen, setSortOpen] = useState(false)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
