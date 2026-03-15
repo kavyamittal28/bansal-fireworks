@@ -101,7 +101,7 @@ export default function ProductsPage() {
       {/* Wholesale CTA */}
       <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-100">
         <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center mb-3 text-white text-xs">📋</div>
-        <p className="text-gray-700 text-xs font-medium mb-2">Looking for our full wholesale price list for the 2024 festive season?</p>
+        <p className="text-gray-700 text-xs font-medium mb-2">Looking for our full wholesale price list for the 2026 festive season?</p>
         <Link
           to="/contact"
           className="block w-full text-center bg-white border border-blue-200 text-blue-600 text-xs font-semibold px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
