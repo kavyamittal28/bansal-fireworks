@@ -55,10 +55,18 @@ async def _handle_create(
 ) -> dict:
     db = get_db()
 
+    PLACEHOLDER_IMAGE = {
+        "url": "https://res.cloudinary.com/demo/image/upload/v1/samples/ecommerce/placeholder.png",
+        "public_id": "placeholder",
+        "resource_type": "image",
+    }
+
     media: List[MediaAsset] = []
     valid_images = [f for f in images if f.filename and f.size and f.size > 0]
     if valid_images:
         media = await upload_files(valid_images)
+
+    media_list = [m.model_dump() for m in media] if media else [PLACEHOLDER_IMAGE]
 
     now = datetime.now(timezone.utc)
     doc = {
@@ -71,7 +79,7 @@ async def _handle_create(
         "description": description,
         "eco_friendly": _parse_bool(eco_friendly_str) or False,
         "bestseller": _parse_bool(bestseller_str) or False,
-        "media": [m.model_dump() for m in media],
+        "media": media_list,
         "is_active": True,
         "created_at": now,
         "updated_at": now,
@@ -80,37 +88,6 @@ async def _handle_create(
     result = await db.products.insert_one(doc)
     doc["_id"] = result.inserted_id
     return _fmt(doc)
-
-
-# ── POST /api/products ────────────────────────────────────────────────────────
-
-@router.post(
-    "/api/add-product",
-    status_code=status.HTTP_201_CREATED,
-    summary="Create a product",
-    description=(
-        "Create a new product. Accepts `multipart/form-data` with optional image files.\n\n"
-        "Images are uploaded to Cloudinary automatically.\n\n"
-        "**Requires Bearer token.**"
-    ),
-)
-async def create_product(
-    current_user: CurrentUser,
-    name: str = Form(..., description="Product name"),
-    category: str = Form(..., description="Category (e.g. Sparklers, Aerial Shows)"),
-    brand: str = Form(..., description="Brand name"),
-    price: float = Form(..., description="Price per unit in INR"),
-    market_price: Optional[str] = Form(None, description="Market / MRP in INR"),
-    stock: Optional[str] = Form(None, description="Available stock quantity"),
-    description: str = Form("", description="Full product description"),
-    ecoFriendly: str = Form("false", description='"true" or "false"'),
-    bestseller: str = Form("false", description='"true" or "false"'),
-    images: List[UploadFile] = File(default=[], description="Product images (PNG/JPG/WebP, max 5 MB each)"),
-):
-    return await _handle_create(
-        current_user, name, category, brand, price,
-        market_price, stock, description, ecoFriendly, bestseller, images,
-    )
 
 
 @router.get(
