@@ -23,7 +23,7 @@ def _create_token(user_id: str, email: str) -> str:
 
 async def _login_handler(body: LoginRequest) -> TokenResponse:
     db = get_db()
-    user = await db.users.find_one({"user_id": body.email})
+    user = await db.users.find_one({"user_id": {"$regex": f"^{body.email}$", "$options": "i"}})
 
     invalid_exc = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
