@@ -26,6 +26,18 @@ def _parse_bool(value: Optional[str]) -> Optional[bool]:
     return value.lower() in ("true", "1", "yes")
 
 
+def _parse_optional_float(value: Optional[str]) -> Optional[float]:
+    if value is None or value == "":
+        return None
+    return float(value)
+
+
+def _parse_optional_int(value: Optional[str]) -> Optional[int]:
+    if value is None or value == "":
+        return None
+    return int(value)
+
+
 # ── Shared create handler ─────────────────────────────────────────────────────
 
 async def _handle_create(
@@ -34,8 +46,8 @@ async def _handle_create(
     category: str,
     brand: str,
     price: float,
-    market_price: Optional[float],
-    stock: Optional[int],
+    market_price_str: Optional[str],
+    stock_str: Optional[str],
     description: str,
     eco_friendly_str: str,
     bestseller_str: str,
@@ -54,8 +66,8 @@ async def _handle_create(
         "category": category,
         "brand": brand,
         "price": price,
-        "market_price": market_price,
-        "stock": stock,
+        "market_price": _parse_optional_float(market_price_str),
+        "stock": _parse_optional_int(stock_str),
         "description": description,
         "eco_friendly": _parse_bool(eco_friendly_str) or False,
         "bestseller": _parse_bool(bestseller_str) or False,
@@ -88,8 +100,8 @@ async def create_product(
     category: str = Form(..., description="Category (e.g. Sparklers, Aerial Shows)"),
     brand: str = Form(..., description="Brand name"),
     price: float = Form(..., description="Price per unit in INR"),
-    market_price: Optional[float] = Form(None, description="Market / MRP in INR"),
-    stock: Optional[int] = Form(None, description="Available stock quantity"),
+    market_price: Optional[str] = Form(None, description="Market / MRP in INR"),
+    stock: Optional[str] = Form(None, description="Available stock quantity"),
     description: str = Form("", description="Full product description"),
     ecoFriendly: str = Form("false", description='"true" or "false"'),
     bestseller: str = Form("false", description='"true" or "false"'),
@@ -145,8 +157,8 @@ async def admin_create_product(
     category: str = Form(...),
     brand: str = Form(...),
     price: float = Form(...),
-    market_price: Optional[float] = Form(None),
-    stock: Optional[int] = Form(None),
+    market_price: Optional[str] = Form(None),
+    stock: Optional[str] = Form(None),
     description: str = Form(""),
     ecoFriendly: str = Form("false"),
     bestseller: str = Form("false"),
@@ -228,8 +240,8 @@ async def update_product(
     category: Optional[str] = Form(None),
     brand: Optional[str] = Form(None),
     price: Optional[float] = Form(None),
-    market_price: Optional[float] = Form(None),
-    stock: Optional[int] = Form(None),
+    market_price: Optional[str] = Form(None),
+    stock: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     ecoFriendly: Optional[str] = Form(None),
     bestseller: Optional[str] = Form(None),
@@ -255,9 +267,9 @@ async def update_product(
     if price is not None:
         updates["price"] = price
     if market_price is not None:
-        updates["market_price"] = market_price
+        updates["market_price"] = _parse_optional_float(market_price)
     if stock is not None:
-        updates["stock"] = stock
+        updates["stock"] = _parse_optional_int(stock)
     if description is not None:
         updates["description"] = description
     if ecoFriendly is not None:
