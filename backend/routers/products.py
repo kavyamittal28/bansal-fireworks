@@ -64,7 +64,10 @@ async def _handle_create(
     media: List[MediaAsset] = []
     valid_images = [f for f in images if f.filename and f.size and f.size > 0]
     if valid_images:
-        media = await upload_files(valid_images)
+        try:
+            media = await upload_files(valid_images)
+        except Exception:
+            media = []
 
     media_list = [m.model_dump() for m in media] if media else [PLACEHOLDER_IMAGE]
 
