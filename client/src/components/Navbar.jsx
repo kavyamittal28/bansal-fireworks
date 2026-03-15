@@ -33,9 +33,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg" id="navbar-logo">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0" aria-hidden="true">
-              <span className="text-white text-base">🎆</span>
-            </div>
+            <img src="/Logo.png" alt="Bansal Fireworks" className="h-10 w-auto" />
             <span className="text-gray-900 font-bold text-base">Bansal Fireworks</span>
           </Link>
 

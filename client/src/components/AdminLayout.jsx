@@ -22,9 +22,7 @@ function Sidebar({ activeHref, onClose }) {
       {/* Logo */}
       <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-sm">🎆</span>
-          </div>
+          <img src="/Logo.png" alt="Bansal Fireworks" className="h-8 w-auto" />
           <span className="text-gray-900 font-bold text-sm">Bansal Admin</span>
         </div>
         {onClose && (

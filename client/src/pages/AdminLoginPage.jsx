@@ -42,11 +42,8 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Top bar */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2" id="admin-logo">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm">🎆</span>
-          </div>
-          <span className="text-gray-900 font-bold text-base">Bansal Fireworks</span>
+        <Link to="/" id="admin-logo">
+          <img src="/Logo.png" alt="Bansal Fireworks" className="h-10 w-auto" />
         </Link>
         <button className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 text-sm transition-colors">
           <span>❓</span>

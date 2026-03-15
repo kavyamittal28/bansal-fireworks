@@ -30,9 +30,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4 w-fit">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                <span className="text-white text-base">🎆</span>
-              </div>
+              <img src="/Logo.png" alt="Bansal Fireworks" className="h-10 w-auto" />
               <span className="text-gray-900 font-bold text-base">Bansal Fireworks</span>
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed mb-4">
