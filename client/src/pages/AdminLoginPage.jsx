@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.detail?.message || data.message || 'Invalid credentials')
       localStorage.setItem('adminToken', data.token)
-      navigate('/admin/add-product')
+      navigate('/admin/dashboard')
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.')
     } finally {

@@ -8,6 +8,8 @@ class ProductUpdate(BaseModel):
     category: Optional[str] = None
     brand: Optional[str] = None
     price: Optional[float] = None
+    market_price: Optional[float] = None
+    stock: Optional[int] = None
     description: Optional[str] = None
     eco_friendly: Optional[bool] = None
     bestseller: Optional[bool] = None
@@ -20,6 +22,8 @@ class ProductResponse(BaseModel):
     category: str
     brand: str
     price: float
+    market_price: Optional[float] = None
+    stock: Optional[int] = None
     description: Optional[str] = None
     eco_friendly: bool
     bestseller: bool

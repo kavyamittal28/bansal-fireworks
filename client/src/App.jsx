@@ -13,8 +13,14 @@ import AdminDashboardPage from './pages/AdminDashboardPage'
 import AdminAddProductPage from './pages/AdminAddProductPage'
 import AdminInquiriesPage from './pages/AdminInquiriesPage'
 import AdminSettingsPage from './pages/AdminSettingsPage'
+import AdminCatalogPage from './pages/AdminCatalogPage'
+import AdminEditProductPage from './pages/AdminEditProductPage'
 import NotFoundPage from './pages/NotFoundPage'
 import './index.css'
+
+function AdminLoginGuard() {
+  return localStorage.getItem('adminToken') ? <Navigate to="/admin/dashboard" replace /> : <AdminLoginPage />
+}
 
 function PublicLayout({ children }) {
   return (
@@ -42,13 +48,13 @@ export default function App() {
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
         {/* Admin — login is public, redirect to dashboard if already logged in */}
-        <Route path="/admin/login" element={
-          localStorage.getItem('adminToken') ? <Navigate to="/admin/dashboard" replace /> : <AdminLoginPage />
-        } />
+        <Route path="/admin/login" element={<AdminLoginGuard />} />
 
         {/* Admin — protected */}
         <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />
         <Route path="/admin/add-product" element={<ProtectedRoute><AdminAddProductPage /></ProtectedRoute>} />
+        <Route path="/admin/catalog" element={<ProtectedRoute><AdminCatalogPage /></ProtectedRoute>} />
+        <Route path="/admin/edit-product/:id" element={<ProtectedRoute><AdminEditProductPage /></ProtectedRoute>} />
         <Route path="/admin/inquiries" element={<ProtectedRoute><AdminInquiriesPage /></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute><AdminSettingsPage /></ProtectedRoute>} />
 

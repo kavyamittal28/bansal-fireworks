@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const TIMELINE = [
   { year: 'The Beginning (1994)', desc: 'Bansal Fireworks was established by our founders to provide premium quality, safe fireworks to consumers across India.' },
-  { year: 'Industrial Expansion (2005)', desc: 'We expanded our operations to a state-of-the-art manufacturing facility in Sivakasi, Tamil Nadu.' },
+  { year: 'Industrial Expansion (2005)', desc: 'We expanded our operations to a state-of-the-art manufacturing facility in Sadulshahar, Rajasthan.' },
   { year: 'Safety Standards (2018)', desc: 'Recognised as an industry leader with international safety accreditations.' },
 ]
 
@@ -24,7 +24,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white">
       {/* Hero */}
       <section
-        className="relative bg-gray-900 text-white py-24 px-4 overflow-hidden"
+        className="relative bg-gray-900 text-white py-14 sm:py-24 px-4 overflow-hidden"
         style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1600&q=80)',
           backgroundSize: 'cover',
@@ -34,21 +34,21 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-gray-900/70" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <span className="inline-flex items-center bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
-            🏭 EST. 1994 · SIVAKASI
+            🏭 EST. 1994 · SADULSHAHAR, RAJASTHAN
           </span>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-4 max-w-2xl">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 max-w-2xl">
             Crafting Moments of Pure Wonder
           </h1>
-          <p className="text-gray-300 text-lg max-w-xl">
+          <p className="text-gray-300 text-sm sm:text-lg max-w-xl">
             Celebrating three decades of safety, quality, and pyrotechnic artistry.
           </p>
         </div>
       </section>
 
       {/* Our Legacy */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Legacy of Excellence</h2>
               <p className="text-gray-600 text-sm leading-relaxed mb-6">
@@ -72,18 +72,18 @@ export default function AboutPage() {
                 ))}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <img
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80"
-                alt="Bansal Fireworks team members at the Sivakasi factory"
+                alt="Bansal Fireworks team members at the Sadulshahar facility"
                 loading="lazy"
-                className="rounded-xl object-cover h-48 w-full"
+                className="rounded-xl object-cover h-36 sm:h-48 w-full"
               />
               <img
                 src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80"
                 alt="Bansal Fireworks manufacturing facility"
                 loading="lazy"
-                className="rounded-xl object-cover h-48 w-full"
+                className="rounded-xl object-cover h-36 sm:h-48 w-full"
               />
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function AboutPage() {
       </section>
 
       {/* Core Philosophy */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-10 sm:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Core Philosophy</h2>
@@ -112,13 +112,13 @@ export default function AboutPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-14 bg-blue-600">
+      <section className="py-10 sm:py-14 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
             {STATS.map(s => (
               <div key={s.label} className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">{s.val}</div>
-                <div className="text-blue-200 text-sm uppercase tracking-wide font-medium">{s.label}</div>
+                <div className="text-2xl sm:text-4xl font-bold text-white mb-1">{s.val}</div>
+                <div className="text-blue-200 text-xs sm:text-sm uppercase tracking-wide font-medium">{s.label}</div>
               </div>
             ))}
           </div>

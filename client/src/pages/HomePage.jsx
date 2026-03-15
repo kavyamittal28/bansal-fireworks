@@ -41,7 +41,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-white">
       {/* ── Hero ── */}
       <section
-        className="relative bg-gray-900 text-white py-32 px-4 overflow-hidden"
+        className="relative bg-gray-900 text-white py-20 sm:py-32 px-4 overflow-hidden"
         style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=1600&q=80)',
           backgroundSize: 'cover',
@@ -51,12 +51,12 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gray-900/65" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-blue-400 text-xs font-semibold uppercase tracking-widest mb-4">
-            🎆 Since 1994 · Sivakasi, India
+            🎆 Since 1994 · Sadulshahar, Rajasthan
           </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
             Bansal Fireworks
           </h1>
-          <p className="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto mb-10">
+          <p className="text-gray-300 text-base sm:text-xl max-w-2xl mx-auto mb-8 sm:mb-10">
             Experience the magic of lights with India's most trusted fireworks manufacturer. Quality and safety built into every single spark.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -79,11 +79,11 @@ export default function HomePage() {
       </section>
 
       {/* ── Featured Collections ── */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Featured Collections</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Featured Collections</h2>
               <p className="text-gray-500 text-sm mt-1">Hand-picked premium selections from our catalog</p>
             </div>
             <Link to="/products" className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors" id="view-all-link">
@@ -119,9 +119,9 @@ export default function HomePage() {
       </section>
 
       {/* ── Why Choose Us ── */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-10 sm:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">Why Choose Us</h2>
               <p className="text-gray-500 text-sm mb-8">
@@ -141,7 +141,7 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <div className="rounded-2xl overflow-hidden h-80 bg-gray-200">
+            <div className="rounded-2xl overflow-hidden h-56 sm:h-80 bg-gray-200">
               <img
                 src="https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=800&q=80"
                 alt="Fireworks celebration"
@@ -153,15 +153,15 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-16 bg-blue-600">
+      <section className="py-10 sm:py-16 bg-blue-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to light up your event?</h2>
-          <p className="text-blue-100 text-base mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">Ready to light up your event?</h2>
+          <p className="text-blue-100 text-sm sm:text-base mb-6 sm:mb-8">
             Our specialists are available to help you find the best solution for your budget and venue.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="tel:+919876543210"
+              href="tel:+919587638000"
               className="flex items-center gap-2 bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors shadow w-full sm:w-auto justify-center"
               id="cta-call-btn"
             >

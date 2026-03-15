@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
 const CONTACT_INFO = [
-  { icon: '📍', label: 'Our Location', value: '123 Firework Industrial Area,\nSivakasi, Tamil Nadu, India', href: null },
-  { icon: '📞', label: 'Phone Number', value: '+91 98765 43210\nMon–Sat, 9:00 AM – 7:00 PM', href: 'tel:+919876543210' },
-  { icon: '✉️', label: 'Email Address', value: 'sales@bansalfireworks.com', href: 'mailto:sales@bansalfireworks.com' },
+  { icon: '📍', label: 'Our Location', value: 'Sadulshahar, Sri Ganganagar,\nRajasthan 335062', href: null },
+  { icon: '📞', label: 'Phone Number', value: '+91 95876 38000\nMon–Sat, 9:00 AM – 7:00 PM', href: 'tel:+919587638000' },
+  { icon: '✉️', label: 'Email Address', value: 'Nikhilbnsl380@gmail.com', href: 'mailto:Nikhilbnsl380@gmail.com' },
 ]
 
 const REQUIREMENT_OPTIONS = [
@@ -77,20 +77,20 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 py-10">
+      <div className="bg-white border-b border-gray-200 py-6 sm:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>
-          <p className="text-gray-500 text-base max-w-xl">
-            We're here to help with your wholesale and retail firework inquiries. Reach out via the form or visit our facility in Sivakasi.
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>
+          <p className="text-gray-500 text-sm sm:text-base max-w-xl">
+            We're here to help with your wholesale and retail firework inquiries. Reach out via the form or visit our facility in Sadulshahar.
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Left: Contact details + Map */}
           <div className="flex flex-col gap-6">
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
               <h2 className="text-base font-semibold text-gray-900 mb-5">Our Contact Details</h2>
               <div className="flex flex-col gap-5">
                 {CONTACT_INFO.map(info => (
@@ -114,10 +114,10 @@ export default function ContactPage() {
             </div>
 
             {/* Map */}
-            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden h-64">
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden h-48 sm:h-64">
               <iframe
-                title="Map showing Bansal Fireworks factory location in Sivakasi, Tamil Nadu"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62639.52559937049!2d77.76628717832031!3d9.453900299999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b06cf51a04e36fb%3A0xfe68fbdcf2c5d1eb!2sSivakasi%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
+                title="Map showing Bansal Fireworks location in Sadulshahar, Sri Ganganagar, Rajasthan"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56177.18!2d74.0!3d29.45!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3917fa9b4d4e5555%3A0x1!2sSadulshahar%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -129,7 +129,7 @@ export default function ContactPage() {
           </div>
 
           {/* Right: Contact Form */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
             {success ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl" aria-hidden="true">

@@ -89,7 +89,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       <div
         id="mobile-menu"
-        className={`md:hidden border-t border-gray-100 bg-white overflow-hidden transition-all duration-300 ${mobileOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}
+        className={`md:hidden border-t border-gray-100 bg-white overflow-hidden transition-all duration-300 ${mobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}
         aria-hidden={!mobileOpen}
       >
         <ul className="px-4 py-3 flex flex-col gap-1 list-none" role="list">

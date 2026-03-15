@@ -1,117 +1,258 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-
-const NAV_ITEMS = [
-  { icon: '⊞', label: 'Dashboard', href: '/admin/dashboard', active: true },
-  { icon: '📦', label: 'Products', href: '/admin/add-product' },
-  { icon: '💬', label: 'Inquiries', href: '/admin/inquiries' },
-  { icon: '⚙️', label: 'Settings', href: '/admin/settings' },
-]
+import { useEffect, useState, useCallback } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import AdminLayout from '../components/AdminLayout'
+import ConfirmModal from '../components/ConfirmModal'
 
 export default function AdminDashboardPage() {
-  const navigate = useNavigate()
-  const [stats, setStats] = useState({ products: null, loading: true })
+  const [searchParams] = useSearchParams()
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [toggling, setToggling] = useState(null)
+  const [deleting, setDeleting] = useState(null)
+  const [confirmProduct, setConfirmProduct] = useState(null)
+  const [filter, setFilter] = useState('all')
+  const [search, setSearch] = useState('')
+  const [updateMsg, setUpdateMsg] = useState(searchParams.get('updated') === '1')
 
-  useEffect(() => {
-    fetch('/api/products')
-      .then(r => r.json())
-      .then(data => setStats({ products: Array.isArray(data) ? data.length : 0, loading: false }))
-      .catch(() => setStats({ products: 0, loading: false }))
+  const fetchProducts = useCallback(async () => {
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('adminToken')
+      const res = await fetch('/api/admin/products', { headers: { Authorization: `Bearer ${token}` } })
+      const data = await res.json()
+      setProducts(Array.isArray(data) ? data : [])
+    } catch {
+      setProducts([])
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
-  function handleLogout() {
-    localStorage.removeItem('adminToken')
-    navigate('/admin/login')
+  useEffect(() => { fetchProducts() }, [fetchProducts])
+
+  useEffect(() => {
+    if (updateMsg) {
+      const t = setTimeout(() => setUpdateMsg(false), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [updateMsg])
+
+  async function handleToggle(product) {
+    setToggling(product.id)
+    try {
+      const token = localStorage.getItem('adminToken')
+      const res = await fetch(`/api/admin/products/${product.id}/toggle`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) throw new Error()
+      const updated = await res.json()
+      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p))
+    } catch {
+      // silent
+    } finally {
+      setToggling(null)
+    }
   }
 
+  async function handleDelete() {
+    if (!confirmProduct) return
+    setDeleting(confirmProduct.id)
+    try {
+      const token = localStorage.getItem('adminToken')
+      const res = await fetch(`/api/products/${confirmProduct.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok && res.status !== 204) throw new Error()
+      setProducts(prev => prev.filter(p => p.id !== confirmProduct.id))
+    } catch {
+      // silent
+    } finally {
+      setDeleting(null)
+      setConfirmProduct(null)
+    }
+  }
+
+  const filtered = products.filter(p => {
+    if (filter === 'active' && !p.is_active) return false
+    if (filter === 'inactive' && p.is_active) return false
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  })
+
+  const activeCount = products.filter(p => p.is_active).length
+  const inactiveCount = products.length - activeCount
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <aside className="w-56 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 fixed top-0 left-0 h-full">
-        <div className="px-5 py-4 border-b border-gray-200 flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm">🎆</span>
+    <>
+      {confirmProduct && (
+        <ConfirmModal
+          title="Delete product?"
+          message={`"${confirmProduct.name}" will be permanently deleted along with all its images. This cannot be undone.`}
+          confirmLabel="Delete"
+          loading={deleting === confirmProduct.id}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmProduct(null)}
+        />
+      )}
+      <AdminLayout
+        activeHref="/admin/dashboard"
+        headerTitle="Dashboard"
+        headerSubtitle="Overview of your store"
+      >
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+            <p className="text-gray-400 text-xs sm:text-sm mb-1">Total</p>
+            <p className="text-gray-900 text-2xl sm:text-3xl font-bold">{loading ? '…' : products.length}</p>
           </div>
-          <span className="text-gray-900 font-bold text-sm">Bansal Admin</span>
-        </div>
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {NAV_ITEMS.map(item => (
-            <Link
-              key={item.label}
-              to={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                item.active ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              <span className="text-base">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="px-3 py-3 border-t border-gray-200">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-          >
-            <span className="text-base">🚪</span>
-            Logout
-          </button>
-        </div>
-        <div className="px-4 py-4 border-t border-gray-200 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm flex-shrink-0">A</div>
-          <div className="min-w-0">
-            <p className="text-gray-900 text-sm font-semibold truncate">Admin User</p>
-            <p className="text-gray-400 text-xs">Super Admin</p>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+            <p className="text-gray-400 text-xs sm:text-sm mb-1">Active</p>
+            <p className="text-green-600 text-2xl sm:text-3xl font-bold">{loading ? '…' : activeCount}</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+            <p className="text-gray-400 text-xs sm:text-sm mb-1">Inactive</p>
+            <p className="text-gray-400 text-2xl sm:text-3xl font-bold">{loading ? '…' : inactiveCount}</p>
           </div>
         </div>
-      </aside>
 
-      {/* Main */}
-      <div className="flex-1 ml-56 flex flex-col">
-        <header className="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10">
-          <h1 className="text-gray-900 font-bold text-xl">Dashboard</h1>
-          <p className="text-gray-400 text-xs mt-0.5">Overview of your store</p>
-        </header>
-
-        <main className="flex-1 px-8 py-8">
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <p className="text-gray-400 text-sm mb-1">Total Products</p>
-              <p className="text-gray-900 text-3xl font-bold">
-                {stats.loading ? '…' : stats.products}
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <p className="text-gray-400 text-sm mb-1">Inquiries</p>
-              <p className="text-gray-900 text-3xl font-bold">—</p>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <p className="text-gray-400 text-sm mb-1">Status</p>
-              <p className="text-green-600 text-3xl font-bold">Live</p>
-            </div>
+        {updateMsg && (
+          <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 mb-6 flex items-center gap-2">
+            ✅ Product updated successfully!
           </div>
+        )}
 
-          {/* Quick actions */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <h2 className="text-gray-900 font-semibold text-base mb-4">Quick Actions</h2>
-            <div className="flex flex-wrap gap-3">
+        {/* Products table */}
+        <div className="bg-white rounded-2xl border border-gray-200">
+          {/* Table toolbar */}
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+            <h2 className="text-gray-900 font-semibold text-base">All Products</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <input
+                type="text"
+                placeholder="Search…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-36 sm:w-44"
+              />
+              <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm font-medium">
+                {[['all', 'All'], ['active', 'Active'], ['inactive', 'Inactive']].map(([val, label]) => (
+                  <button
+                    key={val}
+                    onClick={() => setFilter(val)}
+                    className={`px-2.5 sm:px-3 py-1.5 transition-colors ${filter === val ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
               <Link
                 to="/admin/add-product"
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 sm:px-4 py-1.5 rounded-lg transition-colors whitespace-nowrap"
               >
-                <span>📦</span> Add Product
-              </Link>
-              <Link
-                to="/admin/inquiries"
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
-              >
-                <span>💬</span> View Inquiries
+                + Add
               </Link>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+
+          {loading ? (
+            <div className="px-6 py-16 text-center text-gray-400 text-sm">Loading products…</div>
+          ) : filtered.length === 0 ? (
+            <div className="px-6 py-16 text-center text-gray-400 text-sm">No products found.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-gray-400 text-xs border-b border-gray-100">
+                    <th className="text-left px-4 sm:px-6 py-3 font-medium">Product</th>
+                    <th className="text-left px-3 py-3 font-medium hidden sm:table-cell">Category</th>
+                    <th className="text-left px-3 py-3 font-medium hidden md:table-cell">Brand</th>
+                    <th className="text-right px-3 py-3 font-medium">Price</th>
+                    <th className="text-right px-3 py-3 font-medium hidden sm:table-cell">Stock</th>
+                    <th className="text-center px-3 py-3 font-medium">Status</th>
+                    <th className="text-center px-3 py-3 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filtered.map(product => (
+                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 sm:px-6 py-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                            {product.media?.[0]?.url ? (
+                              <img src={product.media[0].url} alt={product.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-300 text-base">🎆</div>
+                            )}
+                          </div>
+                          <span className="text-gray-900 font-medium truncate max-w-[120px] sm:max-w-[180px]">{product.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 text-gray-500 hidden sm:table-cell">{product.category || '—'}</td>
+                      <td className="px-3 py-3 text-gray-500 hidden md:table-cell">{product.brand || '—'}</td>
+                      <td className="px-3 py-3 text-right text-gray-900 font-medium whitespace-nowrap">
+                        ₹{Number(product.price).toLocaleString('en-IN')}
+                        {product.market_price && (
+                          <span className="block text-xs text-gray-400 line-through">₹{Number(product.market_price).toLocaleString('en-IN')}</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-3 text-right text-gray-500 hidden sm:table-cell">
+                        {product.stock != null ? product.stock : '—'}
+                      </td>
+                      <td className="px-3 py-3 text-center">
+                        <button
+                          onClick={() => handleToggle(product)}
+                          disabled={toggling === product.id}
+                          className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-full text-xs font-semibold transition-all disabled:opacity-50 ${
+                            product.is_active
+                              ? 'bg-green-100 text-green-700 hover:bg-red-50 hover:text-red-600'
+                              : 'bg-gray-100 text-gray-500 hover:bg-green-50 hover:text-green-600'
+                          }`}
+                          title={product.is_active ? 'Click to deactivate' : 'Click to activate'}
+                        >
+                          {toggling === product.id ? (
+                            <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <span className={`w-1.5 h-1.5 rounded-full ${product.is_active ? 'bg-green-500' : 'bg-gray-400'}`} />
+                          )}
+                          {product.is_active ? 'Active' : 'Inactive'}
+                        </button>
+                      </td>
+                      <td className="px-3 py-3 text-center">
+                        <div className="flex items-center justify-center gap-1 sm:gap-2">
+                          <Link
+                            to={`/admin/edit-product/${product.id}`}
+                            className="px-2 sm:px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                          >
+                            Edit
+                          </Link>
+                          <button
+                            onClick={() => setConfirmProduct(product)}
+                            disabled={deleting === product.id}
+                            className="px-2 sm:px-3 py-1 text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            {deleting === product.id
+                              ? <span className="inline-block w-3 h-3 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                              : 'Delete'
+                            }
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {!loading && (
+            <div className="px-4 sm:px-6 py-3 border-t border-gray-100 text-xs text-gray-400">
+              Showing {filtered.length} of {products.length} products
+            </div>
+          )}
+        </div>
+      </AdminLayout>
+    </>
   )
 }

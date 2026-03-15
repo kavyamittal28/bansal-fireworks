@@ -16,6 +16,7 @@ export default function ProductsPage() {
   const [brands, setBrands] = useState([{ id: 'all', label: 'All Brands' }])
   const [categories, setCategories] = useState([])
 
+  const [search, setSearch] = useState('')
   const [selectedBrand, setSelectedBrand] = useState('all')
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [sortBy, setSortBy] = useState('default')
@@ -50,7 +51,8 @@ export default function ProductsPage() {
   const filtered = products.filter(p => {
     const brandOk = selectedBrand === 'all' || p.brand === selectedBrand
     const catOk = !selectedCategory || p.category === selectedCategory
-    return brandOk && catOk
+    const searchOk = !search.trim() || p.name.toLowerCase().includes(search.toLowerCase())
+    return brandOk && catOk && searchOk
   })
 
   const sorted = [...filtered].sort((a, b) => {
@@ -61,6 +63,7 @@ export default function ProductsPage() {
   })
 
   function resetFilters() {
+    setSearch('')
     setSelectedBrand('all')
     setSelectedCategory(null)
     setSortBy('default')
@@ -113,18 +116,27 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Product Catalog</h1>
             <p className="text-gray-500 text-sm mt-1">Transparent unit pricing for premium firecrackers.</p>
           </div>
-          <Link
-            to="/contact"
-            className="hidden sm:inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors"
-            id="bulk-inquiry-btn"
-          >
-            Bulk Order Inquiry
-          </Link>
+          <div className="relative w-full sm:w-72">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">🔍</span>
+            <input
+              type="text"
+              placeholder="Search products…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
+              >✕</button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -285,8 +297,17 @@ export default function ProductsPage() {
                       </div>
                       <h3 className="text-gray-900 font-semibold text-sm mb-3">{p.name}</h3>
                       <div>
-                        <span className="text-xs text-gray-400">Price per unit</span>
-                        <div className="text-gray-900 font-bold text-lg">₹{Number(p.price).toFixed(2)}</div>
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span className="text-gray-900 font-bold text-lg">₹{Number(p.price).toLocaleString('en-IN')}</span>
+                          {p.market_price && Number(p.market_price) > Number(p.price) && (
+                            <span className="text-sm text-gray-400 line-through">₹{Number(p.market_price).toLocaleString('en-IN')}</span>
+                          )}
+                        </div>
+                        {p.market_price && Number(p.market_price) > Number(p.price) && (
+                          <span className="inline-block text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full mt-1">
+                            {Math.round((1 - p.price / p.market_price) * 100)}% off
+                          </span>
+                        )}
                       </div>
                     </div>
                   </Link>
@@ -296,10 +317,10 @@ export default function ProductsPage() {
           )}
 
           {/* Bulk CTA */}
-          <div className="bg-gray-800 rounded-2xl p-8 text-center">
+          <div className="bg-gray-800 rounded-2xl p-5 sm:p-8 text-center">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 text-white">📦</div>
-            <h3 className="text-white font-bold text-lg mb-2">Ready to Place a Bulk Order?</h3>
-            <p className="text-gray-400 text-sm mb-6 max-w-lg mx-auto">
+            <h3 className="text-white font-bold text-base sm:text-lg mb-2">Ready to Place a Bulk Order?</h3>
+            <p className="text-gray-400 text-sm mb-5 sm:mb-6 max-w-lg mx-auto">
               Special tiered pricing for wholesale buyers, retailers, and event organizers. Click below to start an inquiry.
             </p>
             <Link
@@ -318,7 +339,7 @@ export default function ProductsPage() {
       {mobileFiltersOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-72 bg-gray-50 overflow-y-auto p-4 shadow-2xl">
+          <div className="absolute right-0 top-0 bottom-0 w-4/5 max-w-xs bg-gray-50 overflow-y-auto p-4 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-gray-900 font-bold text-base">Filters</h2>
               <button

@@ -20,6 +20,7 @@ class CategoryResponse(BaseModel):
     name: str
     slug: str
     description: Optional[str] = None
+    image_url: Optional[str] = None
     is_active: bool
     created_at: Optional[str] = None
     updated_at: Optional[str] = None

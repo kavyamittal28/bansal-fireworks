@@ -34,6 +34,8 @@ async def _handle_create(
     category: str,
     brand: str,
     price: float,
+    market_price: Optional[float],
+    stock: Optional[int],
     description: str,
     eco_friendly_str: str,
     bestseller_str: str,
@@ -52,6 +54,8 @@ async def _handle_create(
         "category": category,
         "brand": brand,
         "price": price,
+        "market_price": market_price,
+        "stock": stock,
         "description": description,
         "eco_friendly": _parse_bool(eco_friendly_str) or False,
         "bestseller": _parse_bool(bestseller_str) or False,
@@ -84,6 +88,8 @@ async def create_product(
     category: str = Form(..., description="Category (e.g. Sparklers, Aerial Shows)"),
     brand: str = Form(..., description="Brand name"),
     price: float = Form(..., description="Price per unit in INR"),
+    market_price: Optional[float] = Form(None, description="Market / MRP in INR"),
+    stock: Optional[int] = Form(None, description="Available stock quantity"),
     description: str = Form("", description="Full product description"),
     ecoFriendly: str = Form("false", description='"true" or "false"'),
     bestseller: str = Form("false", description='"true" or "false"'),
@@ -91,8 +97,40 @@ async def create_product(
 ):
     return await _handle_create(
         current_user, name, category, brand, price,
-        description, ecoFriendly, bestseller, images,
+        market_price, stock, description, ecoFriendly, bestseller, images,
     )
+
+
+@router.get(
+    "/api/admin/products",
+    summary="List all products (admin)",
+    description="Returns all products including inactive ones. **Requires Bearer token.**",
+)
+async def admin_list_products(current_user: CurrentUser, skip: int = 0, limit: int = 100):
+    db = get_db()
+    cursor = db.products.find({}).sort("created_at", -1).skip(skip).limit(limit)
+    docs = await cursor.to_list(length=limit)
+    return [_fmt(d) for d in docs]
+
+
+@router.patch(
+    "/api/admin/products/{product_id}/toggle",
+    summary="Toggle product active status",
+    description="Flips `is_active` on a product. **Requires Bearer token.**",
+)
+async def toggle_product_status(product_id: str, current_user: CurrentUser):
+    db = get_db()
+    try:
+        oid = ObjectId(product_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail={"message": "Invalid product ID"})
+    doc = await db.products.find_one({"_id": oid})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"message": "Product not found"})
+    new_status = not doc.get("is_active", True)
+    await db.products.update_one({"_id": oid}, {"$set": {"is_active": new_status, "updated_at": datetime.now(timezone.utc)}})
+    updated = await db.products.find_one({"_id": oid})
+    return _fmt(updated)
 
 
 @router.post(
@@ -107,6 +145,8 @@ async def admin_create_product(
     category: str = Form(...),
     brand: str = Form(...),
     price: float = Form(...),
+    market_price: Optional[float] = Form(None),
+    stock: Optional[int] = Form(None),
     description: str = Form(""),
     ecoFriendly: str = Form("false"),
     bestseller: str = Form("false"),
@@ -114,7 +154,7 @@ async def admin_create_product(
 ):
     return await _handle_create(
         current_user, name, category, brand, price,
-        description, ecoFriendly, bestseller, images,
+        market_price, stock, description, ecoFriendly, bestseller, images,
     )
 
 
@@ -188,6 +228,8 @@ async def update_product(
     category: Optional[str] = Form(None),
     brand: Optional[str] = Form(None),
     price: Optional[float] = Form(None),
+    market_price: Optional[float] = Form(None),
+    stock: Optional[int] = Form(None),
     description: Optional[str] = Form(None),
     ecoFriendly: Optional[str] = Form(None),
     bestseller: Optional[str] = Form(None),
@@ -212,6 +254,10 @@ async def update_product(
         updates["brand"] = brand
     if price is not None:
         updates["price"] = price
+    if market_price is not None:
+        updates["market_price"] = market_price
+    if stock is not None:
+        updates["stock"] = stock
     if description is not None:
         updates["description"] = description
     if ecoFriendly is not None:

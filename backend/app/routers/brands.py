@@ -1,10 +1,11 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated, Optional
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from bson import ObjectId
 from datetime import datetime, timezone
 from ..middleware.auth import get_current_user
 from ..database import get_db
 from ..schemas.brand import BrandCreate, BrandUpdate
+from ..utils.cloudinary import upload_file
 
 router = APIRouter(prefix="/api/brands", tags=["brands"])
 CurrentUser = Annotated[dict, Depends(get_current_user)]
@@ -25,16 +26,32 @@ def _fmt(doc: dict) -> dict:
     summary="Create a brand",
     description="Create a new brand. Slug must be unique. **Requires Bearer token.**",
 )
-async def create_brand(body: BrandCreate, current_user: CurrentUser):
+async def create_brand(
+    current_user: CurrentUser,
+    name: str = Form(...),
+    slug: str = Form(...),
+    description: Optional[str] = Form(None),
+    image: Optional[UploadFile] = File(None),
+):
     db = get_db()
-    existing = await db.brands.find_one({"slug": body.slug})
+    existing = await db.brands.find_one({"slug": slug})
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail={"message": "Brand with this slug already exists"},
         )
+    image_url = None
+    image_public_id = None
+    if image and image.filename:
+        asset = await upload_file(image, folder="bansal-fireworks/brands")
+        image_url = asset.url
+        image_public_id = asset.public_id
     now = datetime.now(timezone.utc)
-    doc = {**body.model_dump(), "is_active": True, "created_at": now, "updated_at": now}
+    doc = {
+        "name": name, "slug": slug, "description": description,
+        "image_url": image_url, "image_public_id": image_public_id,
+        "is_active": True, "created_at": now, "updated_at": now,
+    }
     result = await db.brands.insert_one(doc)
     doc["_id"] = result.inserted_id
     return _fmt(doc)

@@ -26,7 +26,7 @@ export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200 pt-12 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-10 border-b border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 pb-8 sm:pb-10 border-b border-gray-200">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4 w-fit">
@@ -40,7 +40,7 @@ export default function Footer() {
             </p>
             <address className="not-italic flex items-start gap-2 text-gray-500 text-sm">
               <span aria-hidden="true">📍</span>
-              <span>123 Firework Industrial Area,<br />Sivakasi, Tamil Nadu, India</span>
+              <span>Sadulshahar, Sri Ganganagar,<br />Rajasthan 335062</span>
             </address>
           </div>
 
@@ -118,7 +118,7 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8">
           <p className="text-gray-400 text-xs">© 2024 Bansal Fireworks. All rights reserved.</p>
           <nav aria-label="Footer legal links">
-            <ul className="flex gap-6 list-none">
+            <ul className="flex gap-3 sm:gap-6 list-none">
               {['Terms of Service', 'Privacy Policy', 'Refund Policy'].map(l => (
                 <li key={l}>
                   <a href="#" className="text-gray-400 text-xs hover:text-blue-600 transition-colors">{l}</a>

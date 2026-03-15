@@ -120,7 +120,7 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
           {/* Image Gallery */}
           <div>
-            <div className="rounded-2xl overflow-hidden bg-gray-900 h-72 sm:h-96 mb-4">
+            <div className="rounded-2xl overflow-hidden bg-gray-900 h-56 sm:h-72 md:h-96 mb-4">
               <img
                 src={images[selectedImg]}
                 alt={`${product.name} — view ${selectedImg + 1}`}
@@ -134,7 +134,7 @@ export default function ProductDetailPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImg(i)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-150 ${
+                    className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all duration-150 ${
                       i === selectedImg
                         ? 'border-blue-600 ring-2 ring-blue-200'
                         : 'border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-400'
@@ -156,15 +156,25 @@ export default function ProductDetailPage() {
                 {product.category}
               </span>
             )}
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+            <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
 
             {product.description && (
               <p className="text-gray-500 text-sm leading-relaxed mb-5">{product.description}</p>
             )}
 
             {/* Price */}
-            <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-3xl font-bold text-gray-900">₹{Number(product.price).toFixed(2)}</span>
+            <div className="mb-6">
+              <div className="flex items-baseline gap-3 flex-wrap">
+                <span className="text-2xl sm:text-3xl font-bold text-gray-900">₹{Number(product.price).toLocaleString('en-IN')}</span>
+                {product.market_price && Number(product.market_price) > Number(product.price) && (
+                  <span className="text-lg text-gray-400 line-through">₹{Number(product.market_price).toLocaleString('en-IN')}</span>
+                )}
+                {product.market_price && Number(product.market_price) > Number(product.price) && (
+                  <span className="text-sm font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                    {Math.round((1 - product.price / product.market_price) * 100)}% off
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Badges */}
@@ -206,7 +216,7 @@ export default function ProductDetailPage() {
 
             {/* Key specs */}
             {product.brand && (
-              <div className="grid grid-cols-2 gap-x-4 text-sm border border-gray-100 rounded-xl overflow-hidden mb-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-x-4 text-sm border border-gray-100 rounded-xl overflow-hidden mb-4">
                 {[
                   ['Brand', product.brand],
                   ['Category', product.category],
@@ -241,7 +251,7 @@ export default function ProductDetailPage() {
                 onClick={() => setActiveTab(tab)}
                 role="tab"
                 aria-selected={activeTab === tab}
-                className={`px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                className={`px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                   activeTab === tab
                     ? 'text-blue-600 border-blue-600 bg-blue-50'
                     : 'text-gray-500 border-transparent hover:text-gray-900 hover:bg-gray-50'
@@ -267,7 +277,7 @@ export default function ProductDetailPage() {
             )}
             {activeTab === 'Shipping & Legal' && (
               <div className="text-sm text-gray-600 space-y-3">
-                <p>📦 <strong>Shipping:</strong> All orders ship from Sivakasi, Tamil Nadu within 3–5 business days.</p>
+                <p>📦 <strong>Shipping:</strong> All orders ship from Sadulshahar, Rajasthan within 3–5 business days.</p>
                 <p>⚖️ <strong>Legal:</strong> Check your state's regulations before ordering Class F2/F3 products.</p>
                 <p>🔒 <strong>Packaging:</strong> All items are packed in PESO-approved safety packaging.</p>
               </div>
