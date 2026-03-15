@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email: form.email, password: form.password }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Invalid credentials')
+      if (!res.ok) throw new Error(data?.detail?.message || data.message || 'Invalid credentials')
       localStorage.setItem('adminToken', data.token)
       navigate('/admin/add-product')
     } catch (err) {
@@ -182,9 +182,6 @@ export default function AdminLoginPage() {
                   <a href="#" className="text-gray-400 hover:text-gray-600 text-xs transition-colors">Terms of Service</a>
                   <span className="text-gray-300">·</span>
                   <Link to="/contact" className="text-gray-400 hover:text-gray-600 text-xs transition-colors">Contact</Link>
-                </div>
-                <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-center">
-                  <p className="text-amber-700 text-xs font-medium">🔑 Demo: use any email &amp; password to log in</p>
                 </div>
             </div>
           </div>

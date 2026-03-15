@@ -1,24 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-const BRANDS = [
-  { id: 'all', label: 'All Brands', count: 6 },
-  { id: 'standard', label: 'Standard Fireworks', count: 2 },
-  { id: 'cock', label: 'Cock Brand', count: 2 },
-  { id: 'sivakasi', label: 'Sivakasi', count: 1 },
-  { id: 'bansal', label: 'Bansal Fireworks', count: 1 },
-]
-
-const ALL_PRODUCTS = [
-  { id: 1, name: '10cm Electric Sparklers', brand: 'standard', tags: ['STANDARD', 'PRODUCT'], price: 45, img: 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80', category: 'Sparklers' },
-  { id: 2, name: 'Chakra Special Wheel',    brand: 'cock',     tags: ['COCK BRAND', 'RARE'],    price: 30, img: 'https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=400&q=80', category: 'Ground Wheels' },
-  { id: 3, name: 'Flower Pot (Giant)',       brand: 'sivakasi', tags: ['SIVAKASI', 'CLEARANCE'], price: 80, img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80', category: 'Flower Pots' },
-  { id: 4, name: 'Hydro Bomb (Green)',       brand: 'standard', tags: ['STANDARD', '100G'],      price: 15, img: 'https://images.unsplash.com/photo-1576502200916-3808e07386a5?w=400&q=80', category: 'Sky Shots' },
-  { id: 5, name: 'Bullet Bomb (Pack)',       brand: 'cock',     tags: ['COCK BRAND', '100G'],    price: 20, img: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&q=80', category: 'Sky Shots' },
-  { id: 6, name: 'Sky Shot 12 Chimes',      brand: 'bansal',   tags: ['BANSAL', '30G'],          price: 450, img: 'https://images.unsplash.com/photo-1482160549825-59d1b23cb208?w=400&q=80', category: 'Gift Boxes' },
-]
-
-const CATEGORIES = ['Sparklers', 'Ground Wheels', 'Flower Pots', 'Sky Shots', 'Gift Boxes']
 const SORT_OPTIONS = [
   { id: 'default', label: 'Default Order' },
   { id: 'price_asc', label: 'Price: Low → High' },
@@ -27,13 +9,45 @@ const SORT_OPTIONS = [
 ]
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
+
+  const [brands, setBrands] = useState([{ id: 'all', label: 'All Brands' }])
+  const [categories, setCategories] = useState([])
+
   const [selectedBrand, setSelectedBrand] = useState('all')
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [sortBy, setSortBy] = useState('default')
   const [sortOpen, setSortOpen] = useState(false)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
-  const filtered = ALL_PRODUCTS.filter(p => {
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch('/api/products')
+        if (!res.ok) throw new Error('Failed to load products')
+        const data = await res.json()
+        setProducts(data)
+
+        // Derive unique brands and categories from the data
+        const uniqueBrands = [...new Set(data.map(p => p.brand).filter(Boolean))]
+        setBrands([
+          { id: 'all', label: 'All Brands' },
+          ...uniqueBrands.map(b => ({ id: b, label: b })),
+        ])
+        const uniqueCats = [...new Set(data.map(p => p.category).filter(Boolean))]
+        setCategories(uniqueCats)
+      } catch (err) {
+        setFetchError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
+
+  const filtered = products.filter(p => {
     const brandOk = selectedBrand === 'all' || p.brand === selectedBrand
     const catOk = !selectedCategory || p.category === selectedCategory
     return brandOk && catOk
@@ -62,7 +76,7 @@ export default function ProductsPage() {
       </div>
       <p className="text-gray-400 text-xs mb-4">Filter products by maker</p>
       <div className="flex flex-col gap-1">
-        {BRANDS.map(brand => (
+        {brands.map(brand => (
           <button
             key={brand.id}
             onClick={() => { setSelectedBrand(brand.id); setMobileFiltersOpen(false) }}
@@ -75,11 +89,6 @@ export default function ProductsPage() {
             aria-pressed={selectedBrand === brand.id}
           >
             <span>{brand.label}</span>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${
-              selectedBrand === brand.id ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-500'
-            }`}>
-              {brand.count}
-            </span>
           </button>
         ))}
       </div>
@@ -129,7 +138,6 @@ export default function ProductsPage() {
         <div className="flex-1 min-w-0">
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            {/* Mobile filter toggle */}
             <button
               onClick={() => setMobileFiltersOpen(true)}
               className="lg:hidden flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 text-sm px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
@@ -139,7 +147,6 @@ export default function ProductsPage() {
               ⚙️ Filters {selectedBrand !== 'all' || selectedCategory ? '●' : ''}
             </button>
 
-            {/* Sort dropdown */}
             <div className="relative">
               <button
                 onClick={() => setSortOpen(v => !v)}
@@ -166,79 +173,125 @@ export default function ProductsPage() {
               )}
             </div>
 
-            <span className="text-gray-400 text-xs ml-auto">{sorted.length} product{sorted.length !== 1 ? 's' : ''}</span>
+            <span className="text-gray-400 text-xs ml-auto">
+              {loading ? 'Loading…' : `${sorted.length} product${sorted.length !== 1 ? 's' : ''}`}
+            </span>
           </div>
 
           {/* Category pills */}
-          <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter by category">
-            {CATEGORIES.map(cat => {
-              const isActive = selectedCategory === cat
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(isActive ? null : cat)}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
-                    isActive
-                      ? 'bg-gray-900 text-white border-gray-900'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
-                  }`}
-                  aria-pressed={isActive}
-                >
-                  {cat}{isActive ? ' ×' : ''}
-                </button>
-              )
-            })}
-          </div>
+          {categories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter by category">
+              {categories.map(cat => {
+                const isActive = selectedCategory === cat
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(isActive ? null : cat)}
+                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                      isActive
+                        ? 'bg-gray-900 text-white border-gray-900'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                    }`}
+                    aria-pressed={isActive}
+                  >
+                    {cat}{isActive ? ' ×' : ''}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Loading skeleton */}
+          {loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse">
+                  <div className="h-44 bg-gray-200" />
+                  <div className="p-4 space-y-3">
+                    <div className="h-3 bg-gray-200 rounded w-1/2" />
+                    <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    <div className="h-5 bg-gray-200 rounded w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Fetch error */}
+          {fetchError && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-6">
+              ⚠️ {fetchError}
+            </div>
+          )}
 
           {/* Empty state */}
-          {sorted.length === 0 && (
+          {!loading && !fetchError && sorted.length === 0 && (
             <div className="text-center py-20 bg-white rounded-2xl border border-gray-200">
               <div className="text-5xl mb-4">🔍</div>
               <h3 className="text-gray-900 font-semibold text-lg mb-2">No products found</h3>
               <p className="text-gray-500 text-sm mb-6">
-                Try adjusting your filters or browse all products.
+                {products.length === 0
+                  ? 'No products have been added yet. Use the admin portal to add products.'
+                  : 'Try adjusting your filters or browse all products.'}
               </p>
-              <button
-                onClick={resetFilters}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm"
-              >
-                Clear Filters
-              </button>
+              {products.length > 0 && (
+                <button
+                  onClick={resetFilters}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm"
+                >
+                  Clear Filters
+                </button>
+              )}
             </div>
           )}
 
           {/* Product Grid */}
-          {sorted.length > 0 && (
+          {!loading && sorted.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
-              {sorted.map(p => (
-                <Link
-                  key={p.id}
-                  to={`/products/${p.id}`}
-                  className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-                  id={`product-${p.id}`}
-                >
-                  <div className="h-44 overflow-hidden bg-gray-100">
-                    <img
-                      src={p.img}
-                      alt={p.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {p.tags.map(tag => (
-                        <span key={tag} className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-medium">{tag}</span>
-                      ))}
+              {sorted.map(p => {
+                const thumbnail = p.media?.[0]?.url || 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80'
+                return (
+                  <Link
+                    key={p.id}
+                    to={`/products/${p.id}`}
+                    className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                    id={`product-${p.id}`}
+                  >
+                    <div className="h-44 overflow-hidden bg-gray-100">
+                      <img
+                        src={thumbnail}
+                        alt={p.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     </div>
-                    <h3 className="text-gray-900 font-semibold text-sm mb-3">{p.name}</h3>
-                    <div>
-                      <span className="text-xs text-gray-400">Price per unit</span>
-                      <div className="text-gray-900 font-bold text-lg">₹{p.price.toFixed(2)}</div>
+                    <div className="p-4">
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {p.brand && (
+                          <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-medium">
+                            {p.brand.toUpperCase()}
+                          </span>
+                        )}
+                        {p.bestseller && (
+                          <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded font-medium">
+                            BESTSELLER
+                          </span>
+                        )}
+                        {p.eco_friendly && (
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">
+                            ECO
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-gray-900 font-semibold text-sm mb-3">{p.name}</h3>
+                      <div>
+                        <span className="text-xs text-gray-400">Price per unit</span>
+                        <div className="text-gray-900 font-bold text-lg">₹{Number(p.price).toFixed(2)}</div>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                )
+              })}
             </div>
           )}
 
@@ -281,7 +334,6 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Click outside to close sort */}
       {sortOpen && <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />}
     </div>
   )

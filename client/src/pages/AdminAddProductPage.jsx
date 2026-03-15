@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 const CATEGORIES = ['Sparklers', 'Aerial Shows', 'Ground Shows', 'Novelty', 'Crackers', 'Gift Boxes', 'Other']
 const BRANDS = ['Standard Fireworks', 'Cock Brand', 'Sivakasi Brand', 'Bansal Fireworks', 'Other']
@@ -11,9 +11,26 @@ const NAV_ITEMS = [
   { icon: '⚙️', label: 'Settings', href: '/admin/settings' },
 ]
 
+
+
 export default function AdminAddProductPage() {
   const navigate = useNavigate()
+
+  function handleLogout() {
+    localStorage.removeItem('adminToken')
+    navigate('/admin/login')
+  }
+  const [searchParams] = useSearchParams()
   const fileInputRef = useRef(null)
+  const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    if (searchParams.get('success') === '1') {
+      setSuccess(true)
+      const t = setTimeout(() => setSuccess(false), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [searchParams])
 
   const [form, setForm] = useState({
     name: '',
@@ -69,7 +86,10 @@ export default function AdminAddProductPage() {
         body,
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Failed to add product.')
+      if (!res.ok) throw new Error(data?.detail?.message || data.message || 'Failed to add product.')
+      setForm({ name: '', category: '', brand: '', price: '', description: '', ecoFriendly: false, bestseller: false })
+      setImages([null, null, null])
+      setImageFiles([null, null, null])
       navigate('/admin/add-product?success=1')
     } catch (err) {
       setError(err.message)
@@ -109,6 +129,16 @@ export default function AdminAddProductPage() {
           ))}
         </nav>
 
+        {/* Logout */}
+        <div className="px-3 py-3 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+          >
+            <span className="text-base">🚪</span>
+            Logout
+          </button>
+        </div>
         {/* User */}
         <div className="px-4 py-4 border-t border-gray-200 flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm flex-shrink-0">A</div>
@@ -151,6 +181,12 @@ export default function AdminAddProductPage() {
 
         {/* Content */}
         <main className="flex-1 px-8 py-8">
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 mb-6 flex items-center gap-2">
+              ✅ Product published to catalog successfully!
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-6 flex items-center gap-2">
               ⚠️ {error}

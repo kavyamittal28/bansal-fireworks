@@ -1,0 +1,31 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
+
+    mongodb_url: str
+    db_name: str = "bansal_fireworks"
+
+    jwt_secret: str
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 1440  # 24 hours
+
+    cloudinary_cloud_name: str
+    cloudinary_api_key: str
+    cloudinary_api_secret: str
+
+    allowed_origins: str = "http://localhost:5173"
+    app_env: str = "development"
+
+    @property
+    def origins_list(self) -> List[str]:
+        return [o.strip() for o in self.allowed_origins.split(",")]
+
+
+settings = Settings()

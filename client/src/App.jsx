@@ -1,18 +1,21 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import ProtectedRoute from './components/ProtectedRoute'
 import HomePage from './pages/HomePage'
 import ProductsPage from './pages/ProductsPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import AdminLoginPage from './pages/AdminLoginPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
 import AdminAddProductPage from './pages/AdminAddProductPage'
+import AdminInquiriesPage from './pages/AdminInquiriesPage'
+import AdminSettingsPage from './pages/AdminSettingsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import './index.css'
 
-/** Public layout with shared Navbar + Footer */
 function PublicLayout({ children }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -35,11 +38,21 @@ export default function App() {
         <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
         <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
 
-        {/* Admin pages — full-screen, no shared header/footer */}
-        <Route path="/admin/login" element={<AdminLoginPage />} />
-        <Route path="/admin/add-product" element={<AdminAddProductPage />} />
+        {/* /admin → dashboard */}
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
-        {/* 404 — public layout */}
+        {/* Admin — login is public, redirect to dashboard if already logged in */}
+        <Route path="/admin/login" element={
+          localStorage.getItem('adminToken') ? <Navigate to="/admin/dashboard" replace /> : <AdminLoginPage />
+        } />
+
+        {/* Admin — protected */}
+        <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />
+        <Route path="/admin/add-product" element={<ProtectedRoute><AdminAddProductPage /></ProtectedRoute>} />
+        <Route path="/admin/inquiries" element={<ProtectedRoute><AdminInquiriesPage /></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute><AdminSettingsPage /></ProtectedRoute>} />
+
+        {/* 404 */}
         <Route path="*" element={<PublicLayout><NotFoundPage /></PublicLayout>} />
       </Routes>
     </BrowserRouter>
