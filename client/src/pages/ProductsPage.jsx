@@ -28,7 +28,7 @@ export default function ProductsPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('/api/products')
+        const res = await fetch('/api/get-products')
         if (!res.ok) throw new Error('Failed to load products')
         const data = await res.json()
         setProducts(data)
@@ -263,7 +263,7 @@ export default function ProductsPage() {
           {!loading && sorted.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
               {sorted.map(p => {
-                const thumbnail = p.media?.[0]?.url || 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80'
+                const thumbnail = p.media?.[0]?.url
                 return (
                   <Link
                     key={p.id}
@@ -271,13 +271,22 @@ export default function ProductsPage() {
                     className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
                     id={`product-${p.id}`}
                   >
-                    <div className="h-44 overflow-hidden bg-gray-100">
-                      <img
-                        src={thumbnail}
-                        alt={p.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                    <div className="h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
+                      {thumbnail ? (
+                        <img
+                          src={thumbnail}
+                          alt={p.name}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-gray-300">
+                          <svg className="w-12 h-12 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                          </svg>
+                          <span className="text-xs">No Image</span>
+                        </div>
+                      )}
                     </div>
                     <div className="p-4">
                       <div className="flex flex-wrap gap-1 mb-2">

@@ -98,7 +98,7 @@ export default function AdminAddProductPage() {
         }
       })
       mediaFiles.filter(Boolean).forEach(f => body.append('images', f))
-      const res = await fetch('/api/admin/addproducts', {
+      const res = await fetch('/api/admin/add-product', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body,

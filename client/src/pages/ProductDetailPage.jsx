@@ -28,7 +28,7 @@ export default function ProductDetailPage() {
       setLoading(true)
       setFetchError('')
       try {
-        const res = await fetch(`/api/products/${id}`)
+        const res = await fetch(`/api/get-product/${id}`)
         if (res.status === 404) throw new Error('Product not found')
         if (!res.ok) throw new Error('Failed to load product')
         const data = await res.json()
@@ -96,7 +96,7 @@ export default function ProductDetailPage() {
 
   const images = product.media?.length > 0
     ? product.media.map(m => m.url)
-    : ['https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=800&q=80']
+    : []
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -120,13 +120,22 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
           {/* Image Gallery */}
           <div>
-            <div className="rounded-2xl overflow-hidden bg-gray-900 h-56 sm:h-72 md:h-96 mb-4">
-              <img
-                src={images[selectedImg]}
-                alt={`${product.name} — view ${selectedImg + 1}`}
-                className="w-full h-full object-cover transition-opacity duration-200"
-                key={selectedImg}
-              />
+            <div className="rounded-2xl overflow-hidden bg-gray-100 h-56 sm:h-72 md:h-96 mb-4 flex items-center justify-center">
+              {images.length > 0 ? (
+                <img
+                  src={images[selectedImg]}
+                  alt={`${product.name} — view ${selectedImg + 1}`}
+                  className="w-full h-full object-cover transition-opacity duration-200"
+                  key={selectedImg}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-gray-300">
+                  <svg className="w-20 h-20 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                  </svg>
+                  <span className="text-sm">No Image Available</span>
+                </div>
+              )}
             </div>
             {images.length > 1 && (
               <div className="flex gap-3" role="group" aria-label="Product image thumbnails">

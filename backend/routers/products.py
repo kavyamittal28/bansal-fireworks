@@ -56,7 +56,7 @@ async def _handle_create(
     db = get_db()
 
     media: List[MediaAsset] = []
-    valid_images = [f for f in images if f.filename]
+    valid_images = [f for f in images if f.filename and f.size and f.size > 0]
     if valid_images:
         media = await upload_files(valid_images)
 
@@ -85,7 +85,7 @@ async def _handle_create(
 # ── POST /api/products ────────────────────────────────────────────────────────
 
 @router.post(
-    "/api/products",
+    "/api/add-product",
     status_code=status.HTTP_201_CREATED,
     summary="Create a product",
     description=(
@@ -114,7 +114,7 @@ async def create_product(
 
 
 @router.get(
-    "/api/admin/products",
+    "/api/admin/get-products",
     summary="List all products (admin)",
     description="Returns all products including inactive ones. **Requires Bearer token.**",
 )
@@ -126,7 +126,7 @@ async def admin_list_products(current_user: CurrentUser, skip: int = 0, limit: i
 
 
 @router.patch(
-    "/api/admin/products/{product_id}/toggle",
+    "/api/admin/toggle-product/{product_id}",
     summary="Toggle product active status",
     description="Flips `is_active` on a product. **Requires Bearer token.**",
 )
@@ -146,7 +146,7 @@ async def toggle_product_status(product_id: str, current_user: CurrentUser):
 
 
 @router.post(
-    "/api/admin/addproducts",
+    "/api/admin/add-product",
     status_code=status.HTTP_201_CREATED,
     summary="Create a product (frontend alias)",
     description="Identical to `POST /api/products`. Used by the React admin frontend. **Requires Bearer token.**",
@@ -173,7 +173,7 @@ async def admin_create_product(
 # ── GET /api/products ─────────────────────────────────────────────────────────
 
 @router.get(
-    "/api/products",
+    "/api/get-products",
     summary="List products",
     description="Returns all active products. Supports optional filters and pagination.",
 )
@@ -204,7 +204,7 @@ async def list_products(
 # ── GET /api/products/:id ─────────────────────────────────────────────────────
 
 @router.get(
-    "/api/products/{product_id}",
+    "/api/get-product/{product_id}",
     summary="Get a product",
     description="Fetch a single product by its MongoDB ID.",
 )
@@ -225,7 +225,7 @@ async def get_product(product_id: str):
 # ── PUT /api/products/:id ─────────────────────────────────────────────────────
 
 @router.put(
-    "/api/products/{product_id}",
+    "/api/update-product/{product_id}",
     summary="Update a product",
     description=(
         "Update product fields. Any omitted fields are left unchanged.\n\n"
@@ -291,7 +291,7 @@ async def update_product(
 # ── DELETE /api/products/:id ──────────────────────────────────────────────────
 
 @router.delete(
-    "/api/products/{product_id}",
+    "/api/delete-product/{product_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a product",
     description=(

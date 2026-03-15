@@ -20,7 +20,7 @@ def _fmt(doc: dict) -> dict:
 
 
 @router.post(
-    "/contact",
+    "/add-inquiry",
     status_code=status.HTTP_201_CREATED,
     summary="Submit a contact inquiry",
     description="Public endpoint. Saves a customer inquiry from the contact form.",
@@ -41,7 +41,7 @@ async def create_inquiry(body: InquiryCreate):
 
 
 @router.get(
-    "/inquiries",
+    "/get-inquiries",
     summary="List all inquiries",
     description="Returns all customer inquiries, newest first. **Requires Bearer token.**",
 )
@@ -52,7 +52,7 @@ async def list_inquiries(current_user: CurrentUser):
 
 
 @router.patch(
-    "/inquiries/{inquiry_id}/read",
+    "/toggle-inquiry/{inquiry_id}",
     summary="Mark inquiry as read",
     description="Toggle the read status of an inquiry. **Requires Bearer token.**",
 )
@@ -72,7 +72,7 @@ async def mark_inquiry_read(inquiry_id: str, current_user: CurrentUser):
 
 
 @router.delete(
-    "/inquiries/{inquiry_id}",
+    "/delete-inquiry/{inquiry_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete an inquiry",
     description="Permanently delete an inquiry. **Requires Bearer token.**",

@@ -47,7 +47,7 @@ export default function ContactPage() {
     }
     setLoading(true)
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch('/api/add-inquiry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

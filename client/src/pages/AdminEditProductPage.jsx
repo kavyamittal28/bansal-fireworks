@@ -32,7 +32,7 @@ export default function AdminEditProductPage() {
     setFetching(true)
     try {
       const [prodRes, catsRes, brandsRes] = await Promise.all([
-        fetch(`/api/products/${id}`),
+        fetch(`/api/get-product/${id}`),
         fetch('/api/categories'),
         fetch('/api/brands'),
       ])
@@ -138,7 +138,7 @@ export default function AdminEditProductPage() {
       body.append('bestseller', form.bestseller)
       mediaFiles.filter(Boolean).forEach(f => body.append('images', f))
 
-      const res = await fetch(`/api/products/${id}`, {
+      const res = await fetch(`/api/update-product/${id}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
         body,

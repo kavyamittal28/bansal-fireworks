@@ -18,7 +18,7 @@ export default function AdminDashboardPage() {
     setLoading(true)
     try {
       const token = localStorage.getItem('adminToken')
-      const res = await fetch('/api/admin/products', { headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch('/api/admin/get-products', { headers: { Authorization: `Bearer ${token}` } })
       const data = await res.json()
       setProducts(Array.isArray(data) ? data : [])
     } catch {
@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
     setToggling(product.id)
     try {
       const token = localStorage.getItem('adminToken')
-      const res = await fetch(`/api/admin/products/${product.id}/toggle`, {
+      const res = await fetch(`/api/admin/toggle-product/${product.id}`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
     setDeleting(confirmProduct.id)
     try {
       const token = localStorage.getItem('adminToken')
-      const res = await fetch(`/api/products/${confirmProduct.id}`, {
+      const res = await fetch(`/api/delete-product/${confirmProduct.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })

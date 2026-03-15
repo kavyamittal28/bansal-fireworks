@@ -17,7 +17,7 @@ export default function AdminInquiriesPage() {
 
   async function fetchInquiries() {
     try {
-      const res = await fetch('/api/inquiries', {
+      const res = await fetch('/api/get-inquiries', {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (!res.ok) throw new Error('Failed to fetch')
@@ -34,7 +34,7 @@ export default function AdminInquiriesPage() {
 
   async function handleToggleRead(id) {
     try {
-      const res = await fetch(`/api/inquiries/${id}/read`, {
+      const res = await fetch(`/api/toggle-inquiry/${id}`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -49,7 +49,7 @@ export default function AdminInquiriesPage() {
   async function handleDelete(id) {
     if (!window.confirm('Delete this inquiry permanently?')) return
     try {
-      const res = await fetch(`/api/inquiries/${id}`, {
+      const res = await fetch(`/api/delete-inquiry/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })

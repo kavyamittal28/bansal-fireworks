@@ -15,6 +15,8 @@ async def upload_file(
     executor to avoid blocking the asyncio event loop.
     """
     content = await file.read()
+    if not content:
+        return None
     content_type = file.content_type or ""
     resource_type = "video" if content_type.startswith("video/") else "image"
 
@@ -44,7 +46,8 @@ async def upload_files(
 ) -> List[MediaAsset]:
     """Upload multiple files concurrently."""
     tasks = [upload_file(f, folder) for f in files]
-    return list(await asyncio.gather(*tasks))
+    results = await asyncio.gather(*tasks)
+    return [r for r in results if r is not None]
 
 
 async def delete_asset(public_id: str, resource_type: str = "image") -> None:
