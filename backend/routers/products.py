@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from middleware.auth import get_current_user
 from database import get_db
 from models.product import MediaAsset
-from utils.cloudinary import upload_files, delete_assets
+from utils.media import upload_files, delete_assets
 
 logger = logging.getLogger(__name__)
 
