@@ -23,7 +23,6 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || null)
   const [sortBy, setSortBy] = useState('default')
   const [sortOpen, setSortOpen] = useState(false)
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   useEffect(() => {
     async function fetchProducts() {
@@ -71,49 +70,6 @@ export default function ProductsPage() {
     setSortBy('default')
   }
 
-  const SidebarContent = () => (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Brand Catalog</h3>
-        {(selectedBrand !== 'all' || selectedCategory) && (
-          <button onClick={resetFilters} className="text-xs text-blue-600 hover:underline">Reset</button>
-        )}
-      </div>
-      <p className="text-gray-400 text-xs mb-4">Filter products by maker</p>
-      <div className="flex flex-col gap-1">
-        {brands.map(brand => (
-          <button
-            key={brand.id}
-            onClick={() => { setSelectedBrand(brand.id); setMobileFiltersOpen(false) }}
-            className={`flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${
-              selectedBrand === brand.id
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}
-            id={`brand-filter-${brand.id}`}
-            aria-pressed={selectedBrand === brand.id}
-          >
-            <span>{brand.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Wholesale CTA */}
-      <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-100">
-        <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center mb-3 text-white text-xs">📋</div>
-        <p className="text-gray-700 text-xs font-medium mb-2">Looking for our full wholesale price list for the 2026 festive season?</p>
-        <Link
-          to="/contact"
-          className="block w-full text-center bg-white border border-blue-200 text-blue-600 text-xs font-semibold px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
-          id="download-pdf-btn"
-          onClick={() => setMobileFiltersOpen(false)}
-        >
-          Request Price List →
-        </Link>
-      </div>
-    </div>
-  )
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -142,25 +98,10 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-6">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:block lg:w-56 flex-shrink-0">
-          <SidebarContent />
-        </aside>
-
-        {/* Main */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex-1 min-w-0">
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <button
-              onClick={() => setMobileFiltersOpen(true)}
-              className="lg:hidden flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 text-sm px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-              aria-expanded={mobileFiltersOpen}
-              id="mobile-filter-btn"
-            >
-              ⚙️ Filters {selectedBrand !== 'all' || selectedCategory ? '●' : ''}
-            </button>
-
             <div className="relative">
               <button
                 onClick={() => setSortOpen(v => !v)}
@@ -187,14 +128,52 @@ export default function ProductsPage() {
               )}
             </div>
 
+            {(selectedBrand !== 'all' || selectedCategory) && (
+              <button onClick={resetFilters} className="text-xs text-blue-600 hover:underline">Reset Filters</button>
+            )}
+
             <span className="text-gray-400 text-xs ml-auto">
               {loading ? 'Loading…' : `${sorted.length} product${sorted.length !== 1 ? 's' : ''}`}
             </span>
           </div>
 
+          {/* Brand pills */}
+          {brands.length > 1 && (
+            <div className="flex flex-wrap gap-2 mb-3" role="group" aria-label="Filter by brand">
+              {brands.map(brand => {
+                const isActive = selectedBrand === brand.id
+                return (
+                  <button
+                    key={brand.id}
+                    onClick={() => setSelectedBrand(isActive && brand.id !== 'all' ? 'all' : brand.id)}
+                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                      isActive
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                    }`}
+                    aria-pressed={isActive}
+                  >
+                    {brand.label}{isActive && brand.id !== 'all' ? ' ×' : ''}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
           {/* Category pills */}
           {categories.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter by category">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                  !selectedCategory
+                    ? 'bg-gray-900 text-white border-gray-900'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                }`}
+                aria-pressed={!selectedCategory}
+              >
+                All Categories
+              </button>
               {categories.map(cat => {
                 const isActive = selectedCategory === cat
                 return (
@@ -345,26 +324,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </div>
-
-      {/* Mobile filter drawer */}
-      {mobileFiltersOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-4/5 max-w-xs bg-gray-50 overflow-y-auto p-4 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-gray-900 font-bold text-base">Filters</h2>
-              <button
-                onClick={() => setMobileFiltersOpen(false)}
-                className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="Close filters"
-              >
-                ✕
-              </button>
-            </div>
-            <SidebarContent />
-          </div>
-        </div>
-      )}
 
       {sortOpen && <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />}
     </div>

@@ -26,7 +26,7 @@ A full-stack e-commerce catalog for browsing and managing fireworks products. Bu
 | Database | MongoDB (via Motor async driver) |
 | Auth | JWT (PyJWT) + bcrypt |
 | Image Storage | Cloudinary |
-| Deployment | Vercel (frontend), Railway / Render / Fly.io (backend) |
+| Deployment | Vercel (frontend), Render (backend) |
 
 ---
 
@@ -34,46 +34,60 @@ A full-stack e-commerce catalog for browsing and managing fireworks products. Bu
 
 ```
 bansal-fireworks/
-├── src/                          # React frontend
-│   ├── App.jsx                   # Route definitions
-│   ├── main.jsx                  # Entry point
-│   ├── index.css                 # Global styles
-│   ├── components/
-│   │   ├── Navbar.jsx
-│   │   ├── Footer.jsx
-│   │   └── ScrollToTop.jsx
-│   └── pages/
-│       ├── HomePage.jsx
-│       ├── ProductsPage.jsx
-│       ├── ProductDetailPage.jsx
-│       ├── AboutPage.jsx
-│       ├── ContactPage.jsx
-│       ├── AdminLoginPage.jsx
-│       ├── AdminAddProductPage.jsx
-│       └── NotFoundPage.jsx
-├── backend/                      # Python backend
-│   ├── app/
-│   │   ├── main.py               # FastAPI app, CORS, lifespan
-│   │   ├── config.py             # Environment settings
-│   │   ├── database.py           # Motor MongoDB connection
-│   │   ├── cloudinary_config.py  # Cloudinary init
-│   │   ├── middleware/
-│   │   │   └── auth.py           # JWT Bearer dependency
-│   │   ├── models/               # Pydantic data models
-│   │   ├── schemas/              # Request/response schemas
-│   │   ├── routers/              # Auth, products, brands, categories
-│   │   └── utils/
-│   │       └── cloudinary.py     # Async upload/delete helpers
-│   ├── seed_admin.py             # Create first admin + DB indexes
-│   ├── create_user.py            # Create a specific user by user_id
+├── client/                          # React frontend
+│   ├── index.html
+│   ├── vite.config.js               # Vite config + /api proxy
+│   ├── vercel.json                  # Vercel rewrite rules
+│   ├── package.json
+│   ├── public/
+│   │   ├── Logo.png
+│   │   └── placeholder.png          # Default product image
+│   └── src/
+│       ├── App.jsx                  # Route definitions
+│       ├── main.jsx                 # Entry point
+│       ├── index.css                # Global styles
+│       ├── components/
+│       │   ├── Navbar.jsx
+│       │   ├── Footer.jsx
+│       │   ├── AdminLayout.jsx
+│       │   ├── ProtectedRoute.jsx
+│       │   └── ScrollToTop.jsx
+│       └── pages/
+│           ├── HomePage.jsx
+│           ├── ProductsPage.jsx
+│           ├── ProductDetailPage.jsx
+│           ├── AboutPage.jsx
+│           ├── ContactPage.jsx
+│           ├── AdminLoginPage.jsx
+│           ├── AdminDashboardPage.jsx
+│           ├── AdminAddProductPage.jsx
+│           ├── AdminEditProductPage.jsx
+│           ├── AdminInquiriesPage.jsx
+│           ├── AdminCatalogPage.jsx
+│           ├── AdminSettingsPage.jsx
+│           └── NotFoundPage.jsx
+├── backend/
+│   ├── main.py                      # FastAPI app, CORS, lifespan
+│   ├── config.py                    # Environment settings
+│   ├── database.py                  # Motor MongoDB connection
+│   ├── cloudinary_config.py         # Cloudinary init
+│   ├── middleware/
+│   │   └── auth.py                  # JWT Bearer dependency
+│   ├── models/                      # Pydantic data models
+│   ├── schemas/                     # Request/response schemas
+│   ├── routers/
+│   │   ├── auth.py                  # Login endpoints
+│   │   ├── products.py              # Product CRUD
+│   │   ├── brands.py                # Brand CRUD
+│   │   ├── categories.py            # Category CRUD
+│   │   └── contact.py               # Inquiry endpoints
+│   ├── utils/
+│   │   ├── __init__.py              # Async Cloudinary upload/delete
+│   │   └── media.py                 # Re-exports for convenience
+│   ├── seed_admin.py                # Create first admin + DB indexes
+│   ├── create_user.py               # Create a specific user
 │   ├── requirements.txt
-│   ├── .env.example
-│   └── README.md
-├── public/
-├── index.html
-├── vite.config.js                # Vite config + /api proxy
-├── vercel.json                   # Vercel SPA rewrite rules
-└── package.json
+│   └── .env.example
 ```
 
 ---
@@ -88,21 +102,26 @@ bansal-fireworks/
 | `/products` | ProductsPage | Full catalog with brand/category filters and sort |
 | `/products/:id` | ProductDetailPage | Product detail with image gallery and tabs |
 | `/about` | AboutPage | Company information |
-| `/contact` | ContactPage | Bulk order inquiry form |
+| `/contact` | ContactPage | Inquiry form |
 | `*` | NotFoundPage | 404 fallback |
 
-### Admin (full-screen, no shared header/footer)
+### Admin (protected, requires JWT)
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/admin/login` | AdminLoginPage | JWT-authenticated admin login |
+| `/admin/login` | AdminLoginPage | Admin login |
+| `/admin/dashboard` | AdminDashboardPage | Product list with toggle/delete |
 | `/admin/add-product` | AdminAddProductPage | Add new product with image uploads |
+| `/admin/edit-product/:id` | AdminEditProductPage | Edit existing product |
+| `/admin/catalog` | AdminCatalogPage | Manage brands and categories |
+| `/admin/inquiries` | AdminInquiriesPage | View/manage customer inquiries |
+| `/admin/settings` | AdminSettingsPage | Admin settings |
 
 ---
 
 ## API Reference
 
-All endpoints are prefixed with `/api`. Interactive docs available at `/api/docs` (Swagger) and `/api/redoc` (ReDoc) when the backend is running.
+All endpoints are prefixed with `/api`. Interactive docs at `/api/docs` (Swagger) and `/api/redoc` (ReDoc) when the backend is running.
 
 ### Auth
 
@@ -111,54 +130,26 @@ All endpoints are prefixed with `/api`. Interactive docs available at `/api/docs
 | POST | `/api/auth/login` | — | Login, returns `{ token }` |
 | POST | `/api/admin/login` | — | Alias used by the frontend |
 
-**Request body:**
-```json
-{ "email": "admin@example.com", "password": "YourPassword" }
-```
-
-**Response:**
-```json
-{ "token": "<jwt>", "token_type": "bearer" }
-```
-
----
-
 ### Products
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/api/products` | — | List products (filterable) |
-| POST | `/api/products` | JWT | Create product (multipart/form-data) |
-| POST | `/api/admin/products` | JWT | Alias used by the frontend |
-| GET | `/api/products/:id` | — | Get single product |
-| PUT | `/api/products/:id` | JWT | Update product (appends new images) |
-| DELETE | `/api/products/:id` | JWT | Delete product + Cloudinary assets |
+| GET | `/api/get-products` | — | List active products (filterable) |
+| GET | `/api/get-product/:id` | — | Get single product |
+| GET | `/api/admin/get-products` | JWT | List all products (including inactive) |
+| POST | `/api/admin/add-product` | JWT | Create product (multipart/form-data) |
+| PUT | `/api/update-product/:id` | JWT | Update product (appends new images) |
+| PATCH | `/api/admin/toggle-product/:id` | JWT | Toggle product active/inactive |
+| DELETE | `/api/delete-product/:id` | JWT | Delete product + Cloudinary assets |
 
-**GET /api/products query params:**
+### Inquiries
 
-| Param | Type | Description |
-|-------|------|-------------|
-| `category` | string | Filter by category name |
-| `brand` | string | Filter by brand name |
-| `bestseller` | bool | Filter bestsellers only |
-| `eco_friendly` | bool | Filter eco-friendly only |
-| `skip` | int | Pagination offset (default: 0) |
-| `limit` | int | Page size (default: 50) |
-
-**POST /api/products form fields:**
-
-| Field | Type | Required |
-|-------|------|----------|
-| `name` | string | Yes |
-| `category` | string | Yes |
-| `brand` | string | Yes |
-| `price` | float | Yes |
-| `description` | string | No |
-| `ecoFriendly` | string (`"true"`/`"false"`) | No |
-| `bestseller` | string (`"true"`/`"false"`) | No |
-| `images` | file(s) | No |
-
----
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/add-inquiry` | — | Submit contact inquiry |
+| GET | `/api/get-inquiries` | JWT | List all inquiries |
+| PATCH | `/api/toggle-inquiry/:id` | JWT | Toggle read/unread status |
+| DELETE | `/api/delete-inquiry/:id` | JWT | Delete inquiry |
 
 ### Brands
 
@@ -170,8 +161,6 @@ All endpoints are prefixed with `/api`. Interactive docs available at `/api/docs
 | PUT | `/api/brands/:id` | JWT | Update brand |
 | DELETE | `/api/brands/:id` | JWT | Delete brand |
 
----
-
 ### Categories
 
 | Method | Path | Auth | Description |
@@ -182,13 +171,11 @@ All endpoints are prefixed with `/api`. Interactive docs available at `/api/docs
 | PUT | `/api/categories/:id` | JWT | Update category |
 | DELETE | `/api/categories/:id` | JWT | Delete category |
 
----
-
 ### Health
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/health` | Returns `{ "status": "ok" }` |
+| GET | `/api/health` | Returns service status, DB connectivity, uptime |
 
 ---
 
@@ -207,7 +194,7 @@ All endpoints are prefixed with `/api`. Interactive docs available at `/api/docs
 
 ```bash
 git clone <repository-url>
-cd bansal-fireworks
+cd bansal-fireworks/client
 npm install
 ```
 
@@ -240,36 +227,31 @@ cd backend
 python seed_admin.py --email admin@bansalfireworks.com --password YourStrongPassword
 ```
 
-To create a user with a specific user ID:
-
-```bash
-python create_user.py
-```
-
 ---
 
 ### 5. Start the backend
 
 ```bash
 cd backend
-uvicorn app.main:app --reload --port 8000
+source .venv/bin/activate
+uvicorn main:app --reload --port 8011
 ```
 
-Backend will be available at `http://localhost:8000`
-API docs at `http://localhost:8000/api/docs`
+Backend will be available at `http://localhost:8011`
+API docs at `http://localhost:8011/api/docs`
 
 ---
 
 ### 6. Start the frontend
 
 ```bash
-# from project root
+cd client
 npm run dev
 ```
 
 Frontend will be available at `http://localhost:5173`
 
-The Vite dev server automatically proxies all `/api/*` requests to `http://localhost:8000`, so no CORS issues in local development.
+The Vite dev server automatically proxies all `/api/*` requests to `http://localhost:8011`, so no CORS issues in local development.
 
 ---
 
@@ -298,13 +280,8 @@ Create `backend/.env` based on `backend/.env.example`:
 
 ```bash
 cd backend
+source .venv/bin/activate
 python seed_admin.py --email admin@bansalfireworks.com --password YourStrongPassword
-```
-
-### Re-creating indexes only (without adding a user)
-
-```bash
-python seed_admin.py --email x@x.com --password x --indexes-only
 ```
 
 ### MongoDB indexes created automatically
@@ -325,22 +302,15 @@ python seed_admin.py --email x@x.com --password x --indexes-only
 
 ### Frontend — Vercel
 
-The `vercel.json` at the project root rewrites all routes to `index.html` for client-side routing to work correctly.
+The `client/vercel.json` rewrites `/api/*` to the Render backend and all other routes to `index.html` for SPA routing.
 
-```bash
-# from project root
-vercel deploy
-```
-
-Set `VITE_API_URL` if your backend is on a separate domain and update the `fetch()` calls accordingly.
-
-### Backend — Railway / Render / Fly.io
+### Backend — Render
 
 Deploy the `backend/` directory. Set all environment variables from the table above as platform secrets.
 
 Start command:
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port $PORT
+uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 
 ---
