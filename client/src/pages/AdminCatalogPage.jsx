@@ -134,7 +134,7 @@ function ItemRow({ item, onDelete }) {
       </div>
       <button
         onClick={() => onDelete(item)}
-        className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 text-xs font-medium transition-all px-2 py-1 rounded hover:bg-red-50 flex-shrink-0 ml-2"
+        className="text-red-400 hover:text-red-600 text-xs font-medium transition-all px-2 py-1 rounded hover:bg-red-50 flex-shrink-0 ml-2"
       >
         Delete
       </button>
