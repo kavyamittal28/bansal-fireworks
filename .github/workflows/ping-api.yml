@@ -13,4 +13,5 @@ jobs:
     steps:
       - name: Ping API
         run: |
-          curl -X GET "https://bansal-fireworks.onrender.com/api/health"
+          curl -f --max-time 30 --retry 2 --retry-delay 5 "https://bansal-fireworks.onrender.com/api/health"
+          echo "Health check completed successfully"
