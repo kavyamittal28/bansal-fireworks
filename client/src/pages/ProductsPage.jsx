@@ -25,28 +25,32 @@ export default function ProductsPage() {
   const [sortOpen, setSortOpen] = useState(false)
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchAll() {
       try {
-        const res = await fetch('/api/get-products')
-        if (!res.ok) throw new Error('Failed to load products')
-        const data = await res.json()
-        setProducts(data)
-
-        // Derive unique brands and categories from the data
-        const uniqueBrands = [...new Set(data.map(p => p.brand).filter(Boolean))]
+        const [productsRes, categoriesRes, brandsRes] = await Promise.all([
+          fetch('/api/get-products'),
+          fetch('/api/categories'),
+          fetch('/api/brands'),
+        ])
+        if (!productsRes.ok) throw new Error('Failed to load products')
+        const [productsData, categoriesData, brandsData] = await Promise.all([
+          productsRes.json(),
+          categoriesRes.json(),
+          brandsRes.json(),
+        ])
+        setProducts(productsData)
         setBrands([
           { id: 'all', label: 'All Brands' },
-          ...uniqueBrands.map(b => ({ id: b, label: b })),
+          ...brandsData.map(b => ({ id: b.name, label: b.name })),
         ])
-        const uniqueCats = [...new Set(data.map(p => p.category).filter(Boolean))]
-        setCategories(uniqueCats)
+        setCategories(categoriesData.map(c => c.name))
       } catch (err) {
         setFetchError(err.message)
       } finally {
         setLoading(false)
       }
     }
-    fetchProducts()
+    fetchAll()
   }, [])
 
   const filtered = products.filter(p => {
