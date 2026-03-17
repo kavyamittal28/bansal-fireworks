@@ -1,10 +1,38 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #2563eb;
-  --color-brand-light: #eff6ff;
-  --color-brand-dark: #1d4ed8;
-  --font-family-sans: 'Space Grotesk', system-ui, sans-serif;
+  /* Premium Festive Color Palette */
+  --color-primary: #991B1B;
+  --color-primary-light: #FEF2F2;
+  --color-primary-dark: #7F1D1D;
+  --color-primary-600: #DC2626;
+  --color-primary-700: #B91C1C;
+  --color-primary-800: #991B1B;
+  
+  /* Gold Accents */
+  --color-accent: #D97706;
+  --color-accent-light: #FFFBEB;
+  --color-accent-dark: #B45309;
+  --color-gold: #F59E0B;
+  --color-gold-light: #FEF3C7;
+  --color-gold-dark: #D97706;
+  
+  /* Neutral Palette */
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #FAFAF9;
+  --color-surface-dark: #1C1917;
+  --color-border: #E7E5E4;
+  --color-border-light: #F5F5F4;
+  
+  /* Text Colors */
+  --color-text-primary: #1C1917;
+  --color-text-secondary: #57534E;
+  --color-text-tertiary: #A8A29E;
+  --color-text-inverse: #FAFAF9;
+  
+  /* Fonts */
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-display: 'Playfair Display', Georgia, serif;
 }
 
 @layer base {
@@ -17,14 +45,16 @@
   }
 
   body {
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: var(--font-family-sans);
     -webkit-font-smoothing: antialiased;
-    color: #111827;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--color-text-primary);
+    background-color: var(--color-surface-secondary);
   }
 
   /* Consistent focus ring for all interactive elements */
   :focus-visible {
-    outline: 2px solid #2563eb;
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -32,25 +62,110 @@
   /* Smooth transitions for interactive elements */
   button, a {
     transition-property: color, background-color, border-color, box-shadow, transform, opacity;
-    transition-duration: 150ms;
-    transition-timing-function: ease;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Image loading */
   img {
     display: block;
   }
+
+  /* Selection styling */
+  ::selection {
+    background-color: var(--color-gold-light);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Premium button styles */
+.btn-primary {
+  @apply bg-[#991B1B] hover:bg-[#7F1D1D] text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98];
+}
+
+.btn-secondary {
+  @apply bg-white hover:bg-stone-50 text-stone-800 font-semibold px-6 py-3 rounded-xl border border-stone-200 transition-all duration-200 hover:border-stone-300;
+}
+
+.btn-accent {
+  @apply bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md;
+}
+
+/* Premium card styles */
+.card {
+  @apply bg-white rounded-2xl border border-stone-200 shadow-sm hover:shadow-lg transition-all duration-300;
+}
+
+.card-elevated {
+  @apply bg-white rounded-2xl shadow-lg border border-stone-100;
+}
+
+/* Input styles */
+.input-field {
+  @apply w-full border border-stone-300 rounded-xl px-4 py-3.5 text-stone-800 placeholder-stone-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#991B1B]/20 focus:border-[#991B1B] transition-all duration-200 bg-white;
+}
+
+.input-error {
+  @apply border-red-300 focus:ring-red-200 focus:border-red-500 bg-red-50/50;
+}
+
+/* Badge styles */
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-primary {
+  @apply bg-red-100 text-red-800;
+}
+
+.badge-gold {
+  @apply bg-amber-100 text-amber-800;
+}
+
+.badge-success {
+  @apply bg-emerald-100 text-emerald-800;
+}
+
+/* Section styles */
+.section-dark {
+  @apply bg-stone-900 text-white;
+}
+
+.section-light {
+  @apply bg-stone-50;
+}
+
+/* Gradient overlays */
+.gradient-overlay-dark {
+  background: linear-gradient(to bottom, rgba(28, 25, 23, 0.7) 0%, rgba(28, 25, 23, 0.85) 100%);
+}
+
+.gradient-overlay-gold {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
 }
 
 /* Fade-in animation for page sections */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.4s ease forwards;
+  animation: fadeInUp 0.5s ease-out forwards;
 }
+
+/* Stagger animation */
+.animate-stagger > * {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.animate-stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.animate-stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.animate-stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.animate-stagger > *:nth-child(5) { animation-delay: 0.5s; }
+.animate-stagger > *:nth-child(6) { animation-delay: 0.6s; }
 
 /* Toast notification */
 @keyframes slideInRight {
@@ -73,4 +188,43 @@
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Premium gradient text */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Decorative elements */
+.ornament {
+  @apply w-12 h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent;
+}
+
+.ornament-vertical {
+  @apply h-12 w-px bg-gradient-to-b from-transparent via-amber-500 to-transparent;
+}
+
+/* Shimmer effect for loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f5f5f4 25%, #e7e5e4 50%, #f5f5f4 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Subtle pulse for active elements */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 2s ease-in-out infinite;
 }
