@@ -28,7 +28,15 @@ def _fmt(doc: dict) -> dict:
 )
 async def place_order(body: OrderCreate):
     db = get_db()
+    counter = await db.counters.find_one_and_update(
+        {"_id": "order_number"},
+        {"$inc": {"seq": 1}},
+        upsert=True,
+        return_document=True,
+    )
+    order_number = counter["seq"]
     doc = {
+        "order_number": order_number,
         "name": body.name,
         "phone": body.phone,
         "items": [item.model_dump() for item in body.items],

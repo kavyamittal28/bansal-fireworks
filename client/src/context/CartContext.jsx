@@ -43,6 +43,10 @@ export function CartProvider({ children }) {
     setCart(prev => prev.filter(i => !(i.productId === productId && i.type === type)))
   }
 
+  function removeProduct(productId) {
+    setCart(prev => prev.filter(i => i.productId !== productId))
+  }
+
   function updateQty(productId, type, qty) {
     if (qty <= 0) {
       removeFromCart(productId, type)
@@ -55,6 +59,23 @@ export function CartProvider({ children }) {
     )
   }
 
+  // Set qty for a type — adds new entry if not in cart, uses template for product fields
+  function setQty(productId, type, qty, template) {
+    if (qty <= 0) {
+      removeFromCart(productId, type)
+      return
+    }
+    setCart(prev => {
+      const existing = prev.find(i => i.productId === productId && i.type === type)
+      if (existing) {
+        return prev.map(i =>
+          i.productId === productId && i.type === type ? { ...i, qty } : i
+        )
+      }
+      return [...prev, { ...template, type, qty, addedAt: Date.now() }]
+    })
+  }
+
   function clearCart() {
     setCart([])
   }
@@ -62,7 +83,7 @@ export function CartProvider({ children }) {
   const totalItems = cart.length
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, clearCart, totalItems }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, removeProduct, updateQty, setQty, clearCart, totalItems }}>
       {children}
     </CartContext.Provider>
   )

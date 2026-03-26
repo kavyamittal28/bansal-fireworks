@@ -27,8 +27,6 @@ class Settings(BaseSettings):
     twilio_auth_token: str
     twilio_from: str = "whatsapp:+14155238886"
     twilio_template_sid: str
-    twilio_otp: str = "292001"
-
     @property
     def origins_list(self) -> List[str]:
         return [o.strip() for o in self.allowed_origins.split(",")]

@@ -2,19 +2,42 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 
-function CartItem({ item, onUpdateQty, onRemove }) {
-  const isCase = item.type === 'cases'
-  const caseInfo = isCase && item.case_to_piece_qty ? `1 case = ${item.case_to_piece_qty} pcs` : null
-  const lineTotal = isCase && item.case_to_piece_qty
-    ? item.price * item.case_to_piece_qty * item.qty
-    : item.price * item.qty
+function QtyStepper({ qty, onChange }) {
+  return (
+    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+      <button
+        onClick={() => onChange(qty - 1)}
+        disabled={qty <= 0}
+        className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-colors font-bold text-base"
+        aria-label="Decrease"
+      >−</button>
+      <span className="w-8 text-center text-gray-900 text-sm font-medium">{qty}</span>
+      <button
+        onClick={() => onChange(qty + 1)}
+        className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors font-bold text-base"
+        aria-label="Increase"
+      >+</button>
+    </div>
+  )
+}
+
+function CartItem({ group, onSetQty, onRemoveProduct }) {
+  const { productId, name, thumbnail, price, case_to_piece_qty, items } = group
+  const order_type = group.order_type || 'both'
+  const casesItem = items.find(i => i.type === 'cases')
+  const piecesItem = items.find(i => i.type === 'pieces')
+  const casesQty = casesItem?.qty ?? 0
+  const piecesQty = piecesItem?.qty ?? 0
+  const showCases = order_type !== 'pieces'
+  const showPieces = order_type !== 'cases'
+  const template = casesItem || piecesItem
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 flex gap-4">
       {/* Thumbnail */}
       <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
-        {item.thumbnail ? (
-          <img src={item.thumbnail} alt={item.name} className="w-full h-full object-cover" />
+        {thumbnail ? (
+          <img src={thumbnail} alt={name} className="w-full h-full object-cover" />
         ) : (
           <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
@@ -24,63 +47,59 @@ function CartItem({ item, onUpdateQty, onRemove }) {
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="text-gray-900 font-semibold text-sm leading-snug truncate">{item.name}</h3>
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                isCase ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
-              }`}>
-                {isCase ? 'CASE' : 'PIECES'}
-              </span>
-              {caseInfo && <span className="text-[10px] text-gray-400">{caseInfo}</span>}
-            </div>
-          </div>
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <h3 className="text-gray-900 font-semibold text-sm leading-snug">{name}</h3>
           <button
-            onClick={() => onRemove(item.productId, item.type)}
+            onClick={() => onRemoveProduct(productId)}
             className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 p-0.5"
             aria-label="Remove item"
-          >
-            ✕
-          </button>
+          >✕</button>
         </div>
 
-        <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
-          {/* Qty stepper */}
-          <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
-            <button
-              onClick={() => onUpdateQty(item.productId, item.type, item.qty - 1)}
-              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors font-bold text-base"
-              aria-label="Decrease quantity"
-            >−</button>
-            <span className="w-8 text-center text-gray-900 text-sm font-medium">{item.qty}</span>
-            <button
-              onClick={() => onUpdateQty(item.productId, item.type, item.qty + 1)}
-              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors font-bold text-base"
-              aria-label="Increase quantity"
-            >+</button>
-          </div>
-
-          {/* Price */}
-          <div className="text-right">
-            <div className="text-gray-400 text-xs">
-              ₹{Number(item.price).toLocaleString('en-IN')} / pc
-              {isCase && item.case_to_piece_qty && ` × ${item.case_to_piece_qty}`}
+        <div className="space-y-2.5">
+          {showCases && (
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">CASE</span>
+                {case_to_piece_qty && (
+                  <span className="text-[10px] text-gray-400">1 case = {case_to_piece_qty} pcs</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {casesQty > 0 && case_to_piece_qty && (
+                  <span className="text-xs text-gray-400 font-medium">
+                    ₹{(price * case_to_piece_qty * casesQty).toLocaleString('en-IN')}
+                  </span>
+                )}
+                <QtyStepper qty={casesQty} onChange={qty => onSetQty(productId, 'cases', qty, template)} />
+              </div>
             </div>
-            <div className="text-gray-900 font-bold text-sm">₹{lineTotal.toLocaleString('en-IN')}</div>
-          </div>
+          )}
+
+          {showPieces && (
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">PIECES</span>
+              <div className="flex items-center gap-2">
+                {piecesQty > 0 && (
+                  <span className="text-xs text-gray-400 font-medium">
+                    ₹{(price * piecesQty).toLocaleString('en-IN')}
+                  </span>
+                )}
+                <QtyStepper qty={piecesQty} onChange={qty => onSetQty(productId, 'pieces', qty, template)} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-const HARDCODED_OTP = '292001'
-
 function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) {
   const [step, setStep] = useState(1) // 1 = details, 2 = OTP
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [phoneError, setPhoneError] = useState(null)
   const [otp, setOtp] = useState('')
   const [otpError, setOtpError] = useState(null)
   const [sendingOtp, setSendingOtp] = useState(false)
@@ -88,9 +107,18 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  function validatePhone(value) {
+    const digits = value.replace(/[\s\-\+]/g, '')
+    if (digits.length !== 10) return 'Enter a valid 10-digit mobile number'
+    if (!/^[6-9]\d{9}$/.test(digits)) return 'Enter a valid Indian mobile number'
+    return null
+  }
+
   async function handleSendOtp(e) {
     e.preventDefault()
-    if (!name.trim() || !phone.trim()) return
+    const err = validatePhone(phone)
+    if (err) { setPhoneError(err); return }
+    if (!name.trim()) return
     setSendingOtp(true)
     setSendOtpError(null)
     try {
@@ -111,12 +139,25 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
   async function handleVerifyAndOrder(e) {
     e.preventDefault()
     setOtpError(null)
-    if (otp.trim() !== HARDCODED_OTP) {
-      setOtpError('Incorrect OTP. Please try again.')
-      return
-    }
     setLoading(true)
     setError(null)
+    try {
+      const verifyRes = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone.trim(), otp: otp.trim() }),
+      })
+      if (!verifyRes.ok) {
+        const data = await verifyRes.json().catch(() => ({}))
+        setOtpError(data?.detail?.message || 'Incorrect OTP. Please try again.')
+        setLoading(false)
+        return
+      }
+    } catch {
+      setOtpError('Could not verify OTP. Please try again.')
+      setLoading(false)
+      return
+    }
     try {
       const res = await fetch('/api/place-order', {
         method: 'POST',
@@ -172,15 +213,24 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  WhatsApp Number
+                </label>
                 <input
                   type="tel"
                   value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                  placeholder="Enter your phone number"
+                  onChange={e => { setPhone(e.target.value); setPhoneError(null) }}
+                  placeholder="10-digit mobile number"
+                  maxLength={10}
                   required
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full border rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    phoneError ? 'border-red-400' : 'border-gray-200'
+                  }`}
                 />
+                {phoneError
+                  ? <p className="text-red-500 text-xs mt-1">{phoneError}</p>
+                  : <p className="text-gray-400 text-xs mt-1">Must be active on WhatsApp — OTP will be sent here</p>
+                }
               </div>
               {sendOtpError && <p className="text-red-500 text-sm">{sendOtpError}</p>}
               <button
@@ -244,9 +294,28 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
 }
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQty, clearCart } = useCart()
+  const { cart, setQty, removeProduct, clearCart } = useCart()
   const [showModal, setShowModal] = useState(false)
   const navigate = useNavigate()
+
+  // Group cart items by product
+  const groupedProducts = Object.values(
+    cart.reduce((acc, item) => {
+      if (!acc[item.productId]) {
+        acc[item.productId] = {
+          productId: item.productId,
+          name: item.name,
+          thumbnail: item.thumbnail,
+          price: item.price,
+          order_type: item.order_type || 'both',
+          case_to_piece_qty: item.case_to_piece_qty,
+          items: [],
+        }
+      }
+      acc[item.productId].items.push(item)
+      return acc
+    }, {})
+  )
 
   const grandTotal = cart.reduce((sum, item) => {
     const isCase = item.type === 'cases'
@@ -276,6 +345,7 @@ export default function CartPage() {
           onSuccess={handleOrderSuccess}
         />
       )}
+
       {/* Header */}
       <div className="bg-white border-b border-gray-200 py-6">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-4">
@@ -284,17 +354,25 @@ export default function CartPage() {
             <p className="text-gray-500 text-sm mt-1">
               {cart.length === 0
                 ? 'Your cart is empty.'
-                : `${cart.length} item${cart.length !== 1 ? 's' : ''} · ${totalPieces.toLocaleString('en-IN')} total pieces`}
+                : `${groupedProducts.length} product${groupedProducts.length !== 1 ? 's' : ''} · ${totalPieces.toLocaleString('en-IN')} total pieces`}
             </p>
           </div>
-          {cart.length > 0 && (
-            <button
-              onClick={clearCart}
-              className="text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg transition-colors"
+          <div className="flex items-center gap-3">
+            <Link
+              to="/products"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-xl transition-colors text-sm"
             >
-              Clear cart
-            </button>
-          )}
+              + Add More Products
+            </Link>
+            {cart.length > 0 && (
+              <button
+                onClick={clearCart}
+                className="text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-3 py-2 rounded-xl transition-colors"
+              >
+                Clear cart
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -312,19 +390,14 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Items */}
             <div className="lg:col-span-2 space-y-3">
-              {cart.map(item => (
+              {groupedProducts.map(group => (
                 <CartItem
-                  key={`${item.productId}-${item.type}`}
-                  item={item}
-                  onUpdateQty={updateQty}
-                  onRemove={removeFromCart}
+                  key={group.productId}
+                  group={group}
+                  onSetQty={setQty}
+                  onRemoveProduct={removeProduct}
                 />
               ))}
-              <div className="pt-2">
-                <Link to="/products" className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  ← Continue browsing
-                </Link>
-              </div>
             </div>
 
             {/* Summary */}
@@ -332,22 +405,32 @@ export default function CartPage() {
               <div className="bg-white border border-gray-200 rounded-xl p-5 sticky top-24">
                 <h2 className="text-gray-900 font-bold text-base mb-4">Price Breakdown</h2>
 
-                <div className="space-y-2.5 mb-4">
-                  {cart.map(item => {
-                    const isCase = item.type === 'cases'
-                    const lineTotal = isCase && item.case_to_piece_qty
-                      ? item.price * item.case_to_piece_qty * item.qty
-                      : item.price * item.qty
+                <div className="space-y-3 mb-4">
+                  {groupedProducts.map(group => {
+                    const casesItem = group.items.find(i => i.type === 'cases')
+                    const piecesItem = group.items.find(i => i.type === 'pieces')
+                    const casesTotal = casesItem && group.case_to_piece_qty
+                      ? group.price * group.case_to_piece_qty * casesItem.qty
+                      : 0
+                    const piecesTotal = piecesItem ? group.price * piecesItem.qty : 0
+
                     return (
-                      <div key={`${item.productId}-${item.type}`} className="flex items-start justify-between gap-2 text-sm">
-                        <div className="min-w-0">
-                          <span className="text-gray-600 line-clamp-1">{item.name}</span>
-                          <div className="text-[10px] text-gray-400 mt-0.5">
-                            {item.qty} {item.type === 'cases' ? `case${item.qty !== 1 ? 's' : ''}` : `pc${item.qty !== 1 ? 's' : ''}`}
-                            {isCase && item.case_to_piece_qty && ` × ${item.case_to_piece_qty} pcs`}
-                          </div>
+                      <div key={group.productId} className="text-sm">
+                        <span className="text-gray-700 font-medium line-clamp-1">{group.name}</span>
+                        <div className="mt-1 space-y-0.5 pl-2">
+                          {casesItem && (
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>{casesItem.qty} case{casesItem.qty !== 1 ? 's' : ''}{group.case_to_piece_qty ? ` × ${group.case_to_piece_qty} pcs` : ''}</span>
+                              <span className="font-medium text-gray-700">₹{casesTotal.toLocaleString('en-IN')}</span>
+                            </div>
+                          )}
+                          {piecesItem && (
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>{piecesItem.qty} pc{piecesItem.qty !== 1 ? 's' : ''}</span>
+                              <span className="font-medium text-gray-700">₹{piecesTotal.toLocaleString('en-IN')}</span>
+                            </div>
+                          )}
                         </div>
-                        <span className="text-gray-900 font-semibold flex-shrink-0">₹{lineTotal.toLocaleString('en-IN')}</span>
                       </div>
                     )
                   })}
@@ -372,11 +455,19 @@ export default function CartPage() {
                     📦 Place Order
                   </button>
                   <Link
-                    to="/contact"
-                    className="flex items-center justify-center gap-2 border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 font-medium py-2.5 rounded-xl transition-colors text-sm w-full"
+                    to="/products"
+                    className="flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2.5 rounded-xl transition-colors text-sm w-full border border-gray-200"
                   >
-                    💬 Send Bulk Inquiry
+                    + Add More Products
                   </Link>
+                  <div className="text-center pt-1">
+                    <Link
+                      to="/contact"
+                      className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      Send Bulk Inquiry
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

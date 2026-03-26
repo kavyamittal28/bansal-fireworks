@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 
 // ── Payment details — update these when going live ──────────────────────────
 const UPI_ID = 'bansalfireworks@upi'
-const UPI_PHONE = '+91 98765 43210'
+const UPI_PHONE = '+91 95876 38000'
+const STORE_PHONE = '+91 95876 38000'
 // ────────────────────────────────────────────────────────────────────────────
 
 export default function OrderPaymentPage() {
@@ -17,6 +18,7 @@ export default function OrderPaymentPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState(null)
   const [submitted, setSubmitted] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const fileRef = useRef()
 
@@ -28,7 +30,6 @@ export default function OrderPaymentPage() {
         if (!res.ok) throw new Error()
         const data = await res.json()
         setOrder(data)
-        // If screenshot was already submitted in a previous visit
         if (data.payment_status === 'pending_confirmation' || data.payment_status === 'confirmed') {
           setSubmitted(true)
         }
@@ -70,6 +71,12 @@ export default function OrderPaymentPage() {
     }
   }
 
+  function copyOrderNumber() {
+    navigator.clipboard?.writeText(String(order?.order_number || orderId))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -93,21 +100,48 @@ export default function OrderPaymentPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center text-center px-4">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-10 max-w-sm w-full">
-          <div className="text-5xl mb-4">✅</div>
-          <h2 className="text-gray-900 font-bold text-xl mb-2">Payment Submitted!</h2>
-          <p className="text-gray-500 text-sm mb-2">
-            Your screenshot has been sent for verification. We'll confirm your order shortly.
-          </p>
-          <p className="text-gray-400 text-xs mb-6">Order ID: <span className="font-mono">{orderId}</span></p>
-          <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-left mb-6">
-            <p className="text-blue-800 font-semibold text-xs mb-1">🏪 Picking up from store?</p>
-            <p className="text-blue-700 text-xs leading-relaxed">
-              Mention your <span className="font-semibold">mobile number</span> and <span className="font-semibold">Order ID</span> at the store counter.
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-8">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-10 max-w-sm w-full">
+          <div className="text-center mb-5">
+            <div className="text-5xl mb-3">✅</div>
+            <h2 className="text-gray-900 font-bold text-xl mb-1">Payment Submitted!</h2>
+            <p className="text-gray-500 text-sm">
+              Screenshot received. We'll confirm your order shortly.
             </p>
           </div>
-          <Link to="/products" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors">
+
+          {/* Order number — prominent */}
+          <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 text-center mb-4">
+            <p className="text-gray-400 text-xs mb-1">Your Order Number</p>
+            <p className="text-gray-900 font-bold text-3xl tracking-widest mb-2">
+              #{order?.order_number ?? '—'}
+            </p>
+            <button
+              onClick={copyOrderNumber}
+              className="text-blue-600 hover:text-blue-700 text-xs font-medium border border-blue-200 hover:border-blue-400 px-3 py-1 rounded-lg transition-colors"
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+
+          {/* Pickup instructions */}
+          <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 space-y-2">
+            <p className="text-blue-800 font-semibold text-sm">🏪 Picking up from store?</p>
+            <p className="text-blue-700 text-xs leading-relaxed">
+              Walk in and mention your <span className="font-semibold">Order Number #{order?.order_number}</span> and your <span className="font-semibold">registered WhatsApp number</span> at the counter.
+            </p>
+            <p className="text-blue-700 text-xs">
+              📞 Call us:{' '}
+              <a href={`tel:${STORE_PHONE.replace(/\s/g, '')}`} className="font-semibold underline">
+                {STORE_PHONE}
+              </a>
+            </p>
+          </div>
+
+          <Link
+            to="/products"
+            className="block text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
+          >
             Continue Shopping
           </Link>
         </div>
@@ -116,42 +150,51 @@ export default function OrderPaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-10 px-4">
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <img src="/Logo.png" alt="Bansal Fireworks" className="h-9 w-auto" />
+        <div className="text-center mb-5 sm:mb-8">
+          <Link to="/" className="inline-flex items-center gap-2 mb-4 sm:mb-6">
+            <img src="/Logo.png" alt="Bansal Fireworks" className="h-8 w-auto" />
             <span className="text-gray-900 font-bold text-base">Bansal Fireworks</span>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Complete Payment</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Complete Payment</h1>
           <p className="text-gray-500 text-sm mt-1">Order for {order.name}</p>
         </div>
 
+        {/* Order number badge */}
+        <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-gray-400 text-xs">Order Number</p>
+            <p className="text-gray-900 font-bold text-lg tracking-widest">#{order.order_number ?? '—'}</p>
+          </div>
+          <span className="text-[10px] font-semibold bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">PENDING PAYMENT</span>
+        </div>
+
         {/* Amount card */}
-        <div className="bg-blue-600 text-white rounded-2xl p-5 mb-5 text-center">
+        <div className="bg-blue-600 text-white rounded-2xl p-4 sm:p-5 mb-4 sm:mb-5 text-center">
           <p className="text-blue-200 text-sm mb-1">Amount to Pay</p>
-          <p className="text-4xl font-bold">₹{Number(order.total_amount).toLocaleString('en-IN')}</p>
+          <p className="text-3xl sm:text-4xl font-bold">₹{Number(order.total_amount).toLocaleString('en-IN')}</p>
           <p className="text-blue-200 text-xs mt-1">{order.total_pieces?.toLocaleString('en-IN')} pieces · {order.items?.length} item{order.items?.length !== 1 ? 's' : ''}</p>
         </div>
 
         {/* Payment methods */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-5">
-          <h2 className="text-gray-900 font-semibold text-base mb-5 text-center">Pay via UPI</h2>
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-5">
+          <h2 className="text-gray-900 font-semibold text-base mb-4 sm:mb-5 text-center">Pay via UPI</h2>
 
           {/* QR Code */}
-          <div className="flex flex-col items-center mb-6">
+          <div className="flex flex-col items-center mb-5 sm:mb-6">
             <div className="p-3 border-2 border-gray-100 rounded-2xl bg-white inline-block mb-3">
               <img
                 src="/images/payment-qr.png"
                 alt="UPI Payment QR Code"
-                className="w-44 h-44 object-contain"
+                className="w-36 h-36 sm:w-44 sm:h-44 object-contain"
               />
             </div>
             <p className="text-gray-400 text-xs">Scan with any UPI app</p>
           </div>
 
-          <div className="border-t border-gray-100 pt-5 space-y-3">
+          <div className="border-t border-gray-100 pt-4 sm:pt-5 space-y-3">
             {/* UPI ID */}
             <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
               <div>
@@ -183,26 +226,25 @@ export default function OrderPaymentPage() {
         </div>
 
         {/* Screenshot upload */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
           <h2 className="text-gray-900 font-semibold text-base mb-1">Upload Payment Screenshot</h2>
-          <p className="text-gray-400 text-xs mb-5">After making the payment, upload a screenshot so we can confirm your order.</p>
+          <p className="text-gray-400 text-xs mb-4 sm:mb-5">After making the payment, upload a screenshot so we can confirm your order.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Drop zone */}
             <div
               onClick={() => fileRef.current?.click()}
-              className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+              className={`border-2 border-dashed rounded-xl p-5 sm:p-6 text-center cursor-pointer transition-colors ${
                 preview ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
               }`}
             >
               {preview ? (
                 <div className="flex flex-col items-center gap-2">
-                  <img src={preview} alt="Screenshot preview" className="max-h-40 rounded-lg object-contain" />
-                  <p className="text-blue-600 text-xs font-medium">Click to change</p>
+                  <img src={preview} alt="Screenshot preview" className="max-h-36 sm:max-h-40 rounded-lg object-contain" />
+                  <p className="text-blue-600 text-xs font-medium">Tap to change</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 text-gray-400">
-                  <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="w-9 h-9 sm:w-10 sm:h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                   </svg>
                   <p className="text-sm font-medium text-gray-600">Tap to upload screenshot</p>
@@ -236,20 +278,26 @@ export default function OrderPaymentPage() {
         </div>
 
         {/* Pickup notice */}
-        <div className="mt-5 bg-blue-50 border border-blue-100 rounded-2xl px-5 py-4 flex gap-3 items-start">
+        <div className="mt-4 sm:mt-5 bg-blue-50 border border-blue-100 rounded-2xl px-4 sm:px-5 py-4 flex gap-3 items-start">
           <span className="text-xl flex-shrink-0">🏪</span>
           <div>
             <p className="text-blue-800 font-semibold text-sm mb-1">Want to pick up from our store?</p>
-            <p className="text-blue-700 text-xs leading-relaxed">
-              You can collect your order directly from our store. Just walk in and mention your{' '}
-              <span className="font-semibold">registered mobile number</span> and{' '}
-              <span className="font-semibold">Order ID: <span className="font-mono">{orderId}</span></span>.
+            <p className="text-blue-700 text-xs leading-relaxed mb-1.5">
+              Walk in and mention your{' '}
+              <span className="font-semibold">Order Number #{order.order_number}</span> and{' '}
+              <span className="font-semibold">registered WhatsApp number</span> at the counter.
             </p>
+            <a
+              href={`tel:${STORE_PHONE.replace(/\s/g, '')}`}
+              className="inline-flex items-center gap-1 text-blue-700 text-xs font-semibold underline"
+            >
+              📞 {STORE_PHONE}
+            </a>
           </div>
         </div>
 
-        <p className="text-center text-gray-400 text-xs mt-4">
-          Need help? Call us at {UPI_PHONE}
+        <p className="text-center text-gray-400 text-xs mt-4 pb-6">
+          Need help? Call us at {STORE_PHONE}
         </p>
       </div>
     </div>
