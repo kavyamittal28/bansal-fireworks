@@ -83,13 +83,29 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
   const [otpError, setOtpError] = useState(null)
+  const [sendingOtp, setSendingOtp] = useState(false)
+  const [sendOtpError, setSendOtpError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  function handleSendOtp(e) {
+  async function handleSendOtp(e) {
     e.preventDefault()
     if (!name.trim() || !phone.trim()) return
-    setStep(2)
+    setSendingOtp(true)
+    setSendOtpError(null)
+    try {
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone.trim() }),
+      })
+      if (!res.ok) throw new Error('Failed to send OTP')
+      setStep(2)
+    } catch {
+      setSendOtpError('Could not send OTP. Please try again.')
+    } finally {
+      setSendingOtp(false)
+    }
   }
 
   async function handleVerifyAndOrder(e) {
@@ -166,12 +182,15 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              {sendOtpError && <p className="text-red-500 text-sm">{sendOtpError}</p>}
               <button
                 type="submit"
-                disabled={!name.trim() || !phone.trim()}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors text-sm"
+                disabled={!name.trim() || !phone.trim() || sendingOtp}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
               >
-                Send OTP
+                {sendingOtp ? (
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : 'Send OTP'}
               </button>
             </form>
           </>
