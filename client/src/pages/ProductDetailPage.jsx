@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useCart } from '../context/CartContext'
 
 const TABS = ['Overview', 'Performance Guide', 'Shipping & Legal']
 
@@ -23,6 +24,11 @@ export default function ProductDetailPage() {
   const [wishlisted, setWishlisted] = useState(false)
   const [toastVisible, setToastVisible] = useState(false)
 
+  const { addToCart } = useCart()
+  const [cartQty, setCartQty] = useState(1)
+  const [cartType, setCartType] = useState(null)
+  const [cartAdded, setCartAdded] = useState(false)
+
   useEffect(() => {
     async function fetchProduct() {
       setLoading(true)
@@ -34,6 +40,8 @@ export default function ProductDetailPage() {
         const data = await res.json()
         setProduct(data)
         setSelectedImg(0)
+        const ot = data.order_type || 'both'
+        setCartType(ot === 'cases' ? 'cases' : 'pieces')
       } catch (err) {
         setFetchError(err.message)
       } finally {
@@ -199,6 +207,91 @@ export default function ProductDetailPage() {
                 </span>
               )}
             </div>
+
+            {/* Add to Cart */}
+            {(() => {
+              const ot = product.order_type || 'both'
+              const canPieces = ot === 'pieces' || ot === 'both'
+              const canCases = ot === 'cases' || ot === 'both'
+              const caseQty = product.case_to_piece_qty
+
+              function handleAddToCart() {
+                addToCart(product, cartType || (canPieces ? 'pieces' : 'cases'), cartQty)
+                setCartAdded(true)
+                setTimeout(() => setCartAdded(false), 2000)
+              }
+
+              return (
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
+                  <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3">Add to Cart</p>
+
+                  {/* Type selector */}
+                  {canPieces && canCases && (
+                    <div className="flex gap-2 mb-3">
+                      <button
+                        onClick={() => setCartType('pieces')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-all ${
+                          cartType === 'pieces'
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'border-gray-200 text-gray-600 hover:border-gray-400'
+                        }`}
+                      >
+                        Pieces
+                      </button>
+                      <button
+                        onClick={() => setCartType('cases')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-all ${
+                          cartType === 'cases'
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                        }`}
+                      >
+                        Cases {caseQty && <span className="text-[11px] opacity-75">({caseQty} pcs)</span>}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Qty + button */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
+                      <button
+                        onClick={() => setCartQty(q => Math.max(1, q - 1))}
+                        className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-base"
+                      >−</button>
+                      <span className="w-9 text-center text-gray-900 text-sm font-medium">{cartQty}</span>
+                      <button
+                        onClick={() => setCartQty(q => q + 1)}
+                        className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-base"
+                      >+</button>
+                    </div>
+                    <button
+                      onClick={handleAddToCart}
+                      className={`flex-1 flex items-center justify-center gap-2 font-semibold py-2.5 rounded-lg text-sm transition-all ${
+                        cartAdded
+                          ? 'bg-green-100 text-green-700 border border-green-200'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
+                      id="add-to-cart-btn"
+                    >
+                      {cartAdded ? '✓ Added to Cart' : '+ Add to Cart'}
+                    </button>
+                  </div>
+
+                  {/* Price hint */}
+                  {cartType === 'cases' && caseQty && (
+                    <p className="text-gray-400 text-xs mt-2">
+                      {cartQty} case{cartQty !== 1 ? 's' : ''} × {caseQty} pcs = {cartQty * caseQty} pieces ·{' '}
+                      <span className="text-gray-700 font-medium">₹{(product.price * caseQty * cartQty).toLocaleString('en-IN')}</span>
+                    </p>
+                  )}
+                  {cartType === 'pieces' && (
+                    <p className="text-gray-400 text-xs mt-2">
+                      {cartQty} pc{cartQty !== 1 ? 's' : ''} · <span className="text-gray-700 font-medium">₹{(product.price * cartQty).toLocaleString('en-IN')}</span>
+                    </p>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* CTA Buttons */}
             <div className="flex flex-col gap-3 mb-6">

@@ -13,6 +13,8 @@ class ProductUpdate(BaseModel):
     description: Optional[str] = None
     eco_friendly: Optional[bool] = None
     bestseller: Optional[bool] = None
+    order_type: Optional[str] = None
+    case_to_piece_qty: Optional[int] = None
     is_active: Optional[bool] = None
 
 
@@ -27,6 +29,8 @@ class ProductResponse(BaseModel):
     description: Optional[str] = None
     eco_friendly: bool
     bestseller: bool
+    order_type: Optional[str] = None
+    case_to_piece_qty: Optional[int] = None
     media: List[MediaAsset]
     is_active: bool
     created_at: str

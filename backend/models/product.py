@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Literal
 
 
 class MediaAsset(BaseModel):
@@ -20,6 +20,8 @@ class Product(BaseModel):
     description: Optional[str] = None
     eco_friendly: bool = False
     bestseller: bool = False
+    order_type: Optional[Literal["pieces", "cases", "both"]] = "both"
+    case_to_piece_qty: Optional[int] = None
     media: List[MediaAsset] = []
     is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)

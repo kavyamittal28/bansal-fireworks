@@ -14,6 +14,7 @@ export default function AdminEditProductPage() {
     name: '', category: '', brand: '', price: '',
     market_price: '', stock: '', description: '',
     ecoFriendly: false, bestseller: false,
+    order_type: 'both', case_to_piece_qty: '',
   })
   const [categories, setCategories] = useState([])
   const [brands, setBrands] = useState([])
@@ -50,6 +51,8 @@ export default function AdminEditProductPage() {
         description: prod.description || '',
         ecoFriendly: prod.eco_friendly || false,
         bestseller: prod.bestseller || false,
+        order_type: prod.order_type || 'both',
+        case_to_piece_qty: prod.case_to_piece_qty ?? '',
       })
 
       const media = Array.isArray(prod.media) ? prod.media : []
@@ -136,6 +139,8 @@ export default function AdminEditProductPage() {
       body.append('description', form.description)
       body.append('ecoFriendly', form.ecoFriendly)
       body.append('bestseller', form.bestseller)
+      body.append('order_type', form.order_type)
+      if (form.case_to_piece_qty !== '') body.append('case_to_piece_qty', form.case_to_piece_qty)
       mediaFiles.filter(Boolean).forEach(f => body.append('images', f))
 
       const res = await fetch(`/api/update-product/${id}`, {
@@ -363,6 +368,60 @@ export default function AdminEditProductPage() {
                   <span className="text-gray-600 text-sm">Bestseller Badge</span>
                 </label>
               </div>
+            </div>
+          </div>
+
+          {/* Order Quantity */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <h2 className="text-blue-600 font-semibold text-base mb-1">Order Quantity</h2>
+            <p className="text-gray-400 text-sm mb-5">Set how this product can be ordered by customers.</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-700 text-sm font-medium mb-3">Ordering Method</label>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { value: 'pieces', label: 'Pieces only', desc: 'Sold per individual piece' },
+                    { value: 'cases', label: 'Cases only', desc: 'Sold in bulk cases' },
+                    { value: 'both', label: 'Pieces & Cases', desc: 'Customer can choose either' },
+                  ].map(opt => (
+                    <label
+                      key={opt.value}
+                      className={`flex items-start gap-3 cursor-pointer border rounded-xl p-3 flex-1 min-w-[130px] transition-all ${
+                        form.order_type === opt.value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      <input type="radio" name="order_type" value={opt.value}
+                        checked={form.order_type === opt.value} onChange={handleChange}
+                        className="mt-0.5 text-blue-600 focus:ring-blue-500" />
+                      <div>
+                        <div className="text-gray-800 text-sm font-medium">{opt.label}</div>
+                        <div className="text-gray-400 text-xs">{opt.desc}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {(form.order_type === 'cases' || form.order_type === 'both') && (
+                <div>
+                  <label className="flex items-center gap-2 text-gray-700 text-sm font-medium mb-2" htmlFor="case_to_piece_qty">
+                    Case-to-Piece Quantity
+                    <span className="relative group/tip">
+                      <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-52 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 opacity-0 group-hover/tip:opacity-100 transition-opacity shadow-lg z-10 text-center">
+                        Number of pieces in one case. Case price = price per piece × this quantity.
+                        <span className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-gray-900" />
+                      </span>
+                    </span>
+                  </label>
+                  <input id="case_to_piece_qty" name="case_to_piece_qty" type="number" min="1" step="1"
+                    value={form.case_to_piece_qty} onChange={handleChange} placeholder="e.g. 12"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                  <p className="text-gray-400 text-xs mt-1.5">Case price = price per piece × this quantity</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { useCart } from '../context/CartContext'
 
 const SORT_OPTIONS = [
   { id: 'default', label: 'Default Order' },
@@ -7,6 +8,126 @@ const SORT_OPTIONS = [
   { id: 'price_desc', label: 'Price: High → Low' },
   { id: 'name_asc', label: 'Name: A → Z' },
 ]
+
+function ProductCard({ p }) {
+  const thumbnail = p.media?.[0]?.url
+  const { addToCart } = useCart()
+
+  const orderType = p.order_type || 'both'
+  const canPieces = orderType === 'pieces' || orderType === 'both'
+  const canCases = orderType === 'cases' || orderType === 'both'
+
+  const [selectedType, setSelectedType] = useState(canPieces ? 'pieces' : 'cases')
+  const [added, setAdded] = useState(false)
+
+  function handleAddToCart(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    addToCart(p, selectedType, 1)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1500)
+  }
+
+  return (
+    <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col" id={`product-${p.id}`}>
+      {/* Clickable area */}
+      <Link to={`/products/${p.id}`} className="block">
+        <div className="h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
+          {thumbnail ? (
+            <img
+              src={thumbnail}
+              alt={p.name}
+              loading="lazy"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-gray-300">
+              <svg className="w-12 h-12 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.20 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+              </svg>
+              <span className="text-xs">No Image</span>
+            </div>
+          )}
+        </div>
+        <div className="p-4">
+          <div className="flex flex-wrap gap-1 mb-2">
+            {p.brand && (
+              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-medium">
+                {p.brand.toUpperCase()}
+              </span>
+            )}
+            {p.bestseller && (
+              <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded font-medium">BESTSELLER</span>
+            )}
+            {p.eco_friendly && (
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">ECO</span>
+            )}
+          </div>
+          <h3 className="text-gray-900 font-semibold text-sm mb-3">{p.name}</h3>
+          <div>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-gray-900 font-bold text-lg">₹{Number(p.price).toLocaleString('en-IN')}</span>
+              {p.market_price && Number(p.market_price) > Number(p.price) && (
+                <span className="text-sm text-gray-400 line-through">₹{Number(p.market_price).toLocaleString('en-IN')}</span>
+              )}
+            </div>
+            {p.market_price && Number(p.market_price) > Number(p.price) && (
+              <span className="inline-block text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full mt-1">
+                {Math.round((1 - p.price / p.market_price) * 100)}% off
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      {/* Add to Cart — outside the Link */}
+      <div className="px-4 pb-4 pt-1 border-t border-gray-100 flex items-center gap-2 mt-auto">
+        {/* Type toggle (only when both are available) */}
+        {canPieces && canCases && (
+          <div className="flex rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+            <button
+              onClick={e => { e.preventDefault(); setSelectedType('pieces') }}
+              className={`px-2.5 py-1.5 text-[10px] font-semibold transition-colors ${
+                selectedType === 'pieces'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Pcs
+            </button>
+            <button
+              onClick={e => { e.preventDefault(); setSelectedType('cases') }}
+              className={`px-2.5 py-1.5 text-[10px] font-semibold border-l border-gray-200 transition-colors ${
+                selectedType === 'cases'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+            >
+              Case
+            </button>
+          </div>
+        )}
+        {!canPieces && canCases && (
+          <span className="text-[10px] text-blue-600 font-semibold">Case</span>
+        )}
+        {canPieces && !canCases && (
+          <span className="text-[10px] text-gray-500 font-semibold">Pieces</span>
+        )}
+
+        <button
+          onClick={handleAddToCart}
+          className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-lg transition-all duration-200 ${
+            added
+              ? 'bg-green-100 text-green-700 border border-green-200'
+              : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'
+          }`}
+        >
+          {added ? '✓ Added' : '+ Add to Cart'}
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export default function ProductsPage() {
   const [searchParams] = useSearchParams()
@@ -245,68 +366,7 @@ export default function ProductsPage() {
           {/* Product Grid */}
           {!loading && sorted.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
-              {sorted.map(p => {
-                const thumbnail = p.media?.[0]?.url
-                return (
-                  <Link
-                    key={p.id}
-                    to={`/products/${p.id}`}
-                    className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-                    id={`product-${p.id}`}
-                  >
-                    <div className="h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {thumbnail ? (
-                        <img
-                          src={thumbnail}
-                          alt={p.name}
-                          loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center text-gray-300">
-                          <svg className="w-12 h-12 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-                          </svg>
-                          <span className="text-xs">No Image</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {p.brand && (
-                          <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-medium">
-                            {p.brand.toUpperCase()}
-                          </span>
-                        )}
-                        {p.bestseller && (
-                          <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded font-medium">
-                            BESTSELLER
-                          </span>
-                        )}
-                        {p.eco_friendly && (
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">
-                            ECO
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="text-gray-900 font-semibold text-sm mb-3">{p.name}</h3>
-                      <div>
-                        <div className="flex items-baseline gap-2 flex-wrap">
-                          <span className="text-gray-900 font-bold text-lg">₹{Number(p.price).toLocaleString('en-IN')}</span>
-                          {p.market_price && Number(p.market_price) > Number(p.price) && (
-                            <span className="text-sm text-gray-400 line-through">₹{Number(p.market_price).toLocaleString('en-IN')}</span>
-                          )}
-                        </div>
-                        {p.market_price && Number(p.market_price) > Number(p.price) && (
-                          <span className="inline-block text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full mt-1">
-                            {Math.round((1 - p.price / p.market_price) * 100)}% off
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
+              {sorted.map(p => <ProductCard key={p.id} p={p} />)}
             </div>
           )}
 

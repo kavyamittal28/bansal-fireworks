@@ -55,6 +55,8 @@ async def _handle_create(
     eco_friendly_str: str,
     bestseller_str: str,
     images: List[UploadFile],
+    order_type_str: Optional[str] = "both",
+    case_to_piece_qty_str: Optional[str] = None,
 ) -> dict:
     db = get_db()
 
@@ -86,6 +88,8 @@ async def _handle_create(
         "description": description,
         "eco_friendly": _parse_bool(eco_friendly_str) or False,
         "bestseller": _parse_bool(bestseller_str) or False,
+        "order_type": order_type_str or "both",
+        "case_to_piece_qty": _parse_optional_int(case_to_piece_qty_str),
         "media": media_list,
         "is_active": True,
         "created_at": now,
@@ -146,11 +150,14 @@ async def admin_create_product(
     description: str = Form(""),
     ecoFriendly: str = Form("false"),
     bestseller: str = Form("false"),
+    order_type: Optional[str] = Form("both"),
+    case_to_piece_qty: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=[]),
 ):
     return await _handle_create(
         current_user, name, category, brand, price,
         market_price, stock, description, ecoFriendly, bestseller, images,
+        order_type, case_to_piece_qty,
     )
 
 
@@ -229,6 +236,8 @@ async def update_product(
     description: Optional[str] = Form(None),
     ecoFriendly: Optional[str] = Form(None),
     bestseller: Optional[str] = Form(None),
+    order_type: Optional[str] = Form(None),
+    case_to_piece_qty: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=[]),
 ):
     db = get_db()
@@ -260,6 +269,10 @@ async def update_product(
         updates["eco_friendly"] = _parse_bool(ecoFriendly)
     if bestseller is not None:
         updates["bestseller"] = _parse_bool(bestseller)
+    if order_type is not None:
+        updates["order_type"] = order_type
+    if case_to_piece_qty is not None:
+        updates["case_to_piece_qty"] = _parse_optional_int(case_to_piece_qty)
 
     valid_images = [f for f in images if f.filename]
     if valid_images:
