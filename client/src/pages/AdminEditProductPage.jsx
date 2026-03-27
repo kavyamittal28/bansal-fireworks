@@ -12,7 +12,7 @@ export default function AdminEditProductPage() {
 
   const [form, setForm] = useState({
     name: '', category: '', brand: '', price: '',
-    market_price: '', stock: '', description: '',
+    market_price: '', wholesale_price: '', stock: '', description: '',
     ecoFriendly: false, bestseller: false,
     order_type: 'both', case_to_piece_qty: '',
   })
@@ -47,6 +47,7 @@ export default function AdminEditProductPage() {
         brand: prod.brand || '',
         price: prod.price ?? '',
         market_price: prod.market_price ?? '',
+        wholesale_price: prod.wholesale_price ?? '',
         stock: prod.stock ?? '',
         description: prod.description || '',
         ecoFriendly: prod.eco_friendly || false,
@@ -135,6 +136,7 @@ export default function AdminEditProductPage() {
       body.append('brand', form.brand)
       body.append('price', form.price)
       if (form.market_price !== '') body.append('market_price', form.market_price)
+      if (form.wholesale_price !== '') body.append('wholesale_price', form.wholesale_price)
       if (form.stock !== '') body.append('stock', form.stock)
       body.append('description', form.description)
       body.append('ecoFriendly', form.ecoFriendly)
@@ -330,6 +332,19 @@ export default function AdminEditProductPage() {
                       className="w-full border border-gray-300 rounded-xl pl-8 pr-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="wholesale_price">
+                  Wholesale Price (₹) <span className="text-gray-400 font-normal">(optional — shown on /wholesale page only)</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">₹</span>
+                  <input id="wholesale_price" name="wholesale_price" type="number" min="0" step="0.01" value={form.wholesale_price} onChange={handleChange}
+                    placeholder="0.00"
+                    className="w-full border border-gray-300 rounded-xl pl-8 pr-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
                 </div>
               </div>
 

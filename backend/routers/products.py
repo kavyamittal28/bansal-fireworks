@@ -57,6 +57,7 @@ async def _handle_create(
     images: List[UploadFile],
     order_type_str: Optional[str] = "both",
     case_to_piece_qty_str: Optional[str] = None,
+    wholesale_price_str: Optional[str] = None,
 ) -> dict:
     db = get_db()
 
@@ -90,6 +91,7 @@ async def _handle_create(
         "bestseller": _parse_bool(bestseller_str) or False,
         "order_type": order_type_str or "both",
         "case_to_piece_qty": _parse_optional_int(case_to_piece_qty_str),
+        "wholesale_price": _parse_optional_float(wholesale_price_str),
         "media": media_list,
         "is_active": True,
         "created_at": now,
@@ -152,12 +154,13 @@ async def admin_create_product(
     bestseller: str = Form("false"),
     order_type: Optional[str] = Form("both"),
     case_to_piece_qty: Optional[str] = Form(None),
+    wholesale_price: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=[]),
 ):
     return await _handle_create(
         current_user, name, category, brand, price,
         market_price, stock, description, ecoFriendly, bestseller, images,
-        order_type, case_to_piece_qty,
+        order_type, case_to_piece_qty, wholesale_price,
     )
 
 
@@ -238,6 +241,7 @@ async def update_product(
     bestseller: Optional[str] = Form(None),
     order_type: Optional[str] = Form(None),
     case_to_piece_qty: Optional[str] = Form(None),
+    wholesale_price: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=[]),
 ):
     db = get_db()
@@ -273,6 +277,8 @@ async def update_product(
         updates["order_type"] = order_type
     if case_to_piece_qty is not None:
         updates["case_to_piece_qty"] = _parse_optional_int(case_to_piece_qty)
+    if wholesale_price is not None:
+        updates["wholesale_price"] = _parse_optional_float(wholesale_price)
 
     valid_images = [f for f in images if f.filename]
     if valid_images:
@@ -283,6 +289,31 @@ async def update_product(
     await db.products.update_one({"_id": oid}, {"$set": updates})
     updated = await db.products.find_one({"_id": oid})
     return _fmt(updated)
+
+
+# ── GET /api/get-wholesale-products ──────────────────────────────────────────
+
+@router.get(
+    "/api/get-wholesale-products",
+    summary="List wholesale products",
+    description="Returns all active products that have a wholesale price set.",
+)
+async def list_wholesale_products(
+    category: Optional[str] = None,
+    brand: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 50,
+):
+    db = get_db()
+    query: dict = {"is_active": True, "wholesale_price": {"$ne": None, "$exists": True}}
+    if category:
+        query["category"] = category
+    if brand:
+        query["brand"] = brand
+
+    cursor = db.products.find(query).sort("created_at", -1).skip(skip).limit(limit)
+    docs = await cursor.to_list(length=limit)
+    return [_fmt(d) for d in docs]
 
 
 # ── DELETE /api/products/:id ──────────────────────────────────────────────────

@@ -1,19 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
 
 const TABS = ['Overview', 'Performance Guide', 'Shipping & Legal']
 
-function WishlistToast({ visible, saved }) {
-  if (!visible) return null
-  return (
-    <div className="fixed bottom-6 right-6 z-50 bg-gray-900 text-white text-sm font-medium px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2">
-      {saved ? '❤️ Added to Wishlist' : '🤍 Removed from Wishlist'}
-    </div>
-  )
-}
-
-export default function ProductDetailPage() {
+export default function WholesaleProductDetailPage() {
   const { id } = useParams()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -21,13 +11,6 @@ export default function ProductDetailPage() {
 
   const [activeTab, setActiveTab] = useState('Overview')
   const [selectedImg, setSelectedImg] = useState(0)
-  const [wishlisted, setWishlisted] = useState(false)
-  const [toastVisible, setToastVisible] = useState(false)
-
-  const { addToCart } = useCart()
-  const [cartQty, setCartQty] = useState(1)
-  const [cartType, setCartType] = useState(null)
-  const [cartAdded, setCartAdded] = useState(false)
 
   useEffect(() => {
     async function fetchProduct() {
@@ -40,8 +23,6 @@ export default function ProductDetailPage() {
         const data = await res.json()
         setProduct(data)
         setSelectedImg(0)
-        const ot = data.order_type || 'both'
-        setCartType(ot === 'cases' ? 'cases' : 'pieces')
       } catch (err) {
         setFetchError(err.message)
       } finally {
@@ -51,14 +32,6 @@ export default function ProductDetailPage() {
     fetchProduct()
   }, [id])
 
-  const toggleWishlist = useCallback(() => {
-    const next = !wishlisted
-    setWishlisted(next)
-    setToastVisible(true)
-    setTimeout(() => setToastVisible(false), 2500)
-  }, [wishlisted])
-
-  // ── Loading skeleton ──────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -87,14 +60,13 @@ export default function ProductDetailPage() {
     )
   }
 
-  // ── Error state ───────────────────────────────────────────────────────────
   if (fetchError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-5xl mb-4">⚠️</div>
           <h2 className="text-gray-900 font-bold text-xl mb-2">{fetchError}</h2>
-          <Link to="/products" className="text-blue-600 hover:underline text-sm">← Back to catalog</Link>
+          <Link to="/wholesale/products" className="text-blue-600 hover:underline text-sm">← Back to Wholesale Catalog</Link>
         </div>
       </div>
     )
@@ -102,21 +74,17 @@ export default function ProductDetailPage() {
 
   if (!product) return null
 
-  const images = product.media?.length > 0
-    ? product.media.map(m => m.url)
-    : []
+  const images = product.media?.length > 0 ? product.media.map(m => m.url) : []
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <WishlistToast visible={toastVisible} saved={wishlisted} />
-
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200 py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
-            <Link to="/" className="hover:text-blue-600 transition-colors">Bansal Fireworks</Link>
+            <Link to="/wholesale/home" className="hover:text-blue-600 transition-colors">Bansal Fireworks</Link>
             <span aria-hidden="true">›</span>
-            <Link to="/products" className="hover:text-blue-600 transition-colors">Products</Link>
+            <Link to="/wholesale/products" className="hover:text-blue-600 transition-colors">Wholesale</Link>
             <span aria-hidden="true">›</span>
             <span className="text-gray-900 font-medium" aria-current="page">{product.name}</span>
           </nav>
@@ -124,7 +92,6 @@ export default function ProductDetailPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Product top section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
           {/* Image Gallery */}
           <div>
@@ -168,34 +135,44 @@ export default function ProductDetailPage() {
 
           {/* Product Info */}
           <div>
-            {product.category && (
-              <span className="inline-flex items-center bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-                {product.category}
+            <div className="flex items-center gap-2 mb-4">
+              {product.category && (
+                <span className="inline-flex items-center bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-full">
+                  {product.category}
+                </span>
+              )}
+              <span className="inline-flex items-center bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                WHOLESALE
               </span>
-            )}
+            </div>
             <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
 
             {product.description && (
               <p className="text-gray-500 text-sm leading-relaxed mb-5">{product.description}</p>
             )}
 
-            {/* Price */}
+            {/* Wholesale Price */}
             <div className="mb-6">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Wholesale Price</p>
               <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="text-2xl sm:text-3xl font-bold text-gray-900">₹{Number(product.price).toLocaleString('en-IN')}</span>
-                {product.market_price && Number(product.market_price) > Number(product.price) && (
-                  <span className="text-lg text-gray-400 line-through">₹{Number(product.market_price).toLocaleString('en-IN')}</span>
+                <span className="text-2xl sm:text-3xl font-bold text-blue-700">
+                  ₹{Number(product.wholesale_price).toLocaleString('en-IN')}
+                </span>
+                {product.price && (
+                  <span className="text-lg text-gray-400 line-through">
+                    ₹{Number(product.price).toLocaleString('en-IN')} retail
+                  </span>
                 )}
-                {product.market_price && Number(product.market_price) > Number(product.price) && (
+                {product.price && product.wholesale_price < product.price && (
                   <span className="text-sm font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                    {Math.round((1 - product.price / product.market_price) * 100)}% off
+                    {Math.round((1 - product.wholesale_price / product.price) * 100)}% off retail
                   </span>
                 )}
               </div>
             </div>
 
             {/* Badges */}
-            <div className="flex gap-2 mb-5">
+            <div className="flex gap-2 mb-5 flex-wrap">
               {product.bestseller && (
                 <span className="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">
                   ⭐ Bestseller
@@ -208,112 +185,14 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {/* Add to Cart */}
-            {(() => {
-              const ot = product.order_type || 'both'
-              const canPieces = ot === 'pieces' || ot === 'both'
-              const canCases = ot === 'cases' || ot === 'both'
-              const caseQty = product.case_to_piece_qty
-
-              function handleAddToCart() {
-                addToCart(product, cartType || (canPieces ? 'pieces' : 'cases'), cartQty)
-                setCartAdded(true)
-                setTimeout(() => setCartAdded(false), 2000)
-              }
-
-              return (
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
-                  <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3">Add to Cart</p>
-
-                  {/* Type selector */}
-                  {canPieces && canCases && (
-                    <div className="flex gap-2 mb-3">
-                      <button
-                        onClick={() => setCartType('pieces')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-all ${
-                          cartType === 'pieces'
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'border-gray-200 text-gray-600 hover:border-gray-400'
-                        }`}
-                      >
-                        Pieces
-                      </button>
-                      <button
-                        onClick={() => setCartType('cases')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-all ${
-                          cartType === 'cases'
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
-                        }`}
-                      >
-                        Cases {caseQty && <span className="text-[11px] opacity-75">({caseQty} pcs)</span>}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Qty + button */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
-                      <button
-                        onClick={() => setCartQty(q => Math.max(1, q - 1))}
-                        className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-base"
-                      >−</button>
-                      <span className="w-9 text-center text-gray-900 text-sm font-medium">{cartQty}</span>
-                      <button
-                        onClick={() => setCartQty(q => q + 1)}
-                        className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-base"
-                      >+</button>
-                    </div>
-                    <button
-                      onClick={handleAddToCart}
-                      className={`flex-1 flex items-center justify-center gap-2 font-semibold py-2.5 rounded-lg text-sm transition-all ${
-                        cartAdded
-                          ? 'bg-green-100 text-green-700 border border-green-200'
-                          : 'bg-blue-600 hover:bg-blue-700 text-white'
-                      }`}
-                      id="add-to-cart-btn"
-                    >
-                      {cartAdded ? '✓ Added to Cart' : '+ Add to Cart'}
-                    </button>
-                  </div>
-
-                  {/* Price hint */}
-                  {cartType === 'cases' && caseQty && (
-                    <p className="text-gray-400 text-xs mt-2">
-                      {cartQty} case{cartQty !== 1 ? 's' : ''} × {caseQty} pcs = {cartQty * caseQty} pieces ·{' '}
-                      <span className="text-gray-700 font-medium">₹{(product.price * caseQty * cartQty).toLocaleString('en-IN')}</span>
-                    </p>
-                  )}
-                  {cartType === 'pieces' && (
-                    <p className="text-gray-400 text-xs mt-2">
-                      {cartQty} pc{cartQty !== 1 ? 's' : ''} · <span className="text-gray-700 font-medium">₹{(product.price * cartQty).toLocaleString('en-IN')}</span>
-                    </p>
-                  )}
-                </div>
-              )
-            })()}
-
-            {/* CTA Buttons */}
+            {/* Wholesale CTA */}
             <div className="flex flex-col gap-3 mb-6">
               <Link
                 to="/contact"
                 className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors shadow-sm"
-                id="send-bulk-inquiry-btn"
               >
-                📦 Send Bulk Order Inquiry
+                📦 Contact for Wholesale Order
               </Link>
-              <button
-                onClick={toggleWishlist}
-                className={`flex items-center justify-center gap-2 border font-medium py-3 rounded-xl transition-all ${
-                  wishlisted
-                    ? 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100'
-                    : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-                }`}
-                aria-pressed={wishlisted}
-                id="wishlist-btn"
-              >
-                {wishlisted ? '❤️ Saved to Wishlist' : '🤍 Save to Wishlist'}
-              </button>
             </div>
 
             {/* Key specs */}
@@ -365,11 +244,9 @@ export default function ProductDetailPage() {
           </div>
           <div className="p-6" role="tabpanel">
             {activeTab === 'Overview' && (
-              <div>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {product.description || 'No description available for this product.'}
-                </p>
-              </div>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {product.description || 'No description available for this product.'}
+              </p>
             )}
             {activeTab === 'Performance Guide' && (
               <div className="text-center py-10 text-gray-400">
@@ -387,13 +264,13 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Back to catalog */}
+        {/* Back to wholesale */}
         <div className="text-center">
           <Link
-            to="/products"
+            to="/wholesale/products"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
           >
-            ← Back to Product Catalog
+            ← Back to Wholesale Catalog
           </Link>
         </div>
       </div>

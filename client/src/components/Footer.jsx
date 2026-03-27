@@ -1,17 +1,29 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useWholesale } from '../context/WholesaleContext'
 
-const QUICK_LINKS = [
+const RETAIL_QUICK_LINKS = [
   { to: '/', label: 'Home' },
   { to: '/products', label: 'Catalog' },
   { to: '/about', label: 'About Us' },
-  { to: '/contact', label: 'Wholesale' },
+  { to: '/contact', label: 'Contact' },
+]
+
+const WHOLESALE_QUICK_LINKS = [
+  { to: '/wholesale/home', label: 'Home' },
+  { to: '/wholesale/products', label: 'Catalog' },
+  { to: '/about', label: 'About Us' },
+  { to: '/contact', label: 'Contact' },
 ]
 
 export default function Footer() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [subError, setSubError] = useState('')
+  const isWholesale = useWholesale()
+
+  const QUICK_LINKS = isWholesale ? WHOLESALE_QUICK_LINKS : RETAIL_QUICK_LINKS
+  const logoTo = isWholesale ? '/wholesale/home' : '/'
 
   function handleSubscribe(e) {
     e.preventDefault()
@@ -29,7 +41,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 pb-8 sm:pb-10 border-b border-gray-200">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4 w-fit">
+            <Link to={logoTo} className="flex items-center gap-2 mb-4 w-fit">
               <img src="/Logo.png" alt="Bansal Fireworks" className="h-10 w-auto" />
               <span className="text-gray-900 font-bold text-base">Bansal Fireworks</span>
             </Link>
@@ -46,8 +58,8 @@ export default function Footer() {
           <div>
             <h3 className="text-gray-900 font-semibold text-sm mb-4">Quick Links</h3>
             <ul className="flex flex-col gap-3 list-none">
-              {QUICK_LINKS.map(l => (
-                <li key={l.to}>
+              {QUICK_LINKS.map((l, i) => (
+                <li key={`${l.to}-${i}`}>
                   <Link to={l.to} className="text-gray-500 text-sm hover:text-blue-600 transition-colors">
                     {l.label}
                   </Link>

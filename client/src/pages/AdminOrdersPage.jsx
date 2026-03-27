@@ -25,12 +25,49 @@ const FULFILLMENT = {
   picked_up: { label: '🏪 Picked Up', color: 'bg-purple-100 text-purple-700 border-purple-200' },
 }
 
+function DeleteConfirmModal({ order, onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+        <div className="text-center mb-5">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </div>
+          <h3 className="text-gray-900 font-bold text-lg mb-1">Delete Order?</h3>
+          <p className="text-gray-500 text-sm">
+            This will permanently delete the order for <span className="font-semibold text-gray-700">{order.name}</span>.
+            {order.order_number && <> (#{order.order_number})</>} This cannot be undone.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [expandedId, setExpandedId] = useState(null)
   const [actionLoading, setActionLoading] = useState(null) // orderId being acted on
+  const [deleteTarget, setDeleteTarget] = useState(null) // order to confirm delete
 
   const token = localStorage.getItem('adminToken')
 
@@ -71,11 +108,12 @@ export default function AdminOrdersPage() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this order permanently?')) return
     try {
       await fetch(`/api/admin/delete-order/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
       setOrders(prev => prev.filter(o => o.id !== id))
-    } catch { /* silent */ }
+    } catch { /* silent */ } finally {
+      setDeleteTarget(null)
+    }
   }
 
   async function handleStatusChange(id, status) {
@@ -122,6 +160,14 @@ export default function AdminOrdersPage() {
   )
 
   return (
+    <>
+    {deleteTarget && (
+      <DeleteConfirmModal
+        order={deleteTarget}
+        onConfirm={() => handleDelete(deleteTarget.id)}
+        onCancel={() => setDeleteTarget(null)}
+      />
+    )}
     <AdminLayout
       activeHref="/admin/orders"
       headerTitle="Orders"
@@ -299,7 +345,7 @@ export default function AdminOrdersPage() {
                       </select>
                     </div>
                     <button
-                      onClick={() => handleDelete(order.id)}
+                      onClick={() => setDeleteTarget(order)}
                       className="text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors"
                     >
                       Delete Order
@@ -351,5 +397,6 @@ export default function AdminOrdersPage() {
         </div>
       )}
     </AdminLayout>
+    </>
   )
 }

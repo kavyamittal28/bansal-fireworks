@@ -16,6 +16,7 @@ class Product(BaseModel):
     brand: str
     price: float
     market_price: Optional[float] = None
+    wholesale_price: Optional[float] = None
     stock: Optional[int] = None
     description: Optional[str] = None
     eco_friendly: bool = False

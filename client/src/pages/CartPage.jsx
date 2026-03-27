@@ -1,6 +1,9 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+
+const UPI_ID = 'bansalfireworks@upi'
+const STORE_PHONE = '+91 95876 38000'
 
 function QtyStepper({ qty, onChange }) {
   return (
@@ -96,7 +99,8 @@ function CartItem({ group, onSetQty, onRemoveProduct }) {
 }
 
 function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) {
-  const [step, setStep] = useState(1) // 1 = details, 2 = OTP
+  const [step, setStep] = useState(1) // 1=details 2=otp 3=payment+screenshot 4=done
+  // Step 1–2
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [phoneError, setPhoneError] = useState(null)
@@ -104,8 +108,16 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
   const [otpError, setOtpError] = useState(null)
   const [sendingOtp, setSendingOtp] = useState(false)
   const [sendOtpError, setSendOtpError] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [verifying, setVerifying] = useState(false)
+  const [verifyError, setVerifyError] = useState(null)
+  // Step 3
+  const [orderId, setOrderId] = useState(null)
+  const [orderNumber, setOrderNumber] = useState(null)
+  const [screenshot, setScreenshot] = useState(null)
+  const [preview, setPreview] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState(null)
+  const fileRef = useRef()
 
   function validatePhone(value) {
     const digits = value.replace(/[\s\-\+]/g, '')
@@ -118,7 +130,6 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
     e.preventDefault()
     const err = validatePhone(phone)
     if (err) { setPhoneError(err); return }
-    if (!name.trim()) return
     setSendingOtp(true)
     setSendOtpError(null)
     try {
@@ -127,7 +138,7 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: phone.trim() }),
       })
-      if (!res.ok) throw new Error('Failed to send OTP')
+      if (!res.ok) throw new Error()
       setStep(2)
     } catch {
       setSendOtpError('Could not send OTP. Please try again.')
@@ -136,11 +147,12 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
     }
   }
 
-  async function handleVerifyAndOrder(e) {
+  async function handleVerifyOtp(e) {
     e.preventDefault()
     setOtpError(null)
-    setLoading(true)
-    setError(null)
+    setVerifying(true)
+    setVerifyError(null)
+    // Verify OTP
     try {
       const verifyRes = await fetch('/api/verify-otp', {
         method: 'POST',
@@ -150,14 +162,15 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
       if (!verifyRes.ok) {
         const data = await verifyRes.json().catch(() => ({}))
         setOtpError(data?.detail?.message || 'Incorrect OTP. Please try again.')
-        setLoading(false)
+        setVerifying(false)
         return
       }
     } catch {
       setOtpError('Could not verify OTP. Please try again.')
-      setLoading(false)
+      setVerifying(false)
       return
     }
+    // Place order
     try {
       const res = await fetch('/api/place-order', {
         method: 'POST',
@@ -178,116 +191,252 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
           total_pieces: totalPieces,
         }),
       })
-      if (!res.ok) throw new Error('Failed to place order')
+      if (!res.ok) throw new Error()
       const order = await res.json()
-      onSuccess(order.id)
+      setOrderId(order.id)
+      setOrderNumber(order.order_number)
+      setStep(3)
     } catch {
-      setError('Could not place order. Please try again.')
+      setVerifyError('Could not place order. Please try again.')
     } finally {
-      setLoading(false)
+      setVerifying(false)
     }
+  }
+
+  function handleFileChange(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    setScreenshot(file)
+    setPreview(URL.createObjectURL(file))
+    setUploadError(null)
+  }
+
+  async function handleUploadScreenshot(e) {
+    e.preventDefault()
+    if (!screenshot) return
+    setUploading(true)
+    setUploadError(null)
+    const form = new FormData()
+    form.append('screenshot', screenshot)
+    try {
+      const res = await fetch(`/api/order/${orderId}/payment-screenshot`, {
+        method: 'POST',
+        body: form,
+      })
+      if (!res.ok) throw new Error()
+      onSuccess()
+      setStep(4)
+    } catch {
+      setUploadError('Upload failed. Please try again.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // Prevent accidental close on step 3
+  function handleBackdropClick() {
+    if (step === 3) return
+    onClose()
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 text-lg">✕</button>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleBackdropClick} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 
-        {step === 1 ? (
-          <>
-            <h2 className="text-gray-900 font-bold text-lg mb-1">Confirm Your Order</h2>
-            <p className="text-gray-500 text-sm mb-5">
-              {cart.length} item{cart.length !== 1 ? 's' : ''} · {totalPieces.toLocaleString('en-IN')} pcs · ₹{grandTotal.toLocaleString('en-IN')}
-            </p>
-            <form onSubmit={handleSendOtp} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  required
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  WhatsApp Number
-                </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={e => { setPhone(e.target.value); setPhoneError(null) }}
-                  placeholder="10-digit mobile number"
-                  maxLength={10}
-                  required
-                  className={`w-full border rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    phoneError ? 'border-red-400' : 'border-gray-200'
-                  }`}
-                />
-                {phoneError
-                  ? <p className="text-red-500 text-xs mt-1">{phoneError}</p>
-                  : <p className="text-gray-400 text-xs mt-1">Must be active on WhatsApp — OTP will be sent here</p>
-                }
-              </div>
-              {sendOtpError && <p className="text-red-500 text-sm">{sendOtpError}</p>}
-              <button
-                type="submit"
-                disabled={!name.trim() || !phone.trim() || sendingOtp}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
-              >
-                {sendingOtp ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : 'Send OTP'}
-              </button>
-            </form>
-          </>
-        ) : (
-          <>
-            <button
-              onClick={() => { setStep(1); setOtp(''); setOtpError(null) }}
-              className="flex items-center gap-1 text-gray-400 hover:text-gray-600 text-sm mb-4 transition-colors"
-            >
-              ← Back
-            </button>
-            <h2 className="text-gray-900 font-bold text-lg mb-1">Verify Your Phone</h2>
-            <p className="text-gray-500 text-sm mb-5">
-              Enter the OTP sent to <span className="font-medium text-gray-700">{phone}</span>
-            </p>
-            <form onSubmit={handleVerifyAndOrder} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">OTP</label>
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={e => { setOtp(e.target.value); setOtpError(null) }}
-                  placeholder="Enter 6-digit OTP"
-                  maxLength={6}
-                  required
-                  autoFocus
-                  className={`w-full border rounded-xl px-4 py-2.5 text-sm text-gray-900 tracking-widest text-center font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    otpError ? 'border-red-400' : 'border-gray-200'
-                  }`}
-                />
-                {otpError && <p className="text-red-500 text-xs mt-1">{otpError}</p>}
-              </div>
-
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-
-              <button
-                type="submit"
-                disabled={loading || otp.length !== 6}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : '📦 Place Order'}
-              </button>
-            </form>
-          </>
+        {/* Step indicator */}
+        {step < 4 && (
+          <div className="flex items-center gap-1 px-6 pt-5 pb-0">
+            {[1,2,3].map(s => (
+              <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? 'bg-blue-600' : 'bg-gray-100'}`} />
+            ))}
+          </div>
         )}
+
+        <div className="p-6">
+          {step !== 4 && (
+            <button onClick={step === 3 ? null : onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 text-lg">
+              {step !== 3 && '✕'}
+            </button>
+          )}
+
+          {/* ── Step 1: Details ── */}
+          {step === 1 && (
+            <>
+              <h2 className="text-gray-900 font-bold text-lg mb-1">Confirm Your Order</h2>
+              <p className="text-gray-500 text-sm mb-5">
+                {cart.length} item{cart.length !== 1 ? 's' : ''} · {totalPieces.toLocaleString('en-IN')} pcs · ₹{grandTotal.toLocaleString('en-IN')}
+              </p>
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    required
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number</label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={e => { setPhone(e.target.value); setPhoneError(null) }}
+                    placeholder="10-digit mobile number"
+                    maxLength={10}
+                    required
+                    className={`w-full border rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${phoneError ? 'border-red-400' : 'border-gray-200'}`}
+                  />
+                  {phoneError
+                    ? <p className="text-red-500 text-xs mt-1">{phoneError}</p>
+                    : <p className="text-gray-400 text-xs mt-1">Must be active on WhatsApp — OTP will be sent here</p>
+                  }
+                </div>
+                {sendOtpError && <p className="text-red-500 text-sm">{sendOtpError}</p>}
+                <button
+                  type="submit"
+                  disabled={!name.trim() || !phone.trim() || sendingOtp}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                >
+                  {sendingOtp ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Send OTP'}
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* ── Step 2: OTP ── */}
+          {step === 2 && (
+            <>
+              <button onClick={() => { setStep(1); setOtp(''); setOtpError(null) }} className="flex items-center gap-1 text-gray-400 hover:text-gray-600 text-sm mb-4">← Back</button>
+              <h2 className="text-gray-900 font-bold text-lg mb-1">Verify Your Phone</h2>
+              <p className="text-gray-500 text-sm mb-5">OTP sent to <span className="font-medium text-gray-700">{phone}</span></p>
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">OTP</label>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={e => { setOtp(e.target.value); setOtpError(null) }}
+                    placeholder="Enter 6-digit OTP"
+                    maxLength={6}
+                    required
+                    autoFocus
+                    className={`w-full border rounded-xl px-4 py-2.5 text-sm text-gray-900 tracking-widest text-center font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 ${otpError ? 'border-red-400' : 'border-gray-200'}`}
+                  />
+                  {otpError && <p className="text-red-500 text-xs mt-1">{otpError}</p>}
+                </div>
+                {verifyError && <p className="text-red-500 text-sm">{verifyError}</p>}
+                <button
+                  type="submit"
+                  disabled={verifying || otp.length !== 6}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                >
+                  {verifying ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Verify & Continue'}
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* ── Step 3: Payment + Screenshot ── */}
+          {step === 3 && (
+            <>
+              <h2 className="text-gray-900 font-bold text-lg mb-1">Complete Payment</h2>
+              <p className="text-gray-500 text-sm mb-4">
+                Pay <span className="font-bold text-gray-900">₹{grandTotal.toLocaleString('en-IN')}</span> via UPI, then upload your screenshot below.
+              </p>
+
+              {/* UPI details */}
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-xs mb-0.5">UPI ID</p>
+                    <p className="text-gray-900 font-medium text-sm font-mono">{UPI_ID}</p>
+                  </div>
+                  <button
+                    onClick={() => navigator.clipboard?.writeText(UPI_ID)}
+                    className="text-blue-600 text-xs font-medium border border-blue-200 px-2.5 py-1 rounded-lg"
+                  >Copy</button>
+                </div>
+                <div className="flex items-center justify-between border-t border-gray-200 pt-3">
+                  <div>
+                    <p className="text-gray-400 text-xs mb-0.5">Phone / GPay</p>
+                    <p className="text-gray-900 font-medium text-sm">{STORE_PHONE}</p>
+                  </div>
+                  <button
+                    onClick={() => navigator.clipboard?.writeText(STORE_PHONE.replace(/\s/g, ''))}
+                    className="text-blue-600 text-xs font-medium border border-blue-200 px-2.5 py-1 rounded-lg"
+                  >Copy</button>
+                </div>
+              </div>
+
+              {/* Screenshot upload */}
+              <form onSubmit={handleUploadScreenshot} className="space-y-3">
+                <p className="text-gray-700 text-sm font-medium">Upload Payment Screenshot <span className="text-red-500">*</span></p>
+                <div
+                  onClick={() => fileRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${
+                    preview ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {preview ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <img src={preview} alt="preview" className="max-h-32 rounded-lg object-contain" />
+                      <p className="text-blue-600 text-xs font-medium">Tap to change</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1.5 text-gray-400">
+                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                      </svg>
+                      <p className="text-sm font-medium text-gray-600">Tap to upload screenshot</p>
+                      <p className="text-xs">PNG, JPG supported</p>
+                    </div>
+                  )}
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                </div>
+                {uploadError && <p className="text-red-500 text-sm">{uploadError}</p>}
+                <button
+                  type="submit"
+                  disabled={!screenshot || uploading}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                >
+                  {uploading ? (
+                    <><span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Uploading…</>
+                  ) : '✓ Submit & Confirm Order'}
+                </button>
+                <p className="text-center text-xs text-gray-400">Your order will be confirmed after payment verification</p>
+              </form>
+            </>
+          )}
+
+          {/* ── Step 4: Success ── */}
+          {step === 4 && (
+            <div className="text-center py-4">
+              <div className="text-5xl mb-3">✅</div>
+              <h2 className="text-gray-900 font-bold text-xl mb-1">Order Confirmed!</h2>
+              <p className="text-gray-500 text-sm mb-5">Payment screenshot received. We'll verify and confirm shortly.</p>
+              <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-4">
+                <p className="text-gray-400 text-xs mb-1">Your Order Number</p>
+                <p className="text-gray-900 font-bold text-3xl tracking-widest">#{orderNumber}</p>
+              </div>
+              <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-left mb-5">
+                <p className="text-blue-800 font-semibold text-xs mb-1">🏪 Picking up from store?</p>
+                <p className="text-blue-700 text-xs leading-relaxed">
+                  Mention Order <span className="font-semibold">#{orderNumber}</span> and your <span className="font-semibold">WhatsApp number</span> at the counter.
+                </p>
+                <a href={`tel:${STORE_PHONE.replace(/\s/g, '')}`} className="inline-block mt-1.5 text-blue-700 text-xs font-semibold underline">
+                  📞 {STORE_PHONE}
+                </a>
+              </div>
+              <button onClick={onClose} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm transition-colors">
+                Continue Shopping
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -296,7 +445,6 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
 export default function CartPage() {
   const { cart, setQty, removeProduct, clearCart } = useCart()
   const [showModal, setShowModal] = useState(false)
-  const navigate = useNavigate()
 
   // Group cart items by product
   const groupedProducts = Object.values(
@@ -329,9 +477,8 @@ export default function CartPage() {
     return sum + item.qty
   }, 0)
 
-  function handleOrderSuccess(orderId) {
+  function handleOrderSuccess() {
     clearCart()
-    navigate(`/order/payment/${orderId}`)
   }
 
   return (

@@ -21,7 +21,7 @@ export default function AdminAddProductPage() {
 
   const [form, setForm] = useState({
     name: '', category: '', brand: '', price: '',
-    market_price: '', stock: '', description: '',
+    market_price: '', wholesale_price: '', stock: '', description: '',
     ecoFriendly: false, bestseller: false,
     order_type: 'both', case_to_piece_qty: '',
   })
@@ -92,7 +92,7 @@ export default function AdminAddProductPage() {
       const token = localStorage.getItem('adminToken')
       const body = new FormData()
       Object.entries(form).forEach(([k, v]) => {
-        if (k === 'stock' || k === 'market_price' || k === 'case_to_piece_qty') {
+        if (k === 'stock' || k === 'market_price' || k === 'wholesale_price' || k === 'case_to_piece_qty') {
           if (v !== '' && v !== null && v !== undefined) body.append(k, v)
         } else {
           body.append(k, v)
@@ -106,7 +106,7 @@ export default function AdminAddProductPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.detail?.message || data.message || 'Failed to add product.')
-      setForm({ name: '', category: '', brand: '', price: '', market_price: '', stock: '', description: '', ecoFriendly: false, bestseller: false, order_type: 'both', case_to_piece_qty: '' })
+      setForm({ name: '', category: '', brand: '', price: '', market_price: '', wholesale_price: '', stock: '', description: '', ecoFriendly: false, bestseller: false, order_type: 'both', case_to_piece_qty: '' })
       setMediaPreviews(Array(MAX_SLOTS).fill(null))
       setMediaFiles(Array(MAX_SLOTS).fill(null))
       navigate('/admin/add-product?success=1')
@@ -275,6 +275,18 @@ export default function AdminAddProductPage() {
               </div>
 
               <div>
+                <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="wholesale_price">
+                  Wholesale Price (₹) <span className="text-gray-400 font-normal">(optional — shown on /wholesale page only)</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">₹</span>
+                  <input id="wholesale_price" name="wholesale_price" type="number" min="0" step="0.01" value={form.wholesale_price} onChange={handleChange}
+                    placeholder="0.00"
+                    className="w-full border border-gray-300 rounded-xl pl-8 pr-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="stock">
                   Stock Quantity <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
@@ -369,7 +381,7 @@ export default function AdminAddProductPage() {
       {/* Bottom Actions */}
       <div className="flex items-center justify-end gap-3 mt-6">
         <button type="button"
-          onClick={() => setForm({ name:'', category:'', brand:'', price:'', market_price:'', stock:'', description:'', ecoFriendly:false, bestseller:false, order_type:'both', case_to_piece_qty:'' })}
+          onClick={() => setForm({ name:'', category:'', brand:'', price:'', market_price:'', wholesale_price:'', stock:'', description:'', ecoFriendly:false, bestseller:false, order_type:'both', case_to_piece_qty:'' })}
           className="px-5 sm:px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
           Draft
         </button>
