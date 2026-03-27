@@ -56,6 +56,11 @@ function ProductCard({ p }) {
                 {p.brand.toUpperCase()}
               </span>
             )}
+            {p.category && (
+              <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium">
+                {p.category}
+              </span>
+            )}
             {p.bestseller && (
               <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded font-medium">BESTSELLER</span>
             )}
