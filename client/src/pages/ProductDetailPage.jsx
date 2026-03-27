@@ -151,11 +151,10 @@ export default function ProductDetailPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImg(i)}
-                    className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all duration-150 ${
-                      i === selectedImg
+                    className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all duration-150 ${i === selectedImg
                         ? 'border-blue-600 ring-2 ring-blue-200'
                         : 'border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-400'
-                    }`}
+                      }`}
                     aria-label={`View image ${i + 1}`}
                     aria-pressed={i === selectedImg}
                   >
@@ -207,209 +206,203 @@ export default function ProductDetailPage() {
                 </span>
               )}
             </div>
-            </div>
+          </div>
 
-            {/* Badges */}
-            <div className="flex gap-2 mb-5">
-              {product.bestseller && (
-                <span className="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">
-                  ⭐ Bestseller
-                </span>
-              )}
-              {product.eco_friendly && (
-                <span className="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                  🌿 Eco-Friendly
-                </span>
-              )}
-            </div>
+          {/* Badges */}
+          <div className="flex gap-2 mb-5">
+            {product.bestseller && (
+              <span className="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">
+                ⭐ Bestseller
+              </span>
+            )}
+            {product.eco_friendly && (
+              <span className="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+                🌿 Eco-Friendly
+              </span>
+            )}
+          </div>
 
-            {/* Add to Cart */}
-            {(() => {
-              const ot = product.order_type || 'both'
-              const canPieces = ot === 'pieces' || ot === 'both'
-              const canCases = ot === 'cases' || ot === 'both'
-              const caseQty = product.case_to_piece_qty
+          {/* Add to Cart */}
+          {(() => {
+            const ot = product.order_type || 'both'
+            const canPieces = ot === 'pieces' || ot === 'both'
+            const canCases = ot === 'cases' || ot === 'both'
+            const caseQty = product.case_to_piece_qty
 
-              function handleAddToCart() {
-                addToCart(product, cartType || (canPieces ? 'pieces' : 'cases'), cartQty)
-                setCartAdded(true)
-                setTimeout(() => setCartAdded(false), 2000)
-              }
+            function handleAddToCart() {
+              addToCart(product, cartType || (canPieces ? 'pieces' : 'cases'), cartQty)
+              setCartAdded(true)
+              setTimeout(() => setCartAdded(false), 2000)
+            }
 
-              return (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
-                  <p className="text-amber-900 text-xs font-bold uppercase tracking-widest mb-4">Add to Cart</p>
+            return (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
+                <p className="text-amber-900 text-xs font-bold uppercase tracking-widest mb-4">Add to Cart</p>
 
-                  {/* Type selector */}
-                  {canPieces && canCases && (
-                    <div className="flex gap-3 mb-5">
-                      <button
-                        onClick={() => setCartType('pieces')}
-                        className={`flex-1 py-2.5 rounded-lg text-sm font-bold border-2 transition-all ${
-                          cartType === 'pieces'
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'border-gray-300 text-gray-600 hover:border-amber-400 hover:text-amber-700'
-                        }`}
-                      >
-                        Pieces
-                      </button>
-                      <button
-                        onClick={() => setCartType('cases')}
-                        className={`flex-1 py-2.5 rounded-lg text-sm font-bold border-2 transition-all ${
-                          cartType === 'cases'
-                            ? 'bg-amber-600 text-white border-amber-600'
-                            : 'border-gray-300 text-gray-600 hover:border-amber-400 hover:text-amber-700'
-                        }`}
-                      >
-                        Cases {caseQty && <span className="text-[10px] opacity-80">({caseQty} pcs)</span>}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Qty + button */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
-                      <button
-                        onClick={() => setCartQty(q => Math.max(1, q - 1))}
-                        className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-amber-50 font-bold text-lg"
-                      >−</button>
-                      <span className="w-10 text-center text-gray-900 text-base font-bold">{cartQty}</span>
-                      <button
-                        onClick={() => setCartQty(q => q + 1)}
-                        className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-amber-50 font-bold text-lg"
-                      >+</button>
-                    </div>
+                {/* Type selector */}
+                {canPieces && canCases && (
+                  <div className="flex gap-3 mb-5">
                     <button
-                      onClick={handleAddToCart}
-                      className={`flex-1 flex items-center justify-center gap-2 font-bold py-3 rounded-lg text-sm transition-all duration-200 shadow-md ${
-                        cartAdded
-                          ? 'bg-green-100 text-green-700 border border-green-300'
-                          : 'bg-amber-600 hover:bg-amber-700 text-white hover:shadow-lg hover:scale-105'
-                      }`}
-                      id="add-to-cart-btn"
+                      onClick={() => setCartType('pieces')}
+                      className={`flex-1 py-2.5 rounded-lg text-sm font-bold border-2 transition-all ${cartType === 'pieces'
+                          ? 'bg-gray-900 text-white border-gray-900'
+                          : 'border-gray-300 text-gray-600 hover:border-amber-400 hover:text-amber-700'
+                        }`}
                     >
-                      {cartAdded ? '✓ Added to Cart' : '+ Add to Cart'}
+                      Pieces
+                    </button>
+                    <button
+                      onClick={() => setCartType('cases')}
+                      className={`flex-1 py-2.5 rounded-lg text-sm font-bold border-2 transition-all ${cartType === 'cases'
+                          ? 'bg-amber-600 text-white border-amber-600'
+                          : 'border-gray-300 text-gray-600 hover:border-amber-400 hover:text-amber-700'
+                        }`}
+                    >
+                      Cases {caseQty && <span className="text-[10px] opacity-80">({caseQty} pcs)</span>}
                     </button>
                   </div>
+                )}
 
-                  {/* Price hint */}
-                  {cartType === 'cases' && caseQty && (
-                    <p className="text-gray-600 text-xs mt-3 font-medium">
-                      {cartQty} case{cartQty !== 1 ? 's' : ''} × {caseQty} pcs = {cartQty * caseQty} pieces · <span className="text-amber-700 font-bold">₹{(product.price * caseQty * cartQty).toLocaleString('en-IN')}</span>
-                    </p>
-                  )}
-                  {cartType === 'pieces' && (
-                    <p className="text-gray-600 text-xs mt-3 font-medium">
-                      {cartQty} pc{cartQty !== 1 ? 's' : ''} · <span className="text-amber-700 font-bold">₹{(product.price * cartQty).toLocaleString('en-IN')}</span>
-                    </p>
-                  )}
-                </div>
-              )
-            })()}
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col gap-3 mb-8">
-              <Link
-                to="/contact"
-                className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
-                id="send-bulk-inquiry-btn"
-              >
-                📦 Send Bulk Order Inquiry
-              </Link>
-              <button
-                onClick={toggleWishlist}
-                className={`flex items-center justify-center gap-2 border-2 font-bold py-3.5 rounded-xl transition-all duration-200 ${
-                  wishlisted
-                    ? 'border-red-400 bg-red-50 text-red-700 hover:bg-red-100'
-                    : 'border-gray-300 text-gray-700 hover:border-amber-400 hover:text-amber-700'
-                }`}
-                aria-pressed={wishlisted}
-                id="wishlist-btn"
-              >
-                {wishlisted ? '❤️ Saved to Wishlist' : '🤍 Save to Wishlist'}
-              </button>
-            </div>
-
-            {/* Key specs */}
-            {product.brand && (
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-x-4 text-sm border border-gray-100 rounded-xl overflow-hidden mb-4">
-                {[
-                  ['Brand', product.brand],
-                  ['Category', product.category],
-                ].filter(([, v]) => v).map(([label, val], i) => (
-                  <div key={label} className={`flex justify-between items-center px-4 py-3 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                    <span className="text-gray-500">{label}</span>
-                    <span className="text-gray-900 font-semibold">{val}</span>
+                {/* Qty + button */}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
+                    <button
+                      onClick={() => setCartQty(q => Math.max(1, q - 1))}
+                      className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-amber-50 font-bold text-lg"
+                    >−</button>
+                    <span className="w-10 text-center text-gray-900 text-base font-bold">{cartQty}</span>
+                    <button
+                      onClick={() => setCartQty(q => q + 1)}
+                      className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-amber-50 font-bold text-lg"
+                    >+</button>
                   </div>
-                ))}
-              </div>
-            )}
+                  <button
+                    onClick={handleAddToCart}
+                    className={`flex-1 flex items-center justify-center gap-2 font-bold py-3 rounded-lg text-sm transition-all duration-200 shadow-md ${cartAdded
+                        ? 'bg-green-100 text-green-700 border border-green-300'
+                        : 'bg-amber-600 hover:bg-amber-700 text-white hover:shadow-lg hover:scale-105'
+                      }`}
+                    id="add-to-cart-btn"
+                  >
+                    {cartAdded ? '✓ Added to Cart' : '+ Add to Cart'}
+                  </button>
+                </div>
 
-            {/* Safety notice */}
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex gap-4">
-              <span className="text-amber-600 text-2xl flex-shrink-0" aria-hidden="true">🛡️</span>
-              <div>
-                <p className="text-amber-900 font-bold text-sm mb-2">Safety & Legal Notice</p>
-                <p className="text-amber-800 text-xs leading-relaxed">
-                  Some products require a valid explosives license. Please ensure you comply with local laws and regulations before purchase. Bansal Fireworks only ships to licensed dealers for Class F3 items.
-                </p>
+                {/* Price hint */}
+                {cartType === 'cases' && caseQty && (
+                  <p className="text-gray-600 text-xs mt-3 font-medium">
+                    {cartQty} case{cartQty !== 1 ? 's' : ''} × {caseQty} pcs = {cartQty * caseQty} pieces · <span className="text-amber-700 font-bold">₹{(product.price * caseQty * cartQty).toLocaleString('en-IN')}</span>
+                  </p>
+                )}
+                {cartType === 'pieces' && (
+                  <p className="text-gray-600 text-xs mt-3 font-medium">
+                    {cartQty} pc{cartQty !== 1 ? 's' : ''} · <span className="text-amber-700 font-bold">₹{(product.price * cartQty).toLocaleString('en-IN')}</span>
+                  </p>
+                )}
               </div>
+            )
+          })()}
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col gap-3 mb-8">
+            <Link
+              to="/contact"
+              className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+              id="send-bulk-inquiry-btn"
+            >
+              📦 Send Bulk Order Inquiry
+            </Link>
+            <button
+              onClick={toggleWishlist}
+              className={`flex items-center justify-center gap-2 border-2 font-bold py-3.5 rounded-xl transition-all duration-200 ${wishlisted
+                  ? 'border-red-400 bg-red-50 text-red-700 hover:bg-red-100'
+                  : 'border-gray-300 text-gray-700 hover:border-amber-400 hover:text-amber-700'
+                }`}
+              aria-pressed={wishlisted}
+              id="wishlist-btn"
+            >
+              {wishlisted ? '❤️ Saved to Wishlist' : '🤍 Save to Wishlist'}
+            </button>
+          </div>
+
+          {/* Key specs */}
+          {product.brand && (
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-x-4 text-sm border border-gray-100 rounded-xl overflow-hidden mb-4">
+              {[
+                ['Brand', product.brand],
+                ['Category', product.category],
+              ].filter(([, v]) => v).map(([label, val], i) => (
+                <div key={label} className={`flex justify-between items-center px-4 py-3 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                  <span className="text-gray-500">{label}</span>
+                  <span className="text-gray-900 font-semibold">{val}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Safety notice */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex gap-4">
+            <span className="text-amber-600 text-2xl flex-shrink-0" aria-hidden="true">🛡️</span>
+            <div>
+              <p className="text-amber-900 font-bold text-sm mb-2">Safety & Legal Notice</p>
+              <p className="text-amber-800 text-xs leading-relaxed">
+                Some products require a valid explosives license. Please ensure you comply with local laws and regulations before purchase. Bansal Fireworks only ships to licensed dealers for Class F3 items.
+              </p>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Tabs */}
-        <div className="bg-white rounded-2xl border border-gray-200 mb-10 overflow-hidden shadow-lg">
-          <div className="flex border-b border-gray-200 overflow-x-auto" role="tablist">
-            {TABS.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                role="tab"
-                aria-selected={activeTab === tab}
-                className={`px-4 sm:px-8 py-4 sm:py-5 text-sm sm:text-base font-semibold whitespace-nowrap transition-all duration-200 border-b-3 ${
-                  activeTab === tab
-                    ? 'text-amber-700 border-amber-600 bg-amber-50'
-                    : 'text-gray-600 border-transparent hover:text-gray-900 hover:bg-gray-50'
+      {/* Tabs */}
+      <div className="bg-white rounded-2xl border border-gray-200 mb-10 overflow-hidden shadow-lg">
+        <div className="flex border-b border-gray-200 overflow-x-auto" role="tablist">
+          {TABS.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              role="tab"
+              aria-selected={activeTab === tab}
+              className={`px-4 sm:px-8 py-4 sm:py-5 text-sm sm:text-base font-semibold whitespace-nowrap transition-all duration-200 border-b-3 ${activeTab === tab
+                  ? 'text-amber-700 border-amber-600 bg-amber-50'
+                  : 'text-gray-600 border-transparent hover:text-gray-900 hover:bg-gray-50'
                 }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div className="p-6" role="tabpanel">
-            {activeTab === 'Overview' && (
-              <div>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {product.description || 'No description available for this product.'}
-                </p>
-              </div>
-            )}
-            {activeTab === 'Performance Guide' && (
-              <div className="text-center py-10 text-gray-400">
-                <div className="text-4xl mb-3">📊</div>
-                <p className="text-sm">Performance data and charts coming soon.</p>
-              </div>
-            )}
-            {activeTab === 'Shipping & Legal' && (
-              <div className="text-sm text-gray-600 space-y-3">
-                <p>📦 <strong>Shipping:</strong> All orders ship from Sadulshahar, Rajasthan within 1-2 business days.</p>
-                <p>⚖️ <strong>Legal:</strong> Check your state's regulations before ordering Class F2/F3 products.</p>
-                <p>🔒 <strong>Packaging:</strong> All items are packed in PESO-approved safety packaging.</p>
-              </div>
-            )}
-          </div>
+            >
+              {tab}
+            </button>
+          ))}
         </div>
+        <div className="p-6" role="tabpanel">
+          {activeTab === 'Overview' && (
+            <div>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {product.description || 'No description available for this product.'}
+              </p>
+            </div>
+          )}
+          {activeTab === 'Performance Guide' && (
+            <div className="text-center py-10 text-gray-400">
+              <div className="text-4xl mb-3">📊</div>
+              <p className="text-sm">Performance data and charts coming soon.</p>
+            </div>
+          )}
+          {activeTab === 'Shipping & Legal' && (
+            <div className="text-sm text-gray-600 space-y-3">
+              <p>📦 <strong>Shipping:</strong> All orders ship from Sadulshahar, Rajasthan within 1-2 business days.</p>
+              <p>⚖️ <strong>Legal:</strong> Check your state's regulations before ordering Class F2/F3 products.</p>
+              <p>🔒 <strong>Packaging:</strong> All items are packed in PESO-approved safety packaging.</p>
+            </div>
+          )}
+        </div>
+      </div>
 
-        {/* Back to catalog */}
-        <div className="text-center">
-          <Link
-            to="/products"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
-          >
-            ← Back to Product Catalog
-          </Link>
-        </div>
+      {/* Back to catalog */}
+      <div className="text-center">
+        <Link
+          to="/products"
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+        >
+          ← Back to Product Catalog
+        </Link>
       </div>
     </div>
   )
