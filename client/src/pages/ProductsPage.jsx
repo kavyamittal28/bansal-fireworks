@@ -29,56 +29,56 @@ function ProductCard({ p }) {
   }
 
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col" id={`product-${p.id}`}>
+    <div className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col" id={`product-${p.id}`}>
       {/* Clickable area */}
       <Link to={`/products/${p.id}`} className="block">
-        <div className="h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
+        <div className="h-48 overflow-hidden bg-gray-100 flex items-center justify-center">
           {thumbnail ? (
             <img
               src={thumbnail}
               alt={p.name}
               loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
           ) : (
-            <div className="flex flex-col items-center justify-center text-gray-300">
-              <svg className="w-12 h-12 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+            <div className="flex flex-col items-center justify-center text-gray-400">
+              <svg className="w-14 h-14 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.20 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
               </svg>
               <span className="text-xs">No Image</span>
             </div>
           )}
         </div>
-        <div className="p-4">
-          <div className="flex flex-wrap gap-1 mb-2">
+        <div className="p-5">
+          <div className="flex flex-wrap gap-2 mb-3">
             {p.brand && (
-              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-medium">
-                {p.brand.toUpperCase()}
+              <span className="text-[11px] bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full font-semibold">
+                {p.brand}
               </span>
             )}
             {p.category && (
-              <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium">
+              <span className="text-[11px] bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-semibold">
                 {p.category}
               </span>
             )}
             {p.bestseller && (
-              <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded font-medium">BESTSELLER</span>
+              <span className="text-[11px] bg-red-100 text-red-700 px-2.5 py-1 rounded-full font-bold">⭐ BESTSELLER</span>
             )}
             {p.eco_friendly && (
-              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">ECO</span>
+              <span className="text-[11px] bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-semibold">🌿 ECO</span>
             )}
           </div>
-          <h3 className="text-gray-900 font-semibold text-sm mb-3">{p.name}</h3>
+          <h3 className="text-gray-900 font-semibold text-sm mb-4 leading-snug line-clamp-2">{p.name}</h3>
           <div>
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-gray-900 font-bold text-lg">₹{Number(p.price).toLocaleString('en-IN')}</span>
+            <div className="flex items-baseline gap-3 flex-wrap">
+              <span className="text-gray-900 font-bold text-xl">₹{Number(p.price).toLocaleString('en-IN')}</span>
               {p.market_price && Number(p.market_price) > Number(p.price) && (
                 <span className="text-sm text-gray-400 line-through">₹{Number(p.market_price).toLocaleString('en-IN')}</span>
               )}
             </div>
             {p.market_price && Number(p.market_price) > Number(p.price) && (
-              <span className="inline-block text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full mt-1">
-                {Math.round((1 - p.price / p.market_price) * 100)}% off
+              <span className="inline-block text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full mt-2">
+                {Math.round((1 - p.price / p.market_price) * 100)}% OFF
               </span>
             )}
           </div>
@@ -86,26 +86,26 @@ function ProductCard({ p }) {
       </Link>
 
       {/* Add to Cart — outside the Link */}
-      <div className="px-4 pb-4 pt-1 border-t border-gray-100 flex items-center gap-2 mt-auto">
+      <div className="px-5 pb-5 pt-2 border-t border-gray-100 flex items-center gap-2 mt-auto">
         {/* Type toggle (only when both are available) */}
         {canPieces && canCases && (
-          <div className="flex rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+          <div className="flex rounded-lg overflow-hidden border border-gray-300 flex-shrink-0">
             <button
               onClick={e => { e.preventDefault(); setSelectedType('pieces') }}
-              className={`px-2.5 py-1.5 text-[10px] font-semibold transition-colors ${
+              className={`px-3 py-1.5 text-[10px] font-bold transition-colors ${
                 selectedType === 'pieces'
                   ? 'bg-gray-900 text-white'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               Pcs
             </button>
             <button
               onClick={e => { e.preventDefault(); setSelectedType('cases') }}
-              className={`px-2.5 py-1.5 text-[10px] font-semibold border-l border-gray-200 transition-colors ${
+              className={`px-3 py-1.5 text-[10px] font-bold border-l border-gray-300 transition-colors ${
                 selectedType === 'cases'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+                  ? 'bg-amber-600 text-white'
+                  : 'text-gray-600 hover:text-amber-600 hover:bg-amber-50'
               }`}
             >
               Case
@@ -113,18 +113,18 @@ function ProductCard({ p }) {
           </div>
         )}
         {!canPieces && canCases && (
-          <span className="text-[10px] text-blue-600 font-semibold">Case</span>
+          <span className="text-[10px] text-amber-600 font-bold">Case</span>
         )}
         {canPieces && !canCases && (
-          <span className="text-[10px] text-gray-500 font-semibold">Pieces</span>
+          <span className="text-[10px] text-gray-600 font-bold">Pieces</span>
         )}
 
         <button
           onClick={handleAddToCart}
-          className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-lg transition-all duration-200 ${
+          className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg transition-all duration-200 ${
             added
-              ? 'bg-green-100 text-green-700 border border-green-200'
-              : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'
+              ? 'bg-green-100 text-green-700 border border-green-300'
+              : 'bg-amber-100 text-amber-700 border border-amber-300 hover:bg-amber-600 hover:text-white'
           }`}
         >
           {added ? '✓ Added' : '+ Add to Cart'}
@@ -203,25 +203,26 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+      <div className="bg-white border-b border-gray-200 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center gap-6 justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Product Catalog</h1>
-            <p className="text-gray-500 text-sm mt-1">Transparent unit pricing for premium firecrackers.</p>
+            <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mb-2">Premium Selection</p>
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900">Our Collection</h1>
+            <p className="text-gray-600 text-sm mt-2">Transparent pricing on premium fireworks & firecrackers.</p>
           </div>
-          <div className="relative w-full sm:w-72">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">🔍</span>
+          <div className="relative w-full sm:w-80">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">🔍</span>
             <input
               type="text"
               placeholder="Search products…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+              className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
               >✕</button>
             )}
           </div>
@@ -231,24 +232,24 @@ export default function ProductsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex-1 min-w-0">
           {/* Toolbar */}
-          <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="flex flex-wrap items-center gap-3 mb-6">
             <div className="relative">
               <button
                 onClick={() => setSortOpen(v => !v)}
-                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 text-sm px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 text-sm px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                 aria-expanded={sortOpen}
                 id="sort-btn"
               >
-                ↕️ {SORT_OPTIONS.find(s => s.id === sortBy)?.label || 'Sort'}
+                ↕️ Sort
               </button>
               {sortOpen && (
-                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 py-1 min-w-[180px]">
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-xl z-20 py-2 min-w-[200px]">
                   {SORT_OPTIONS.map(opt => (
                     <button
                       key={opt.id}
                       onClick={() => { setSortBy(opt.id); setSortOpen(false) }}
-                      className={`block w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                        sortBy === opt.id ? 'text-blue-600 bg-blue-50 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                      className={`block w-full text-left px-4 py-3 text-sm transition-colors ${
+                        sortBy === opt.id ? 'text-amber-700 bg-amber-50 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
                       {opt.label}
@@ -259,7 +260,7 @@ export default function ProductsPage() {
             </div>
 
             {(selectedBrand !== 'all' || selectedCategory) && (
-              <button onClick={resetFilters} className="text-xs text-blue-600 hover:underline">Reset Filters</button>
+              <button onClick={resetFilters} className="text-xs text-amber-600 hover:text-amber-700 font-semibold">↻ Reset Filters</button>
             )}
 
             <span className="text-gray-400 text-xs ml-auto">
@@ -269,21 +270,21 @@ export default function ProductsPage() {
 
           {/* Brand pills */}
           {brands.length > 1 && (
-            <div className="flex flex-wrap gap-2 mb-3" role="group" aria-label="Filter by brand">
+            <div className="flex flex-wrap gap-2 mb-4" role="group" aria-label="Filter by brand">
               {brands.map(brand => {
                 const isActive = selectedBrand === brand.id
                 return (
                   <button
                     key={brand.id}
                     onClick={() => setSelectedBrand(isActive && brand.id !== 'all' ? 'all' : brand.id)}
-                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                    className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200 ${
                       isActive
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                        ? 'bg-amber-600 text-white border-amber-600'
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-amber-400 hover:text-amber-600'
                     }`}
                     aria-pressed={isActive}
                   >
-                    {brand.label}{isActive && brand.id !== 'all' ? ' ×' : ''}
+                    {brand.label}
                   </button>
                 )
               })}
@@ -292,13 +293,13 @@ export default function ProductsPage() {
 
           {/* Category pills */}
           {categories.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter by category">
+            <div className="flex flex-wrap gap-2 mb-8" role="group" aria-label="Filter by category">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200 ${
                   !selectedCategory
                     ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-amber-400 hover:text-amber-600'
                 }`}
                 aria-pressed={!selectedCategory}
               >
@@ -310,14 +311,14 @@ export default function ProductsPage() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(isActive ? null : cat)}
-                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                    className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200 ${
                       isActive
                         ? 'bg-gray-900 text-white border-gray-900'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-amber-400 hover:text-amber-600'
                     }`}
                     aria-pressed={isActive}
                   >
-                    {cat}{isActive ? ' ×' : ''}
+                    {cat}
                   </button>
                 )
               })}
@@ -342,25 +343,25 @@ export default function ProductsPage() {
 
           {/* Fetch error */}
           {fetchError && (
-            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-6">
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-5 py-4 mb-8 font-semibold">
               ⚠️ {fetchError}
             </div>
           )}
 
           {/* Empty state */}
           {!loading && !fetchError && sorted.length === 0 && (
-            <div className="text-center py-20 bg-white rounded-2xl border border-gray-200">
-              <div className="text-5xl mb-4">🔍</div>
-              <h3 className="text-gray-900 font-semibold text-lg mb-2">No products found</h3>
-              <p className="text-gray-500 text-sm mb-6">
+            <div className="text-center py-24 bg-gray-50 rounded-2xl border border-gray-200">
+              <div className="text-6xl mb-6">🔍</div>
+              <h3 className="text-gray-900 font-serif font-bold text-2xl mb-3">No products found</h3>
+              <p className="text-gray-600 text-base mb-8">
                 {products.length === 0
                   ? 'No products have been added yet. Use the admin portal to add products.'
-                  : 'Try adjusting your filters or browse all products.'}
+                  : 'Try adjusting your filters or search terms to find products.'}
               </p>
               {products.length > 0 && (
                 <button
                   onClick={resetFilters}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm"
+                  className="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm"
                 >
                   Clear Filters
                 </button>
@@ -376,20 +377,20 @@ export default function ProductsPage() {
           )}
 
           {/* Bulk CTA */}
-          <div className="bg-gray-800 rounded-2xl p-5 sm:p-8 text-center">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 text-white">📦</div>
-            <h3 className="text-white font-bold text-base sm:text-lg mb-2">Ready to Place a Bulk Order?</h3>
-            <p className="text-gray-400 text-sm mb-5 sm:mb-6 max-w-lg mx-auto">
-              Special tiered pricing for wholesale buyers, retailers, and event organizers. Click below to start an inquiry.
+          <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-8 sm:p-12 text-center border border-gray-700">
+            <div className="w-14 h-14 bg-amber-600 rounded-xl flex items-center justify-center mx-auto mb-6 text-white text-2xl shadow-lg">📦</div>
+            <h3 className="text-white font-serif font-bold text-2xl sm:text-3xl mb-4">Bulk Order Inquiry</h3>
+            <p className="text-gray-300 text-base mb-8 max-w-2xl mx-auto leading-relaxed">
+              Special tiered pricing and dedicated support for wholesale buyers, retailers, and event organizers. Get a personalized quote tailored to your needs.
             </p>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-3.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
               id="send-bulk-inquiry-btn"
             >
-              Send Bulk Order Inquiry
+              Request a Quote
             </Link>
-            <p className="text-gray-500 text-xs mt-4">Response time usually within 2–4 hours</p>
+            <p className="text-gray-400 text-xs mt-6 font-semibold">Response within 2–4 hours</p>
           </div>
         </div>
       </div>
