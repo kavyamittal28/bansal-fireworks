@@ -296,13 +296,13 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
                   }
                 </div>
                 {sendOtpError && <p className="text-red-500 text-sm">{sendOtpError}</p>}
-                <button
-                  type="submit"
-                  disabled={!name.trim() || !phone.trim() || sendingOtp}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
-                >
-                  {sendingOtp ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Send OTP'}
-                </button>
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-sm flex items-center justify-center gap-2"
+      >
+        {sendingOtp ? <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Send OTP'}
+      </button>
               </form>
             </>
           )}
@@ -332,9 +332,9 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
                 <button
                   type="submit"
                   disabled={verifying || otp.length !== 6}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                  className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-sm flex items-center justify-center gap-2"
                 >
-                  {verifying ? <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Verify & Continue'}
+                  {verifying ? <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Verify & Continue'}
                 </button>
               </form>
             </>
@@ -401,10 +401,10 @@ function PlaceOrderModal({ grandTotal, totalPieces, cart, onClose, onSuccess }) 
                 <button
                   type="submit"
                   disabled={!screenshot || uploading}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-500 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-sm flex items-center justify-center gap-2"
                 >
                   {uploading ? (
-                    <><span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Uploading…</>
+                    <><span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Uploading…</>
                   ) : '✓ Submit & Confirm Order'}
                 </button>
                 <p className="text-center text-xs text-gray-400">Your order will be confirmed after payment verification</p>

@@ -68,20 +68,21 @@ export default function ContactPage() {
   }
 
   const inputClass = (field) =>
-    `w-full border rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+    `w-full border-2 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all font-medium ${
       errors[field]
-        ? 'border-red-300 focus:ring-red-400 bg-red-50'
-        : 'border-gray-300 focus:ring-blue-500'
+        ? 'border-red-400 focus:ring-red-400 bg-red-50'
+        : 'border-gray-300 focus:ring-amber-500'
     }`
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 py-6 sm:py-10">
+      <div className="bg-white border-b border-gray-200 py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>
-          <p className="text-gray-500 text-sm sm:text-base max-w-xl">
-            We're here to help with your wholesale and retail firework inquiries. Reach out via the form or visit our facility in Sadulshahar.
+          <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mb-3">Get In Touch</p>
+          <h1 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 mb-4">Contact Us</h1>
+          <p className="text-gray-600 text-base max-w-2xl leading-relaxed">
+            We're here to help with your wholesale and retail firework inquiries. Reach out via the form or visit our facility in Sadulshahar, Rajasthan.
           </p>
         </div>
       </div>
@@ -90,12 +91,12 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Left: Contact details + Map */}
           <div className="flex flex-col gap-6">
-            <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
-              <h2 className="text-base font-semibold text-gray-900 mb-5">Our Contact Details</h2>
-              <div className="flex flex-col gap-5">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-lg">
+              <h2 className="text-lg font-serif font-bold text-gray-900 mb-7">Our Contact Details</h2>
+              <div className="flex flex-col gap-7">
                 {CONTACT_INFO.map(info => (
-                  <div key={info.label} className="flex items-start gap-4">
-                    <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 text-base" aria-hidden="true">
+                  <div key={info.label} className="flex items-start gap-5">
+                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0 text-xl" aria-hidden="true">
                       {info.icon}
                     </div>
                     <div>
@@ -129,19 +130,19 @@ export default function ContactPage() {
           </div>
 
           {/* Right: Contact Form */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-lg">
             {success ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl" aria-hidden="true">
+              <div className="text-center py-16">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl" aria-hidden="true">
                   ✅
                 </div>
-                <h3 className="text-gray-900 font-bold text-xl mb-2">Inquiry Sent!</h3>
-                <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
+                <h3 className="text-gray-900 font-serif font-bold text-2xl mb-3">Inquiry Sent!</h3>
+                <p className="text-gray-600 text-base mb-8 max-w-sm mx-auto leading-relaxed">
                   Thank you for reaching out. Our team will get back to you within 24 hours.
                 </p>
                 <button
                   onClick={handleReset}
-                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+                  className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg text-sm"
                   id="send-another-btn"
                 >
                   Send Another Inquiry
@@ -149,8 +150,8 @@ export default function ContactPage() {
               </div>
             ) : (
               <>
-                <h2 className="text-base font-semibold text-gray-900 mb-1">Send an Inquiry</h2>
-                <p className="text-gray-500 text-sm mb-6">Fill in the details below and we'll get back to you within 24 hours.</p>
+                <h2 className="text-lg font-serif font-bold text-gray-900 mb-2">Send an Inquiry</h2>
+                <p className="text-gray-600 text-sm mb-7">Fill in the details below and we'll get back to you within 24 hours.</p>
 
                 {errors.form && (
                   <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-2" role="alert">
@@ -254,16 +255,16 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl transition-colors shadow-sm"
+                    className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none"
                     id="send-inquiry-btn"
                   >
                     {loading ? (
                       <>
-                        <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
+                        <span className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
                         <span>Sending…</span>
                       </>
                     ) : (
-                      'Send Inquiry →'
+                      '→ Send Inquiry'
                     )}
                   </button>
 

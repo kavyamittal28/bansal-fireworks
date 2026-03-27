@@ -24,49 +24,50 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white">
       {/* Hero */}
       <section
-        className="relative bg-gray-900 text-white py-14 sm:py-24 px-4 overflow-hidden"
+        className="relative bg-gray-900 text-white py-20 sm:py-32 px-4 overflow-hidden"
         style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1600&q=80)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-gray-900/70" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <span className="inline-flex items-center bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
-            🏭 EST. 1994 · SADULSHAHAR, RAJASTHAN
+        <div className="absolute inset-0 bg-gray-900/75" />
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <span className="inline-flex items-center bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-full mb-8 tracking-wide">
+            🏭 Est. 1994 · Sadulshahar, Rajasthan
           </span>
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 max-w-2xl">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-white leading-tight mb-6 max-w-3xl">
             Crafting Moments of Pure Wonder
           </h1>
-          <p className="text-gray-300 text-sm sm:text-lg max-w-xl">
-            Celebrating three decades of safety, quality, and pyrotechnic artistry.
+          <p className="text-gray-200 text-base sm:text-lg max-w-2xl leading-relaxed">
+            Celebrating three decades of safety, innovation, and pyrotechnic excellence. Your trust is our tradition.
           </p>
         </div>
       </section>
 
       {/* Our Legacy */}
-      <section className="py-10 sm:py-16 bg-white">
+      <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Legacy of Excellence</h2>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6">
+              <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mb-3">Our Journey</p>
+              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 mb-6">Legacy of Excellence</h2>
+              <p className="text-gray-600 text-base leading-relaxed mb-8">
                 Since our inception in 1994, Bansal Fireworks has been at the forefront of the pyrotechnics industry. What started as a small family-run workshop has transformed into a national leader in high-performance pyrotechnics, driven by a relentless pursuit of manufacturing perfection.
               </p>
               {/* Timeline */}
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-8">
                 {TIMELINE.map((t, i) => (
-                  <div key={i} className="flex gap-4">
+                  <div key={i} className="flex gap-6">
                     <div className="flex flex-col items-center">
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-xs font-bold">{i + 1}</span>
+                      <div className="w-10 h-10 bg-amber-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <span className="text-white text-sm font-bold">{i + 1}</span>
                       </div>
-                      {i < TIMELINE.length - 1 && <div className="w-px flex-1 bg-blue-200 mt-2" />}
+                      {i < TIMELINE.length - 1 && <div className="w-px flex-1 bg-amber-200 mt-3" />}
                     </div>
-                    <div className="pb-6">
-                      <h3 className="text-gray-900 font-semibold text-sm mb-1">{t.year}</h3>
-                      <p className="text-gray-500 text-sm">{t.desc}</p>
+                    <div className="pb-8">
+                      <h3 className="text-gray-900 font-bold text-base mb-2">{t.year}</h3>
+                      <p className="text-gray-600 text-sm leading-relaxed">{t.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -91,20 +92,21 @@ export default function AboutPage() {
       </section>
 
       {/* Core Philosophy */}
-      <section className="py-10 sm:py-16 bg-gray-50">
+      <section className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Core Philosophy</h2>
-            <div className="w-8 h-1 bg-blue-600 rounded mx-auto" />
+          <div className="text-center mb-14">
+            <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mb-3">Our Values</p>
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 mb-5">Core Philosophy</h2>
+            <div className="w-12 h-1 bg-gradient-to-r from-amber-600 to-amber-400 rounded-full mx-auto" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {PILLARS.map(pillar => (
-              <div key={pillar.title} className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                <div className={`w-10 h-10 ${pillar.color} rounded-xl flex items-center justify-center text-white text-xl mb-4`} aria-hidden="true">
+              <div key={pillar.title} className="bg-white rounded-2xl border border-gray-200 p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div className={`w-14 h-14 ${pillar.color} rounded-xl flex items-center justify-center text-white text-3xl mb-6 shadow-lg`} aria-hidden="true">
                   {pillar.icon}
                 </div>
-                <h3 className="text-gray-900 font-bold text-base mb-3">{pillar.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{pillar.desc}</p>
+                <h3 className="text-gray-900 font-bold text-lg mb-4">{pillar.title}</h3>
+                <p className="text-gray-600 text-base leading-relaxed">{pillar.desc}</p>
               </div>
             ))}
           </div>
@@ -112,13 +114,13 @@ export default function AboutPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-10 sm:py-14 bg-blue-600">
+      <section className="py-16 sm:py-24 bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-10">
             {STATS.map(s => (
               <div key={s.label} className="text-center">
-                <div className="text-2xl sm:text-4xl font-bold text-white mb-1">{s.val}</div>
-                <div className="text-blue-200 text-xs sm:text-sm uppercase tracking-wide font-medium">{s.label}</div>
+                <div className="text-3xl sm:text-5xl font-bold text-white mb-3">{s.val}</div>
+                <div className="text-amber-100 text-xs sm:text-sm uppercase tracking-widest font-bold">{s.label}</div>
               </div>
             ))}
           </div>

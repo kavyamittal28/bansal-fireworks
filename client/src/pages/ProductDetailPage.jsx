@@ -111,14 +111,14 @@ export default function ProductDetailPage() {
       <WishlistToast visible={toastVisible} saved={wishlisted} />
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b border-gray-200 py-3">
+      <div className="bg-white border-b border-gray-200 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
-            <Link to="/" className="hover:text-blue-600 transition-colors">Bansal Fireworks</Link>
-            <span aria-hidden="true">›</span>
-            <Link to="/products" className="hover:text-blue-600 transition-colors">Products</Link>
-            <span aria-hidden="true">›</span>
-            <span className="text-gray-900 font-medium" aria-current="page">{product.name}</span>
+          <nav className="flex items-center gap-2 text-sm text-gray-600" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-amber-600 transition-colors font-medium">Bansal Fireworks</Link>
+            <span aria-hidden="true" className="text-gray-400">/</span>
+            <Link to="/products" className="hover:text-amber-600 transition-colors font-medium">Products</Link>
+            <span aria-hidden="true" className="text-gray-400">/</span>
+            <span className="text-gray-900 font-semibold" aria-current="page">{product.name}</span>
           </nav>
         </div>
       </div>
@@ -169,29 +169,44 @@ export default function ProductDetailPage() {
           {/* Product Info */}
           <div>
             {product.category && (
-              <span className="inline-flex items-center bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+              <span className="inline-flex items-center bg-amber-100 text-amber-700 text-xs font-bold px-4 py-1.5 rounded-full mb-5 tracking-wide">
                 {product.category}
               </span>
             )}
-            <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+            <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-4">{product.name}</h1>
 
             {product.description && (
-              <p className="text-gray-500 text-sm leading-relaxed mb-5">{product.description}</p>
+              <p className="text-gray-600 text-base leading-relaxed mb-6">{product.description}</p>
             )}
 
             {/* Price */}
-            <div className="mb-6">
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="text-2xl sm:text-3xl font-bold text-gray-900">₹{Number(product.price).toLocaleString('en-IN')}</span>
+            <div className="mb-8">
+              <div className="flex items-baseline gap-4 flex-wrap">
+                <span className="text-3xl sm:text-4xl font-bold text-gray-900">₹{Number(product.price).toLocaleString('en-IN')}</span>
                 {product.market_price && Number(product.market_price) > Number(product.price) && (
-                  <span className="text-lg text-gray-400 line-through">₹{Number(product.market_price).toLocaleString('en-IN')}</span>
-                )}
-                {product.market_price && Number(product.market_price) > Number(product.price) && (
-                  <span className="text-sm font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                    {Math.round((1 - product.price / product.market_price) * 100)}% off
-                  </span>
+                  <>
+                    <span className="text-xl text-gray-400 line-through">₹{Number(product.market_price).toLocaleString('en-IN')}</span>
+                    <span className="inline-block text-sm font-bold bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full">
+                      {Math.round((1 - product.price / product.market_price) * 100)}% OFF
+                    </span>
+                  </>
                 )}
               </div>
+            </div>
+
+            {/* Badges */}
+            <div className="flex flex-wrap gap-3 mb-8">
+              {product.bestseller && (
+                <span className="bg-red-100 text-red-700 text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1">
+                  ⭐ Bestseller
+                </span>
+              )}
+              {product.eco_friendly && (
+                <span className="bg-green-100 text-green-700 text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1">
+                  🌿 Eco-Friendly
+                </span>
+              )}
+            </div>
             </div>
 
             {/* Badges */}
@@ -222,54 +237,54 @@ export default function ProductDetailPage() {
               }
 
               return (
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
-                  <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3">Add to Cart</p>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
+                  <p className="text-amber-900 text-xs font-bold uppercase tracking-widest mb-4">Add to Cart</p>
 
                   {/* Type selector */}
                   {canPieces && canCases && (
-                    <div className="flex gap-2 mb-3">
+                    <div className="flex gap-3 mb-5">
                       <button
                         onClick={() => setCartType('pieces')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-all ${
+                        className={`flex-1 py-2.5 rounded-lg text-sm font-bold border-2 transition-all ${
                           cartType === 'pieces'
                             ? 'bg-gray-900 text-white border-gray-900'
-                            : 'border-gray-200 text-gray-600 hover:border-gray-400'
+                            : 'border-gray-300 text-gray-600 hover:border-amber-400 hover:text-amber-700'
                         }`}
                       >
                         Pieces
                       </button>
                       <button
                         onClick={() => setCartType('cases')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-all ${
+                        className={`flex-1 py-2.5 rounded-lg text-sm font-bold border-2 transition-all ${
                           cartType === 'cases'
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                            ? 'bg-amber-600 text-white border-amber-600'
+                            : 'border-gray-300 text-gray-600 hover:border-amber-400 hover:text-amber-700'
                         }`}
                       >
-                        Cases {caseQty && <span className="text-[11px] opacity-75">({caseQty} pcs)</span>}
+                        Cases {caseQty && <span className="text-[10px] opacity-80">({caseQty} pcs)</span>}
                       </button>
                     </div>
                   )}
 
                   {/* Qty + button */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
                       <button
                         onClick={() => setCartQty(q => Math.max(1, q - 1))}
-                        className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-base"
+                        className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-amber-50 font-bold text-lg"
                       >−</button>
-                      <span className="w-9 text-center text-gray-900 text-sm font-medium">{cartQty}</span>
+                      <span className="w-10 text-center text-gray-900 text-base font-bold">{cartQty}</span>
                       <button
                         onClick={() => setCartQty(q => q + 1)}
-                        className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-base"
+                        className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-amber-50 font-bold text-lg"
                       >+</button>
                     </div>
                     <button
                       onClick={handleAddToCart}
-                      className={`flex-1 flex items-center justify-center gap-2 font-semibold py-2.5 rounded-lg text-sm transition-all ${
+                      className={`flex-1 flex items-center justify-center gap-2 font-bold py-3 rounded-lg text-sm transition-all duration-200 shadow-md ${
                         cartAdded
-                          ? 'bg-green-100 text-green-700 border border-green-200'
-                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          ? 'bg-green-100 text-green-700 border border-green-300'
+                          : 'bg-amber-600 hover:bg-amber-700 text-white hover:shadow-lg hover:scale-105'
                       }`}
                       id="add-to-cart-btn"
                     >
@@ -279,14 +294,13 @@ export default function ProductDetailPage() {
 
                   {/* Price hint */}
                   {cartType === 'cases' && caseQty && (
-                    <p className="text-gray-400 text-xs mt-2">
-                      {cartQty} case{cartQty !== 1 ? 's' : ''} × {caseQty} pcs = {cartQty * caseQty} pieces ·{' '}
-                      <span className="text-gray-700 font-medium">₹{(product.price * caseQty * cartQty).toLocaleString('en-IN')}</span>
+                    <p className="text-gray-600 text-xs mt-3 font-medium">
+                      {cartQty} case{cartQty !== 1 ? 's' : ''} × {caseQty} pcs = {cartQty * caseQty} pieces · <span className="text-amber-700 font-bold">₹{(product.price * caseQty * cartQty).toLocaleString('en-IN')}</span>
                     </p>
                   )}
                   {cartType === 'pieces' && (
-                    <p className="text-gray-400 text-xs mt-2">
-                      {cartQty} pc{cartQty !== 1 ? 's' : ''} · <span className="text-gray-700 font-medium">₹{(product.price * cartQty).toLocaleString('en-IN')}</span>
+                    <p className="text-gray-600 text-xs mt-3 font-medium">
+                      {cartQty} pc{cartQty !== 1 ? 's' : ''} · <span className="text-amber-700 font-bold">₹{(product.price * cartQty).toLocaleString('en-IN')}</span>
                     </p>
                   )}
                 </div>
@@ -294,20 +308,20 @@ export default function ProductDetailPage() {
             })()}
 
             {/* CTA Buttons */}
-            <div className="flex flex-col gap-3 mb-6">
+            <div className="flex flex-col gap-3 mb-8">
               <Link
                 to="/contact"
-                className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors shadow-sm"
+                className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
                 id="send-bulk-inquiry-btn"
               >
                 📦 Send Bulk Order Inquiry
               </Link>
               <button
                 onClick={toggleWishlist}
-                className={`flex items-center justify-center gap-2 border font-medium py-3 rounded-xl transition-all ${
+                className={`flex items-center justify-center gap-2 border-2 font-bold py-3.5 rounded-xl transition-all duration-200 ${
                   wishlisted
-                    ? 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100'
-                    : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                    ? 'border-red-400 bg-red-50 text-red-700 hover:bg-red-100'
+                    : 'border-gray-300 text-gray-700 hover:border-amber-400 hover:text-amber-700'
                 }`}
                 aria-pressed={wishlisted}
                 id="wishlist-btn"
@@ -332,11 +346,11 @@ export default function ProductDetailPage() {
             )}
 
             {/* Safety notice */}
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
-              <span className="text-blue-600 text-xl flex-shrink-0" aria-hidden="true">ℹ️</span>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex gap-4">
+              <span className="text-amber-600 text-2xl flex-shrink-0" aria-hidden="true">🛡️</span>
               <div>
-                <p className="text-blue-800 font-semibold text-sm">Safety & Legal Notice</p>
-                <p className="text-blue-600 text-xs mt-1 leading-relaxed">
+                <p className="text-amber-900 font-bold text-sm mb-2">Safety & Legal Notice</p>
+                <p className="text-amber-800 text-xs leading-relaxed">
                   Some products require a valid explosives license. Please ensure you comply with local laws and regulations before purchase. Bansal Fireworks only ships to licensed dealers for Class F3 items.
                 </p>
               </div>
@@ -345,7 +359,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-2xl border border-gray-200 mb-10 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-200 mb-10 overflow-hidden shadow-lg">
           <div className="flex border-b border-gray-200 overflow-x-auto" role="tablist">
             {TABS.map(tab => (
               <button
@@ -353,10 +367,10 @@ export default function ProductDetailPage() {
                 onClick={() => setActiveTab(tab)}
                 role="tab"
                 aria-selected={activeTab === tab}
-                className={`px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                className={`px-4 sm:px-8 py-4 sm:py-5 text-sm sm:text-base font-semibold whitespace-nowrap transition-all duration-200 border-b-3 ${
                   activeTab === tab
-                    ? 'text-blue-600 border-blue-600 bg-blue-50'
-                    : 'text-gray-500 border-transparent hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-amber-700 border-amber-600 bg-amber-50'
+                    : 'text-gray-600 border-transparent hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 {tab}
