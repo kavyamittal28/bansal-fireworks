@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTokenRefresh } from '../hooks/useTokenRefresh'
 
 const NAV_ITEMS = [
   { icon: '⊞', label: 'Dashboard', href: '/admin/dashboard' },
@@ -75,6 +76,7 @@ function Sidebar({ activeHref, onClose }) {
 
 export default function AdminLayout({ activeHref, headerTitle, headerSubtitle, headerRight, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  useTokenRefresh()
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

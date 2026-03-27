@@ -1,10 +1,11 @@
 import asyncio
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 import jwt
 import bcrypt
 from config import settings
 from database import get_db
+from middleware import get_current_user
 from schemas.auth import LoginRequest, TokenResponse
 
 router = APIRouter(tags=["auth"])
@@ -73,3 +74,14 @@ async def login(body: LoginRequest):
 )
 async def admin_login(body: LoginRequest):
     return await _login_handler(body)
+
+
+@router.post(
+    "/api/auth/refresh",
+    response_model=TokenResponse,
+    summary="Refresh admin token",
+    description="Exchange a valid Bearer JWT for a fresh one with a reset expiry. Call this periodically to keep the session alive.",
+)
+async def refresh_token(current_user: dict = Depends(get_current_user)):
+    token = _create_token(current_user["user_id"], current_user["email"])
+    return TokenResponse(token=token)
