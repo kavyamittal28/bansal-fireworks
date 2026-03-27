@@ -41,22 +41,22 @@ export default function HomePage() {
       >
         <div className="absolute inset-0 bg-gray-900/70" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-amber-400 text-xs font-semibold uppercase tracking-widest mb-6 animate-fade-in-up">
-            ✨ Est. 1994 · Sadulshahar, Rajasthan · 30+ Years of Excellence
+          <p className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-6 animate-fade-in-up">
+            Professional B2B Wholesale Platform · Est. 1994 · 30+ Years
           </p>
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-bold text-white leading-tight mb-6 sm:mb-8 animate-fade-in-up">
-            Bansal Fireworks
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6 sm:mb-8 animate-fade-in-up">
+            Bansal Fireworks Wholesale
           </h1>
           <p className="text-gray-200 text-lg sm:text-xl max-w-3xl mx-auto mb-10 sm:mb-12 leading-relaxed animate-fade-in-up">
-            Experience the magic of premium fireworks with India's most trusted manufacturer. Crafted with precision, certified for safety, and celebrated across the nation.
+            Premium wholesale fireworks supplier for retailers, event organizers, and bulk buyers. Direct manufacturer pricing with full certifications and on-time delivery.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up">
             <Link
               to="/products"
-              className="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-8 py-3.5 rounded-lg transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 w-full sm:w-auto text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3.5 rounded transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 w-full sm:w-auto text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2"
               id="hero-shop-btn"
             >
-              Explore Collection
+              Browse Catalog
             </Link>
             <Link
               to="/contact"
@@ -74,11 +74,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mb-2">Trusted Partners</p>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900">Premium Brands</h2>
+              <p className="text-green-600 text-xs font-bold uppercase tracking-widest mb-2">Featured Suppliers</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Premium Brands</h2>
             </div>
-            <Link to="/products" className="text-amber-600 hover:text-amber-700 text-sm font-semibold transition-colors hidden sm:block">
-              See all →
+            <Link to="/products" className="text-green-600 hover:text-green-700 text-sm font-semibold transition-colors hidden sm:block">
+              View all →
             </Link>
           </div>
 
@@ -92,7 +92,7 @@ export default function HomePage() {
                   to={`/products?brand=${encodeURIComponent(brand.name)}`}
                   className="group flex flex-col items-center gap-4 bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex-shrink-0 w-44"
                 >
-                  <div className="w-20 h-20 rounded-xl bg-amber-50 overflow-hidden flex items-center justify-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
+                  <div className="w-20 h-20 rounded-xl bg-green-50 overflow-hidden flex items-center justify-center flex-shrink-0 group-hover:bg-green-100 transition-colors">
                     {brand.image_url
                       ? <img src={brand.image_url} alt={brand.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                       : <span className="text-3xl">✨</span>
@@ -114,10 +114,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mb-2">Shop by Category</p>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900">Explore Our Collections</h2>
+              <p className="text-green-600 text-xs font-bold uppercase tracking-widest mb-2">Product Categories</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Explore Our Collections</h2>
             </div>
-            <Link to="/products" className="text-amber-600 hover:text-amber-700 text-sm font-semibold transition-colors hidden sm:block">
+            <Link to="/products" className="text-green-600 hover:text-green-700 text-sm font-semibold transition-colors hidden sm:block">
               Browse all →
             </Link>
           </div>
@@ -134,7 +134,7 @@ export default function HomePage() {
                 >
                   {cat.image_url
                     ? <img src={cat.image_url} alt={cat.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    : <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-5xl">✨</div>
+                    : <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-5xl">✨</div>
                   }
                   <div className="relative w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent px-5 py-5">
                     <p className="text-white font-serif font-bold text-lg">{cat.name}</p>
@@ -152,10 +152,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
-              <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mb-3">Since 1994</p>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 mb-5">Why Choose Bansal</h2>
+              <p className="text-green-600 text-xs font-bold uppercase tracking-widest mb-3">Wholesale Advantages</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-5">Why Choose Bansal Wholesale</h2>
               <p className="text-gray-600 text-base mb-10 leading-relaxed">
-                For over three decades, we've been India's trusted fireworks manufacturer. Our unwavering commitment to quality, safety, and innovation has made us the choice of celebrations across the nation.
+                Direct manufacturer with 30+ years of experience. Competitive wholesale pricing, fast bulk delivery, and certified quality assurance for all your wholesale needs.
               </p>
               <div className="flex flex-col gap-7">
                 {WHY_CHOOSE.map(item => (
@@ -183,29 +183,29 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-16 sm:py-24 bg-gradient-to-br from-amber-700 via-amber-600 to-amber-700">
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-green-700 via-green-600 to-green-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-white mb-4 sm:mb-6">Ready to light up your celebration?</h2>
-          <p className="text-amber-100 text-base sm:text-lg mb-8 sm:mb-10 leading-relaxed">
-            Our expert team is ready to help you find the perfect fireworks for your special occasion. Experience unmatched quality and service.
+          <h2 className="text-3xl sm:text-5xl font-bold text-white mb-4 sm:mb-6">Ready to Scale Your Wholesale Business?</h2>
+          <p className="text-green-100 text-base sm:text-lg mb-8 sm:mb-10 leading-relaxed">
+            Dedicated account managers and competitive bulk pricing. Get wholesale rates for retailers, distributors, and corporate buyers. Direct manufacturer since 1994.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="tel:+919587638000"
-              className="flex items-center justify-center gap-2 bg-white text-amber-700 font-semibold px-8 py-3.5 rounded-lg hover:bg-amber-50 transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 bg-white text-green-700 font-semibold px-8 py-3.5 rounded hover:bg-green-50 transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
               id="cta-call-btn"
             >
               ☎️ Call us now
             </a>
             <Link
               to="/contact"
-              className="flex items-center justify-center gap-2 bg-amber-800 hover:bg-amber-900 text-white font-semibold px-8 py-3.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 bg-green-800 hover:bg-green-900 text-white font-semibold px-8 py-3.5 rounded transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
               id="cta-inquiry-btn"
             >
-              Request a Quote
+              Request Quote
             </Link>
           </div>
-          <p className="text-amber-200 text-xs mt-6">Response within 2–4 hours · Available 6 AM to 10 PM</p>
+          <p className="text-green-200 text-xs mt-6">Response within 2–4 hours · Bulk Order Specialists</p>
         </div>
       </section>
     </main>
