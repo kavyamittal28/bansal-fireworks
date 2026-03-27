@@ -149,6 +149,7 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || null)
   const [sortBy, setSortBy] = useState('default')
   const [sortOpen, setSortOpen] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false)
 
   useEffect(() => {
     async function fetchAll() {
@@ -211,19 +212,23 @@ export default function ProductsPage() {
             <p className="text-gray-600 text-sm mt-2">Transparent pricing on premium fireworks & firecrackers.</p>
           </div>
           <div className="relative w-full sm:w-80">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">🔍</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg pointer-events-none">🔍</span>
             <input
               type="text"
-              placeholder="Search products…"
+              placeholder="Search by name, brand..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+              className="w-full border-2 border-gray-300 rounded-xl pl-12 pr-12 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white transition-all duration-200"
+              aria-label="Search products"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
-              >✕</button>
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg hover:scale-110 transition-transform"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
             )}
           </div>
         </div>
@@ -231,6 +236,22 @@ export default function ProductsPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex-1 min-w-0">
+          {/* Search Results Summary */}
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              {search || selectedBrand !== 'all' || selectedCategory ? (
+                <p className="text-sm text-gray-600">
+                  <span className="font-semibold text-gray-900">{sorted.length}</span> product{sorted.length !== 1 ? 's' : ''} found
+                  {search && <span> for "<span className="font-medium">{search}</span>"</span>}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-600">
+                  Showing <span className="font-semibold text-gray-900">{sorted.length}</span> product{sorted.length !== 1 ? 's' : ''}
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <div className="relative">
@@ -259,82 +280,108 @@ export default function ProductsPage() {
               )}
             </div>
 
-            {(selectedBrand !== 'all' || selectedCategory) && (
-              <button onClick={resetFilters} className="text-xs text-amber-600 hover:text-amber-700 font-semibold">↻ Reset Filters</button>
+            {(selectedBrand !== 'all' || selectedCategory || search) && (
+              <button onClick={resetFilters} className="text-xs text-white bg-amber-600 hover:bg-amber-700 font-bold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">↻ Clear All Filters</button>
             )}
-
-            <span className="text-gray-400 text-xs ml-auto">
-              {loading ? 'Loading…' : `${sorted.length} product${sorted.length !== 1 ? 's' : ''}`}
-            </span>
           </div>
 
-          {/* Brand pills */}
-          {brands.length > 1 && (
-            <div className="flex flex-wrap gap-2 mb-4" role="group" aria-label="Filter by brand">
-              {brands.map(brand => {
-                const isActive = selectedBrand === brand.id
-                return (
-                  <button
-                    key={brand.id}
-                    onClick={() => setSelectedBrand(isActive && brand.id !== 'all' ? 'all' : brand.id)}
-                    className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200 ${
-                      isActive
-                        ? 'bg-amber-600 text-white border-amber-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-amber-400 hover:text-amber-600'
-                    }`}
-                    aria-pressed={isActive}
-                  >
-                    {brand.label}
-                  </button>
-                )
-              })}
-            </div>
-          )}
+          {/* Filter Groups */}
+          <div className="mb-10 space-y-5">
+            {/* Brand Filters */}
+            {brands.length > 1 && (
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  Brand
+                  {selectedBrand !== 'all' && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-amber-600 text-white rounded-full">
+                      1
+                    </span>
+                  )}
+                </h3>
+                <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by brand">
+                  {brands.map(brand => {
+                    const isActive = selectedBrand === brand.id
+                    return (
+                      <button
+                        key={brand.id}
+                        onClick={() => setSelectedBrand(isActive && brand.id !== 'all' ? 'all' : brand.id)}
+                        className={`text-xs font-semibold px-4 py-2 rounded-full border-2 transition-all duration-200 ${
+                          isActive
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-md'
+                            : 'bg-white text-gray-600 border-gray-300 hover:border-amber-400 hover:text-amber-600'
+                        }`}
+                        aria-pressed={isActive}
+                      >
+                        {brand.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
-          {/* Category pills */}
-          {categories.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-8" role="group" aria-label="Filter by category">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200 ${
-                  !selectedCategory
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-amber-400 hover:text-amber-600'
-                }`}
-                aria-pressed={!selectedCategory}
-              >
-                All Categories
-              </button>
-              {categories.map(cat => {
-                const isActive = selectedCategory === cat
-                return (
+            {/* Category Filters */}
+            {categories.length > 0 && (
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  Category
+                  {selectedCategory && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-amber-600 text-white rounded-full">
+                      1
+                    </span>
+                  )}
+                </h3>
+                <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
                   <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(isActive ? null : cat)}
-                    className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200 ${
-                      isActive
-                        ? 'bg-gray-900 text-white border-gray-900'
+                    onClick={() => setSelectedCategory(null)}
+                    className={`text-xs font-semibold px-4 py-2 rounded-full border-2 transition-all duration-200 ${
+                      !selectedCategory
+                        ? 'bg-gray-900 text-white border-gray-900 shadow-md'
                         : 'bg-white text-gray-600 border-gray-300 hover:border-amber-400 hover:text-amber-600'
                     }`}
-                    aria-pressed={isActive}
+                    aria-pressed={!selectedCategory}
                   >
-                    {cat}
+                    All Categories
                   </button>
-                )
-              })}
-            </div>
-          )}
+                  {categories.map(cat => {
+                    const isActive = selectedCategory === cat
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(isActive ? null : cat)}
+                        className={`text-xs font-semibold px-4 py-2 rounded-full border-2 transition-all duration-200 ${
+                          isActive
+                            ? 'bg-gray-900 text-white border-gray-900 shadow-md'
+                            : 'bg-white text-gray-600 border-gray-300 hover:border-amber-400 hover:text-amber-600'
+                        }`}
+                        aria-pressed={isActive}
+                      >
+                        {cat}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Loading skeleton */}
           {loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse">
-                  <div className="h-44 bg-gray-200" />
-                  <div className="p-4 space-y-3">
-                    <div className="h-3 bg-gray-200 rounded w-1/2" />
-                    <div className="h-4 bg-gray-200 rounded w-3/4" />
-                    <div className="h-5 bg-gray-200 rounded w-1/3" />
+                <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="h-48 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
+                  <div className="p-5 space-y-4">
+                    <div className="flex gap-2">
+                      <div className="h-5 bg-gray-200 rounded-full w-1/4 animate-pulse" />
+                      <div className="h-5 bg-gray-200 rounded-full w-1/3 animate-pulse" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6" />
+                    </div>
+                    <div className="h-6 bg-gray-200 rounded animate-pulse w-1/3" />
+                    <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
                   </div>
                 </div>
               ))}
@@ -350,21 +397,29 @@ export default function ProductsPage() {
 
           {/* Empty state */}
           {!loading && !fetchError && sorted.length === 0 && (
-            <div className="text-center py-24 bg-gray-50 rounded-2xl border border-gray-200">
-              <div className="text-6xl mb-6">🔍</div>
-              <h3 className="text-gray-900 font-serif font-bold text-2xl mb-3">No products found</h3>
-              <p className="text-gray-600 text-base mb-8">
-                {products.length === 0
-                  ? 'No products have been added yet. Use the admin portal to add products.'
-                  : 'Try adjusting your filters or search terms to find products.'}
-              </p>
-              {products.length > 0 && (
-                <button
-                  onClick={resetFilters}
-                  className="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm"
-                >
-                  Clear Filters
-                </button>
+            <div className="text-center py-24 bg-gradient-to-br from-gray-50 to-amber-50 rounded-2xl border-2 border-dashed border-gray-300">
+              <div className="text-7xl mb-8">🔍</div>
+              <h3 className="text-gray-900 font-serif font-bold text-2xl mb-4">No Products Found</h3>
+              {products.length === 0 ? (
+                <p className="text-gray-600 text-base mb-8 max-w-md mx-auto">
+                  No products have been added yet. Use the admin portal to add some premium fireworks to get started.
+                </p>
+              ) : (
+                <>
+                  <p className="text-gray-600 text-base mb-4">
+                    {search && <span>No products match "<strong>{search}</strong>"</span>}
+                    {(selectedBrand !== 'all' || selectedCategory) && !search && <span>No products match your filters</span>}
+                  </p>
+                  <p className="text-gray-500 text-sm mb-8 max-w-md mx-auto">
+                    Try adjusting your search terms or removing some filters to find what you're looking for.
+                  </p>
+                  <button
+                    onClick={resetFilters}
+                    className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    ↻ Clear All Filters
+                  </button>
+                </>
               )}
             </div>
           )}
