@@ -145,6 +145,15 @@ export default function AdminEditProductPage() {
       if (form.case_to_piece_qty !== '') body.append('case_to_piece_qty', form.case_to_piece_qty)
       mediaFiles.filter(Boolean).forEach(f => body.append('images', f))
 
+      const mediaOrder = mediaPreviews.map((preview, i) => {
+        if (!preview) return null
+        if (preview.existing && preview.public_id) return preview.public_id
+        if (mediaFiles[i]) return '__new__'
+        return null
+      })
+      body.append('media_order', JSON.stringify(mediaOrder))
+      body.append('removed_public_ids', JSON.stringify(removedPublicIds))
+
       const res = await fetch(`/api/update-product/${id}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },

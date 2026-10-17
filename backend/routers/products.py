@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import List, Optional, Annotated
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
@@ -243,6 +244,8 @@ async def update_product(
     case_to_piece_qty: Optional[str] = Form(None),
     wholesale_price: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=[]),
+    media_order: Optional[str] = Form(None),
+    removed_public_ids: Optional[str] = Form(None),
 ):
     db = get_db()
     try:
@@ -280,9 +283,54 @@ async def update_product(
     if wholesale_price is not None:
         updates["wholesale_price"] = _parse_optional_float(wholesale_price)
 
+    # Delete removed images from Cloudinary
+    ids_to_remove = []
+    if removed_public_ids:
+        try:
+            ids_to_remove = json.loads(removed_public_ids)
+        except (json.JSONDecodeError, TypeError):
+            ids_to_remove = []
+    if ids_to_remove:
+        existing_media_list = existing.get("media", [])
+        assets_to_delete = [
+            MediaAsset(**m) for m in existing_media_list
+            if m.get("public_id") in ids_to_remove and m.get("public_id") != "placeholder"
+        ]
+        if assets_to_delete:
+            await delete_assets(assets_to_delete)
+
+    # Upload new images
     valid_images = [f for f in images if f.filename]
+    new_media = []
     if valid_images:
         new_media = await upload_files(valid_images)
+
+    # Reconstruct media array using the slot order from the frontend
+    order = []
+    if media_order:
+        try:
+            order = json.loads(media_order)
+        except (json.JSONDecodeError, TypeError):
+            order = []
+
+    if order:
+        existing_by_id = {
+            m.get("public_id"): m for m in existing.get("media", [])
+        }
+        new_iter = iter(new_media)
+        final_media = []
+        for slot in order:
+            if slot is None:
+                continue
+            if slot == "__new__":
+                uploaded = next(new_iter, None)
+                if uploaded:
+                    final_media.append(uploaded.model_dump())
+            elif slot in existing_by_id:
+                final_media.append(existing_by_id[slot])
+        updates["media"] = final_media if final_media else [{"url": "https://www.bansalfireworks.com/placeholder.png", "public_id": "placeholder", "resource_type": "image"}]
+    elif valid_images and new_media:
+        # Fallback: no media_order sent, append new images (backwards compat)
         existing_media = existing.get("media", [])
         updates["media"] = existing_media + [m.model_dump() for m in new_media]
 
