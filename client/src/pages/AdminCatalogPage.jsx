@@ -116,7 +116,143 @@ function AddForm({ label, onAdd }) {
 }
 
 // ── Reusable item row ──────────────────────────────────────────────────────────
-function ItemRow({ item, onDelete }) {
+function ItemRow({ item, onDelete, onUpdate }) {
+  const [editing, setEditing] = useState(false)
+  const [editName, setEditName] = useState(item.name)
+  const [editDesc, setEditDesc] = useState(item.description || '')
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [removeImage, setRemoveImage] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const fileInputRef = useRef(null)
+
+  function openEdit() {
+    setEditName(item.name)
+    setEditDesc(item.description || '')
+    setImageFile(null)
+    setImagePreview(null)
+    setRemoveImage(false)
+    setError('')
+    setEditing(true)
+  }
+
+  function cancelEdit() {
+    setEditing(false)
+    setError('')
+  }
+
+  function handleImageChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setError('Only image files are allowed.'); return }
+    if (file.size > 10 * 1024 * 1024) { setError('Image must be under 10 MB.'); return }
+    setImageFile(file)
+    setRemoveImage(false)
+    const reader = new FileReader()
+    reader.onload = ev => setImagePreview(ev.target.result)
+    reader.readAsDataURL(file)
+    setError('')
+    e.target.value = ''
+  }
+
+  async function handleSave() {
+    if (!editName.trim()) { setError('Name is required.'); return }
+    setSaving(true)
+    setError('')
+    try {
+      const fd = new FormData()
+      if (editName.trim() !== item.name) {
+        fd.append('name', editName.trim())
+        fd.append('slug', slugify(editName))
+      }
+      if (editDesc.trim() !== (item.description || '')) {
+        fd.append('description', editDesc.trim())
+      }
+      if (imageFile) fd.append('image', imageFile)
+      else if (removeImage) fd.append('remove_image', 'true')
+      await onUpdate(item.id, fd)
+      setEditing(false)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const currentImage = removeImage ? null : (imagePreview || item.image_url)
+
+  if (editing) {
+    return (
+      <div className="py-3 border-b border-gray-100 last:border-0">
+        {error && <p className="text-red-500 text-xs mb-2">{error}</p>}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-start gap-3">
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 cursor-pointer border-2 border-dashed border-gray-200 hover:border-blue-300 transition-colors relative group/img"
+            >
+              {currentImage ? (
+                <>
+                  <img src={currentImage} alt="" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-white text-xs font-medium">Change</span>
+                  </div>
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                  <span className="text-lg">+</span>
+                  <span className="text-[9px]">Image</span>
+                </div>
+              )}
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+            <div className="flex-1 min-w-0 flex flex-col gap-2">
+              <input
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Name"
+              />
+              <input
+                value={editDesc}
+                onChange={e => setEditDesc(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Description (optional)"
+              />
+            </div>
+          </div>
+          {currentImage && (
+            <button
+              type="button"
+              onClick={() => { setRemoveImage(true); setImageFile(null); setImagePreview(null) }}
+              className="self-start text-xs text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+            >
+              Remove image
+            </button>
+          )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+            >
+              {saving && <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+              Save
+            </button>
+            <button
+              onClick={cancelEdit}
+              disabled={saving}
+              className="text-xs text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0 group">
       <div className="flex items-center gap-3 min-w-0">
@@ -132,12 +268,20 @@ function ItemRow({ item, onDelete }) {
           {item.description && <p className="text-gray-400 text-xs mt-0.5 truncate">{item.description}</p>}
         </div>
       </div>
-      <button
-        onClick={() => onDelete(item)}
-        className="text-red-400 hover:text-red-600 text-xs font-medium transition-all px-2 py-1 rounded hover:bg-red-50 flex-shrink-0 ml-2"
-      >
-        Delete
-      </button>
+      <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+        <button
+          onClick={openEdit}
+          className="text-gray-400 hover:text-blue-600 text-xs font-medium transition-all px-2 py-1 rounded hover:bg-blue-50"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => onDelete(item)}
+          className="text-red-400 hover:text-red-600 text-xs font-medium transition-all px-2 py-1 rounded hover:bg-red-50"
+        >
+          Delete
+        </button>
+      </div>
     </div>
   )
 }
@@ -223,6 +367,28 @@ export default function AdminCatalogPage() {
     setBrands(prev => prev.filter(b => b.id !== id))
   }
 
+  async function updateCategory(id, formData) {
+    const res = await fetch(`/api/categories/${id}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token()}` },
+      body: formData,
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data?.detail?.message || 'Failed to update category.')
+    setCategories(prev => prev.map(c => c.id === id ? data : c).sort((a, b) => a.name.localeCompare(b.name)))
+  }
+
+  async function updateBrand(id, formData) {
+    const res = await fetch(`/api/brands/${id}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token()}` },
+      body: formData,
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data?.detail?.message || 'Failed to update brand.')
+    setBrands(prev => prev.map(b => b.id === id ? data : b).sort((a, b) => a.name.localeCompare(b.name)))
+  }
+
   async function handleConfirmDelete() {
     if (!confirmItem) return
     setConfirmDeleting(true)
@@ -276,7 +442,7 @@ export default function AdminCatalogPage() {
               ) : (
                 <div>
                   {categories.map(cat => (
-                    <ItemRow key={cat.id} item={cat} onDelete={item => setConfirmItem({ item, type: 'category' })} />
+                    <ItemRow key={cat.id} item={cat} onDelete={item => setConfirmItem({ item, type: 'category' })} onUpdate={updateCategory} />
                   ))}
                 </div>
               )}
@@ -303,7 +469,7 @@ export default function AdminCatalogPage() {
               ) : (
                 <div>
                   {brands.map(brand => (
-                    <ItemRow key={brand.id} item={brand} onDelete={item => setConfirmItem({ item, type: 'brand' })} />
+                    <ItemRow key={brand.id} item={brand} onDelete={item => setConfirmItem({ item, type: 'brand' })} onUpdate={updateBrand} />
                   ))}
                 </div>
               )}

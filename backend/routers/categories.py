@@ -88,22 +88,53 @@ async def get_category(category_id: str):
 @router.put(
     "/{category_id}",
     summary="Update a category",
-    description="Update category fields. Only provided fields are changed. **Requires Bearer token.**",
+    description="Update category fields and/or image. Only provided fields are changed. **Requires Bearer token.**",
 )
-async def update_category(category_id: str, body: CategoryUpdate, current_user: CurrentUser):
+async def update_category(
+    category_id: str,
+    current_user: CurrentUser,
+    name: Optional[str] = Form(None),
+    slug: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    is_active: Optional[str] = Form(None),
+    image: Optional[UploadFile] = File(None),
+    remove_image: Optional[str] = Form(None),
+):
     db = get_db()
     try:
         oid = ObjectId(category_id)
     except Exception:
         raise HTTPException(status_code=400, detail={"message": "Invalid category ID"})
 
-    updates = {k: v for k, v in body.model_dump().items() if v is not None}
-    updates["updated_at"] = datetime.now(timezone.utc)
-
-    result = await db.categories.update_one({"_id": oid}, {"$set": updates})
-    if result.matched_count == 0:
+    existing = await db.categories.find_one({"_id": oid})
+    if not existing:
         raise HTTPException(status_code=404, detail={"message": "Category not found"})
 
+    updates: dict = {"updated_at": datetime.now(timezone.utc)}
+    if name is not None:
+        updates["name"] = name
+    if slug is not None:
+        updates["slug"] = slug
+    if description is not None:
+        updates["description"] = description
+    if is_active is not None:
+        updates["is_active"] = is_active.lower() in ("true", "1", "yes")
+
+    if image and image.filename:
+        if existing.get("image_public_id"):
+            from utils.media import delete_asset
+            await delete_asset(existing["image_public_id"])
+        asset = await upload_file(image, folder="bansal-fireworks/categories")
+        updates["image_url"] = asset.url
+        updates["image_public_id"] = asset.public_id
+    elif remove_image and remove_image.lower() in ("true", "1", "yes"):
+        if existing.get("image_public_id"):
+            from utils.media import delete_asset
+            await delete_asset(existing["image_public_id"])
+        updates["image_url"] = None
+        updates["image_public_id"] = None
+
+    await db.categories.update_one({"_id": oid}, {"$set": updates})
     updated = await db.categories.find_one({"_id": oid})
     return _fmt(updated)
 

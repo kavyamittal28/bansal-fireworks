@@ -94,6 +94,7 @@ async def _handle_create(
         "case_to_piece_qty": _parse_optional_int(case_to_piece_qty_str),
         "wholesale_price": _parse_optional_float(wholesale_price_str),
         "media": media_list,
+        "sold_out": False,
         "is_active": True,
         "created_at": now,
         "updated_at": now,
@@ -132,6 +133,26 @@ async def toggle_product_status(product_id: str, current_user: CurrentUser):
         raise HTTPException(status_code=404, detail={"message": "Product not found"})
     new_status = not doc.get("is_active", True)
     await db.products.update_one({"_id": oid}, {"$set": {"is_active": new_status, "updated_at": datetime.now(timezone.utc)}})
+    updated = await db.products.find_one({"_id": oid})
+    return _fmt(updated)
+
+
+@router.patch(
+    "/api/admin/toggle-sold-out/{product_id}",
+    summary="Toggle product sold-out status",
+    description="Flips `sold_out` on a product. **Requires Bearer token.**",
+)
+async def toggle_sold_out(product_id: str, current_user: CurrentUser):
+    db = get_db()
+    try:
+        oid = ObjectId(product_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail={"message": "Invalid product ID"})
+    doc = await db.products.find_one({"_id": oid})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"message": "Product not found"})
+    new_status = not doc.get("sold_out", False)
+    await db.products.update_one({"_id": oid}, {"$set": {"sold_out": new_status, "updated_at": datetime.now(timezone.utc)}})
     updated = await db.products.find_one({"_id": oid})
     return _fmt(updated)
 
@@ -240,6 +261,7 @@ async def update_product(
     description: Optional[str] = Form(None),
     ecoFriendly: Optional[str] = Form(None),
     bestseller: Optional[str] = Form(None),
+    sold_out: Optional[str] = Form(None),
     order_type: Optional[str] = Form(None),
     case_to_piece_qty: Optional[str] = Form(None),
     wholesale_price: Optional[str] = Form(None),
@@ -276,6 +298,8 @@ async def update_product(
         updates["eco_friendly"] = _parse_bool(ecoFriendly)
     if bestseller is not None:
         updates["bestseller"] = _parse_bool(bestseller)
+    if sold_out is not None:
+        updates["sold_out"] = _parse_bool(sold_out)
     if order_type is not None:
         updates["order_type"] = order_type
     if case_to_piece_qty is not None:

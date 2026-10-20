@@ -8,6 +8,7 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState(null)
+  const [togglingSoldOut, setTogglingSoldOut] = useState(null)
   const [deleting, setDeleting] = useState(null)
   const [confirmProduct, setConfirmProduct] = useState(null)
   const [filter, setFilter] = useState('all')
@@ -55,6 +56,24 @@ export default function AdminDashboardPage() {
     }
   }
 
+  async function handleToggleSoldOut(product) {
+    setTogglingSoldOut(product.id)
+    try {
+      const token = localStorage.getItem('adminToken')
+      const res = await fetch(`/api/admin/toggle-sold-out/${product.id}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) throw new Error()
+      const updated = await res.json()
+      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p))
+    } catch {
+      // silent
+    } finally {
+      setTogglingSoldOut(null)
+    }
+  }
+
   async function handleDelete() {
     if (!confirmProduct) return
     setDeleting(confirmProduct.id)
@@ -83,6 +102,7 @@ export default function AdminDashboardPage() {
 
   const activeCount = products.filter(p => p.is_active).length
   const inactiveCount = products.length - activeCount
+  const soldOutCount = products.filter(p => p.sold_out).length
 
   return (
     <>
@@ -102,7 +122,7 @@ export default function AdminDashboardPage() {
         headerSubtitle="Overview of your store"
       >
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
             <p className="text-gray-400 text-xs sm:text-sm mb-1">Total</p>
             <p className="text-gray-900 text-2xl sm:text-3xl font-bold">{loading ? '…' : products.length}</p>
@@ -114,6 +134,10 @@ export default function AdminDashboardPage() {
           <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
             <p className="text-gray-400 text-xs sm:text-sm mb-1">Inactive</p>
             <p className="text-gray-400 text-2xl sm:text-3xl font-bold">{loading ? '…' : inactiveCount}</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+            <p className="text-gray-400 text-xs sm:text-sm mb-1">Sold Out</p>
+            <p className="text-orange-500 text-2xl sm:text-3xl font-bold">{loading ? '…' : soldOutCount}</p>
           </div>
         </div>
 
@@ -170,6 +194,7 @@ export default function AdminDashboardPage() {
                     <th className="text-left px-3 py-3 font-medium hidden md:table-cell">Brand</th>
                     <th className="text-right px-3 py-3 font-medium">Price</th>
                     <th className="text-right px-3 py-3 font-medium hidden sm:table-cell">Stock</th>
+                    <th className="text-center px-3 py-3 font-medium">Sold Out</th>
                     <th className="text-center px-3 py-3 font-medium">Status</th>
                     <th className="text-center px-3 py-3 font-medium">Actions</th>
                   </tr>
@@ -199,6 +224,25 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="px-3 py-3 text-right text-gray-500 hidden sm:table-cell">
                         {product.stock != null ? product.stock : '—'}
+                      </td>
+                      <td className="px-3 py-3 text-center">
+                        <button
+                          onClick={() => handleToggleSoldOut(product)}
+                          disabled={togglingSoldOut === product.id}
+                          className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-full text-xs font-semibold transition-all disabled:opacity-50 ${
+                            product.sold_out
+                              ? 'bg-orange-100 text-orange-700 hover:bg-green-50 hover:text-green-600'
+                              : 'bg-gray-100 text-gray-500 hover:bg-orange-50 hover:text-orange-600'
+                          }`}
+                          title={product.sold_out ? 'Click to mark as in stock' : 'Click to mark as sold out'}
+                        >
+                          {togglingSoldOut === product.id ? (
+                            <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <span className={`w-1.5 h-1.5 rounded-full ${product.sold_out ? 'bg-orange-500' : 'bg-gray-400'}`} />
+                          )}
+                          {product.sold_out ? 'Sold Out' : 'In Stock'}
+                        </button>
                       </td>
                       <td className="px-3 py-3 text-center">
                         <button

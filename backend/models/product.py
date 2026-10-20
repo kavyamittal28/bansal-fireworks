@@ -24,6 +24,7 @@ class Product(BaseModel):
     order_type: Optional[Literal["pieces", "cases", "both"]] = "both"
     case_to_piece_qty: Optional[int] = None
     media: List[MediaAsset] = []
+    sold_out: bool = False
     is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

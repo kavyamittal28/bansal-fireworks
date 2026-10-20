@@ -196,6 +196,11 @@ export default function ProductDetailPage() {
 
             {/* Badges */}
             <div className="flex gap-2 mb-5">
+              {product.sold_out && (
+                <span className="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  Sold Out
+                </span>
+              )}
               {product.bestseller && (
                 <span className="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">
                   ⭐ Bestseller
@@ -219,6 +224,18 @@ export default function ProductDetailPage() {
                 addToCart(product, cartType || (canPieces ? 'pieces' : 'cases'), cartQty)
                 setCartAdded(true)
                 setTimeout(() => setCartAdded(false), 2000)
+              }
+
+              if (product.sold_out) {
+                return (
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
+                    <div className="flex items-center justify-center gap-2 py-3">
+                      <span className="w-2 h-2 rounded-full bg-red-500" />
+                      <span className="text-gray-500 font-semibold text-sm">This product is currently sold out</span>
+                    </div>
+                    <p className="text-gray-400 text-xs text-center">Contact us for availability or to place a pre-order.</p>
+                  </div>
+                )
               }
 
               return (

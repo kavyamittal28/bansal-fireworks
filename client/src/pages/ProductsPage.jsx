@@ -28,17 +28,19 @@ function ProductCard({ p }) {
     setTimeout(() => setAdded(false), 1500)
   }
 
+  const isSoldOut = p.sold_out
+
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col" id={`product-${p.id}`}>
+    <div className={`group bg-white rounded-xl border border-gray-200 overflow-hidden transition-all duration-200 flex flex-col ${isSoldOut ? 'opacity-75' : 'hover:shadow-md hover:-translate-y-0.5'}`} id={`product-${p.id}`}>
       {/* Clickable area */}
       <Link to={`/products/${p.id}`} className="block">
-        <div className="h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
+        <div className="h-44 overflow-hidden bg-gray-100 flex items-center justify-center relative">
           {thumbnail ? (
             <img
               src={thumbnail}
               alt={p.name}
               loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className={`w-full h-full object-cover transition-transform duration-300 ${isSoldOut ? 'grayscale' : 'group-hover:scale-105'}`}
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-gray-300">
@@ -46,6 +48,11 @@ function ProductCard({ p }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.20 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
               </svg>
               <span className="text-xs">No Image</span>
+            </div>
+          )}
+          {isSoldOut && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <span className="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">Sold Out</span>
             </div>
           )}
         </div>
@@ -87,58 +94,68 @@ function ProductCard({ p }) {
 
       {/* Add to Cart — outside the Link */}
       <div className="px-4 pb-4 pt-1 border-t border-gray-100 flex items-center gap-2 mt-auto">
-        {/* Type toggle (only when both are available) */}
-        {canPieces && canCases && (
-          <div className="flex rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
-            <button
-              onClick={e => { e.preventDefault(); setSelectedType('pieces') }}
-              className={`px-2.5 py-1.5 text-[10px] font-semibold transition-colors ${
-                selectedType === 'pieces'
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              Pcs
-            </button>
-            <button
-              onClick={e => { e.preventDefault(); setSelectedType('cases') }}
-              className={`px-2.5 py-1.5 text-[10px] font-semibold border-l border-gray-200 transition-colors ${
-                selectedType === 'cases'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'
-              }`}
-            >
-              Case
-            </button>
-          </div>
-        )}
-        {!canPieces && canCases && (
-          <span className="text-[10px] text-blue-600 font-semibold">Case</span>
-        )}
-        {canPieces && !canCases && (
-          <span className="text-[10px] text-gray-500 font-semibold">Pieces</span>
-        )}
+        {isSoldOut ? (
+          <span className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-lg bg-gray-100 text-gray-400 border border-gray-200">
+            Sold Out
+          </span>
+        ) : (
+          <>
+            {canPieces && canCases && (
+              <div className="flex rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                <button
+                  onClick={e => { e.preventDefault(); setSelectedType('pieces') }}
+                  className={`px-2.5 py-1.5 text-[10px] font-semibold transition-colors ${
+                    selectedType === 'pieces'
+                      ? 'bg-gray-900 text-white'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  Pcs
+                </button>
+                <button
+                  onClick={e => { e.preventDefault(); setSelectedType('cases') }}
+                  className={`px-2.5 py-1.5 text-[10px] font-semibold border-l border-gray-200 transition-colors ${
+                    selectedType === 'cases'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+                  }`}
+                >
+                  Case
+                </button>
+              </div>
+            )}
+            {!canPieces && canCases && (
+              <span className="text-[10px] text-blue-600 font-semibold">Case</span>
+            )}
+            {canPieces && !canCases && (
+              <span className="text-[10px] text-gray-500 font-semibold">Pieces</span>
+            )}
 
-        <button
-          onClick={handleAddToCart}
-          className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-lg transition-all duration-200 ${
-            added
-              ? 'bg-green-100 text-green-700 border border-green-200'
-              : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'
-          }`}
-        >
-          {added ? '✓ Added' : '+ Add to Cart'}
-        </button>
+            <button
+              onClick={handleAddToCart}
+              className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-lg transition-all duration-200 ${
+                added
+                  ? 'bg-green-100 text-green-700 border border-green-200'
+                  : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'
+              }`}
+            >
+              {added ? '✓ Added' : '+ Add to Cart'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
 }
+
+const BATCH_SIZE = 12
 
 export default function ProductsPage() {
   const [searchParams] = useSearchParams()
 
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [allLoaded, setAllLoaded] = useState(false)
   const [fetchError, setFetchError] = useState('')
 
   const [brands, setBrands] = useState([{ id: 'all', label: 'All Brands' }])
@@ -151,10 +168,10 @@ export default function ProductsPage() {
   const [sortOpen, setSortOpen] = useState(false)
 
   useEffect(() => {
-    async function fetchAll() {
+    async function fetchInitial() {
       try {
         const [productsRes, categoriesRes, brandsRes] = await Promise.all([
-          fetch('/api/get-products'),
+          fetch(`/api/get-products?skip=0&limit=${BATCH_SIZE}`),
           fetch('/api/categories'),
           fetch('/api/brands'),
         ])
@@ -165,6 +182,7 @@ export default function ProductsPage() {
           brandsRes.json(),
         ])
         setProducts(productsData)
+        if (productsData.length < BATCH_SIZE) setAllLoaded(true)
         setBrands([
           { id: 'all', label: 'All Brands' },
           ...brandsData.map(b => ({ id: b.name, label: b.name })),
@@ -176,8 +194,38 @@ export default function ProductsPage() {
         setLoading(false)
       }
     }
-    fetchAll()
+    fetchInitial()
   }, [])
+
+  useEffect(() => {
+    if (loading || allLoaded) return
+    let cancelled = false
+
+    async function fetchRemaining() {
+      let skip = BATCH_SIZE
+      while (!cancelled) {
+        try {
+          const res = await fetch(`/api/get-products?skip=${skip}&limit=${BATCH_SIZE}`)
+          if (!res.ok || cancelled) break
+          const data = await res.json()
+          if (cancelled) break
+          if (data.length > 0) {
+            setProducts(prev => [...prev, ...data])
+            skip += data.length
+          }
+          if (data.length < BATCH_SIZE) break
+        } catch {
+          break
+        }
+      }
+      if (!cancelled) setAllLoaded(true)
+    }
+
+    fetchRemaining()
+    return () => { cancelled = true }
+  }, [loading, allLoaded])
+
+  const loadingMore = !loading && !allLoaded
 
   const filtered = products.filter(p => {
     const brandOk = selectedBrand === 'all' || p.brand === selectedBrand
@@ -263,7 +311,7 @@ export default function ProductsPage() {
             )}
 
             <span className="text-gray-400 text-xs ml-auto">
-              {loading ? 'Loading…' : `${sorted.length} product${sorted.length !== 1 ? 's' : ''}`}
+              {loading ? 'Loading…' : `${sorted.length} product${sorted.length !== 1 ? 's' : ''}${loadingMore ? ' (loading more…)' : ''}`}
             </span>
           </div>
 
@@ -372,6 +420,16 @@ export default function ProductsPage() {
           {!loading && sorted.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
               {sorted.map(p => <ProductCard key={p.id} p={p} />)}
+              {loadingMore && [1, 2, 3].map(i => (
+                <div key={`more-${i}`} className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse">
+                  <div className="h-44 bg-gray-200" />
+                  <div className="p-4 space-y-3">
+                    <div className="h-3 bg-gray-200 rounded w-1/2" />
+                    <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    <div className="h-5 bg-gray-200 rounded w-1/3" />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
